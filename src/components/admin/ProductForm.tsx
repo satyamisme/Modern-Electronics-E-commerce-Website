@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, Save } from 'lucide-react';
-import { Product } from '../../types';
+import { Product, ProductImage, ProductSpecification, ProductFeature, ProductTag } from '../../types';
 import { ProductFormData } from '../../types/admin';
-import { useAdmin } from '../../context/AdminContext';
+// import { useAdmin } from '../../context/AdminContext'; // Assuming not used for now if state is local
 import ImageUpload from './ImageUpload';
 
 interface ProductFormProps {
-  product?: Product | null;
+  product?: Product | null; // This is the Product type from main types
   onSave: (productData: ProductFormData) => void;
   onCancel: () => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) => {
-  const { state } = useAdmin();
+  // const { state } = useAdmin(); // If needed for categories/brands from context
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     brand: '',
@@ -20,37 +20,42 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
     price: 0,
     originalPrice: undefined,
     description: '',
-    images: [],
-    specifications: {},
-    inStock: true,
-    stockCount: 0,
-    features: [],
-    tags: []
+    images: [], // ProductImage[]
+    specifications: [], // ProductSpecification[]
+    stock: 0,
+    features: [], // ProductFeature[]
+    tags: [], // ProductTag[]
   });
 
-  const [newSpecKey, setNewSpecKey] = useState('');
+  const [newSpecName, setNewSpecName] = useState('');
   const [newSpecValue, setNewSpecValue] = useState('');
-  const [newFeature, setNewFeature] = useState('');
-  const [newTag, setNewTag] = useState('');
+  const [newFeatureText, setNewFeatureText] = useState('');
+  const [newTagText, setNewTagText] = useState('');
 
+  // Mock data, ideally from context or props
   const categories = ['smartphones', 'laptops', 'tablets', 'headphones', 'smart-home', 'accessories'];
   const brands = ['Apple', 'Samsung', 'Sony', 'Dell', 'Amazon', 'Google', 'Microsoft', 'HP'];
 
   useEffect(() => {
     if (product) {
       setFormData({
-        name: product.name,
-        brand: product.brand,
-        category: product.category,
-        price: product.price,
+        name: product.name || '',
+        brand: product.brand || '',
+        category: product.category || '', // Ensure category is a string ID/name
+        price: product.price || 0,
         originalPrice: product.originalPrice,
-        description: product.description,
-        images: product.images,
-        specifications: product.specifications,
-        inStock: product.inStock,
-        stockCount: product.stockCount,
-        features: product.features,
-        tags: product.tags
+        description: product.description || '',
+        images: product.images || [],
+        specifications: product.specifications || [],
+        stock: product.stock || 0,
+        features: product.features || [],
+        tags: product.tags || [],
+      });
+    } else {
+      // Reset form for new product
+      setFormData({
+        name: '', brand: '', category: '', price: 0, originalPrice: undefined,
+        description: '', images: [], specifications: [], stock: 0, features: [], tags: []
       });
     }
   }, [product]);
@@ -59,56 +64,72 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleImagesChange = (newImages: ProductImage[]) => {
+    setFormData(prev => ({ ...prev, images: newImages }));
+  };
+
   const addSpecification = () => {
-    if (newSpecKey && newSpecValue) {
+    if (newSpecName && newSpecValue) {
+      const newSpec: ProductSpecification = {
+        id: crypto.randomUUID(), // Or generate ID as needed
+        name: newSpecName,
+        value: newSpecValue,
+      };
       setFormData(prev => ({
         ...prev,
-        specifications: { ...prev.specifications, [newSpecKey]: newSpecValue }
+        specifications: [...prev.specifications, newSpec],
       }));
-      setNewSpecKey('');
+      setNewSpecName('');
       setNewSpecValue('');
     }
   };
 
-  const removeSpecification = (key: string) => {
-    setFormData(prev => {
-      const newSpecs = { ...prev.specifications };
-      delete newSpecs[key];
-      return { ...prev, specifications: newSpecs };
-    });
+  const removeSpecification = (id: string) => {
+    setFormData(prev => ({
+      ...prev,
+      specifications: prev.specifications.filter(spec => spec.id !== id),
+    }));
   };
 
   const addFeature = () => {
-    if (newFeature && !formData.features.includes(newFeature)) {
+    if (newFeatureText && !formData.features.some(f => f.text === newFeatureText)) {
+      const newFeat: ProductFeature = {
+        id: crypto.randomUUID(),
+        text: newFeatureText,
+      };
       setFormData(prev => ({
         ...prev,
-        features: [...prev.features, newFeature]
+        features: [...prev.features, newFeat],
       }));
-      setNewFeature('');
+      setNewFeatureText('');
     }
   };
 
-  const removeFeature = (index: number) => {
+  const removeFeature = (id: string) => {
     setFormData(prev => ({
       ...prev,
-      features: prev.features.filter((_, i) => i !== index)
+      features: prev.features.filter(feat => feat.id !== id),
     }));
   };
 
   const addTag = () => {
-    if (newTag && !formData.tags.includes(newTag)) {
+    if (newTagText && !formData.tags.some(t => t.name === newTagText)) {
+      const newT: ProductTag = {
+        id: crypto.randomUUID(),
+        name: newTagText,
+      };
       setFormData(prev => ({
         ...prev,
-        tags: [...prev.tags, newTag]
+        tags: [...prev.tags, newT],
       }));
-      setNewTag('');
+      setNewTagText('');
     }
   };
 
-  const removeTag = (index: number) => {
+  const removeTag = (id: string) => {
     setFormData(prev => ({
       ...prev,
-      tags: prev.tags.filter((_, i) => i !== index)
+      tags: prev.tags.filter(tag => tag.id !== id),
     }));
   };
 

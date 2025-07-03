@@ -9,6 +9,8 @@ export interface AdminUser {
   createdAt: Date;
 }
 
+import { ProductImage, ProductSpecification, ProductFeature, ProductTag } from "./index";
+
 export interface ProductFormData {
   name: string;
   brand: string;
@@ -16,12 +18,11 @@ export interface ProductFormData {
   price: number;
   originalPrice?: number;
   description: string;
-  images: string[];
-  specifications: Record<string, string>;
-  inStock: boolean;
-  stockCount: number;
-  features: string[];
-  tags: string[];
+  images: ProductImage[]; // Changed from string[]
+  specifications: ProductSpecification[]; // Changed from Record<string, string>
+  stock: number; // Renamed from stockCount, removed inStock
+  features: ProductFeature[]; // Changed from string[]
+  tags: ProductTag[]; // Changed from string[]
 }
 
 export interface OrderManagement {

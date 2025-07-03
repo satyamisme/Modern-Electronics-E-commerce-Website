@@ -67,31 +67,35 @@ export const products: Product[] = [
     originalPrice: 1099,
     description: 'The most advanced iPhone ever with titanium design and A17 Pro chip.',
     images: [
-      'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/1275229/pexels-photo-1275229.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=800'
+      { id: 'img1', url: 'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=800', altText: 'iPhone 15 Pro front', isMain: true },
+      { id: 'img2', url: 'https://images.pexels.com/photos/1275229/pexels-photo-1275229.jpeg?auto=compress&cs=tinysrgb&w=800', altText: 'iPhone 15 Pro side' },
+      { id: 'img3', url: 'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=800', altText: 'iPhone 15 Pro back' }
     ],
-    specifications: {
-      'Display': '6.1-inch Super Retina XDR',
-      'Processor': 'A17 Pro chip',
-      'Storage': '128GB',
-      'Camera': '48MP Main + 12MP Ultra Wide + 12MP Telephoto',
-      'Battery': 'Up to 23 hours video playback',
-      'Operating System': 'iOS 17'
-    },
-    inStock: true,
-    stockCount: 15,
+    specifications: [
+      { name: 'Display', value: '6.1-inch Super Retina XDR' },
+      { name: 'Processor', value: 'A17 Pro chip' },
+      { name: 'Storage', value: '128GB' },
+      { name: 'Camera', value: '48MP Main + 12MP Ultra Wide + 12MP Telephoto' },
+      { name: 'Battery', value: 'Up to 23 hours video playback' },
+      { name: 'Operating System', value: 'iOS 17' }
+    ],
+    stock: 15, // Renamed from stockCount, assuming inStock is derived if stock > 0
     rating: 4.8,
     reviewCount: 342,
     features: [
-      'Titanium design',
-      'A17 Pro chip',
-      'Pro camera system',
-      '5G connectivity',
-      'Face ID',
-      'Wireless charging'
+      { id: 'f1', text: 'Titanium design' },
+      { id: 'f2', text: 'A17 Pro chip' },
+      { id: 'f3', text: 'Pro camera system' },
+      { id: 'f4', text: '5G connectivity' },
+      { id: 'f5', text: 'Face ID' },
+      { id: 'f6', text: 'Wireless charging' }
     ],
-    tags: ['premium', 'flagship', 'camera', '5g'],
+    tags: [
+      { id: 't1', name: 'premium' },
+      { id: 't2', name: 'flagship' },
+      { id: 't3', name: 'camera' },
+      { id: 't4', name: '5g' }
+    ],
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-20')
   },

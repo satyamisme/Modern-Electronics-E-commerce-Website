@@ -86,29 +86,29 @@ const ProductDetailPage: React.FC = () => {
           <div className="space-y-4">
             <div className="relative">
               <img
-                src={product.images[selectedImage]}
-                alt={product.name}
+                src={product.images[selectedImage]?.url || 'https://via.placeholder.com/600x400?text=No+Image'}
+                alt={product.images[selectedImage]?.altText || product.name}
                 className="w-full h-96 object-cover rounded-lg"
               />
               {product.originalPrice && (
                 <span className="absolute top-4 left-4 bg-secondary text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Save ${product.originalPrice - product.price}
+                  Save KWD {(product.originalPrice - product.price).toFixed(3)}
                 </span>
               )}
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
               {product.images.map((image, index) => (
                 <button
-                  key={index}
+                  key={image.id}
                   onClick={() => setSelectedImage(index)}
-                  className={`relative rounded-lg overflow-hidden ${
+                  className={`relative rounded-lg overflow-hidden aspect-square ${
                     selectedImage === index ? 'ring-2 ring-primary' : ''
                   }`}
                 >
                   <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-24 object-cover"
+                    src={image.url}
+                    alt={image.altText || `${product.name} thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
                   />
                 </button>
               ))}
@@ -121,26 +121,26 @@ const ProductDetailPage: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
               <p className="text-lg text-gray-600 mb-4">{product.brand}</p>
               <div className="flex items-center space-x-4 mb-4">
-                {renderStars(product.rating)}
-                <span className="text-gray-600">({product.reviewCount} reviews)</span>
+                {renderStars(product.rating || 0)}
+                <span className="text-gray-600">({product.reviewCount || 0} reviews)</span>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-gray-900">${product.price}</span>
+              <span className="text-3xl font-bold text-gray-900">KWD {product.price.toFixed(3)}</span>
               {product.originalPrice && (
-                <span className="text-xl text-gray-500 line-through">${product.originalPrice}</span>
+                <span className="text-xl text-gray-500 line-through">KWD {product.originalPrice.toFixed(3)}</span>
               )}
             </div>
 
             <div className="flex items-center space-x-2">
-              {product.inStock ? (
+              {(product.stock !== undefined && product.stock > 0) ? (
                 <div className="flex items-center space-x-2 text-green-600">
                   <CheckCircle className="h-5 w-5" />
-                  <span>In Stock ({product.stockCount} available)</span>
+                  <span>In Stock ({product.stock} available)</span>
                 </div>
               ) : (
-                <span className="text-red-600">Out of Stock</span>
+                <span className="text-red-600 font-semibold">Out of Stock</span>
               )}
             </div>
 
@@ -152,14 +152,16 @@ const ProductDetailPage: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    disabled={(product.stock !== undefined && product.stock <= 0)}
+                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                   >
                     <Minus className="h-4 w-4" />
                   </button>
                   <span className="w-12 text-center">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    onClick={() => setQuantity(prev => Math.min(prev + 1, product.stock || Infinity))}
+                    disabled={(product.stock !== undefined && product.stock <= 0) || quantity >= (product.stock || Infinity) }
+                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -169,7 +171,7 @@ const ProductDetailPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={(product.stock !== undefined && product.stock <= 0)}
                   className="flex-1 bg-primary text-white py-3 px-6 rounded-lg hover:bg-primary/90 disabled:bg-gray-400 transition-colors flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart className="h-5 w-5" />
