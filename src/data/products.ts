@@ -1,4 +1,5 @@
 import { Product, Category } from '../types';
+import { convertUSDToKWD } from '../utils/currency';
 
 export const categories: Category[] = [
   {
@@ -63,8 +64,8 @@ export const products: Product[] = [
     name: 'iPhone 15 Pro',
     brand: 'Apple',
     category: 'smartphones',
-    price: 999,
-    originalPrice: 1099,
+    price: convertUSDToKWD(999), // ~306.693 KWD
+    originalPrice: convertUSDToKWD(1099), // ~337.393 KWD
     description: 'The most advanced iPhone ever with titanium design and A17 Pro chip.',
     images: [
       'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -100,7 +101,7 @@ export const products: Product[] = [
     name: 'Samsung Galaxy S24 Ultra',
     brand: 'Samsung',
     category: 'smartphones',
-    price: 1199,
+    price: convertUSDToKWD(1199), // ~368.093 KWD
     description: 'Ultimate productivity powerhouse with S Pen and AI features.',
     images: [
       'https://images.pexels.com/photos/1275229/pexels-photo-1275229.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -136,8 +137,8 @@ export const products: Product[] = [
     name: 'MacBook Pro 14-inch M3',
     brand: 'Apple',
     category: 'laptops',
-    price: 1599,
-    originalPrice: 1699,
+    price: convertUSDToKWD(1599), // ~490.893 KWD
+    originalPrice: convertUSDToKWD(1699), // ~521.593 KWD
     description: 'Supercharged for pros with M3 chip and Liquid Retina XDR display.',
     images: [
       'https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -174,7 +175,7 @@ export const products: Product[] = [
     name: 'Dell XPS 13',
     brand: 'Dell',
     category: 'laptops',
-    price: 899,
+    price: convertUSDToKWD(899), // ~275.993 KWD
     description: 'Premium ultrabook with stunning InfinityEdge display.',
     images: [
       'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -211,7 +212,7 @@ export const products: Product[] = [
     name: 'iPad Air M2',
     brand: 'Apple',
     category: 'tablets',
-    price: 599,
+    price: convertUSDToKWD(599), // ~183.893 KWD
     description: 'Serious performance in a gorgeous, ultra-portable design.',
     images: [
       'https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -247,8 +248,8 @@ export const products: Product[] = [
     name: 'AirPods Pro (2nd generation)',
     brand: 'Apple',
     category: 'headphones',
-    price: 249,
-    originalPrice: 279,
+    price: convertUSDToKWD(249), // ~76.443 KWD
+    originalPrice: convertUSDToKWD(279), // ~85.653 KWD
     description: 'Next-level sound with Adaptive Transparency and Personalized Spatial Audio.',
     images: [
       'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -284,7 +285,7 @@ export const products: Product[] = [
     name: 'Sony WH-1000XM5',
     brand: 'Sony',
     category: 'headphones',
-    price: 399,
+    price: convertUSDToKWD(399), // ~122.493 KWD
     description: 'Industry-leading noise canceling with premium sound quality.',
     images: [
       'https://images.pexels.com/photos/4393021/pexels-photo-4393021.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -320,8 +321,8 @@ export const products: Product[] = [
     name: 'Amazon Echo Dot (5th Gen)',
     brand: 'Amazon',
     category: 'smart-home',
-    price: 49,
-    originalPrice: 59,
+    price: convertUSDToKWD(49), // ~15.043 KWD
+    originalPrice: convertUSDToKWD(59), // ~18.113 KWD
     description: 'Smart speaker with Alexa - better sound and performance.',
     images: [
       'https://images.pexels.com/photos/4498307/pexels-photo-4498307.jpeg?auto=compress&cs=tinysrgb&w=800',
