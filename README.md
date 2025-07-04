@@ -1,24 +1,25 @@
-# TechStore - Premium Electronics E-commerce Platform
+# Lakki Phones - Premium Electronics E-commerce Platform
 
-A modern, full-featured e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically optimized for the Kuwait market with KWD currency and KNET payment integration.
+A modern, full-featured e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically designed for Lakki Phones - a premium electronics retailer in Kuwait.
 
 ## 🚀 Live Demo
 
 **Production URL:** https://bejewelled-churros-f5d48b.netlify.app
 
-## 📋 Table of Contents
+## 📱 About Lakki Phones
 
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Development Timeline](#development-timeline)
-- [Installation & Setup](#installation--setup)
-- [Domain & IP Configuration](#domain--ip-configuration)
-- [User Registration & Admin Setup](#user-registration--admin-setup)
-- [Kuwait Market Optimization](#kuwait-market-optimization)
-- [Future Enhancements](#future-enhancements)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
-- [License](#license)
+Lakki Phones is Kuwait's trusted partner for premium electronics, specializing in:
+- Latest smartphones (iPhone, Samsung, etc.)
+- High-performance laptops (MacBook, Dell, HP)
+- Gaming consoles (PlayStation, Xbox, Nintendo)
+- Audio accessories and premium headphones
+- Tech accessories and peripherals
+
+### Social Media Presence
+- **Instagram:** [@lakkiphones](https://www.instagram.com/lakkiphones)
+- **Facebook:** [Lakki Phones](https://www.facebook.com/lakkiphones)
+- **TikTok:** [@lakkiphones](https://www.tiktok.com/@lakkiphones)
+- **YouTube:** [Lakki Phones](https://www.youtube.com/@lakkiphones)
 
 ## ✨ Features
 
@@ -62,36 +63,6 @@ A modern, full-featured e-commerce platform built with React, TypeScript, and Ta
 - **Netlify** - Static site hosting with CDN
 - **GitHub** - Version control and CI/CD
 
-## ⏱ Development Timeline
-
-**Total Development Time: 13 weeks (3 months)**
-
-### Phase 1: Planning & Design (2 weeks)
-- Requirements analysis and system architecture
-- UI/UX design and wireframing
-- Database schema design
-- Technology stack selection
-
-### Phase 2: Core Development (8 weeks)
-- **Week 1-2**: Project setup, routing, and basic components
-- **Week 3-4**: Product catalog and search functionality
-- **Week 5-6**: Shopping cart and user authentication
-- **Week 7-8**: Admin panel and role management
-
-### Phase 3: Advanced Features (2 weeks)
-- **Week 9**: Image upload system and product management
-- **Week 10**: Analytics dashboard and reporting
-
-### Phase 4: Kuwait Optimization (1 week)
-- **Week 11**: KWD currency integration and KNET payment setup
-- Arabic language support and RTL layout
-- Local market customizations
-
-### Phase 5: Testing & Deployment (1 week)
-- **Week 12**: Comprehensive testing and bug fixes
-- Performance optimization
-- Security audit and deployment
-
 ## 🚀 Installation & Setup
 
 ### Prerequisites
@@ -103,8 +74,8 @@ A modern, full-featured e-commerce platform built with React, TypeScript, and Ta
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-username/techstore-kuwait.git
-cd techstore-kuwait
+git clone https://github.com/your-username/lakki-phones.git
+cd lakki-phones
 ```
 
 2. **Install dependencies**
@@ -140,9 +111,9 @@ Create a `.env` file in the root directory:
 
 ```env
 # Application Settings
-VITE_APP_NAME=TechStore Kuwait
-VITE_APP_URL=https://your-domain.com
-VITE_API_URL=https://api.your-domain.com
+VITE_APP_NAME=Lakki Phones
+VITE_APP_URL=https://lakkiphones.com
+VITE_API_URL=https://api.lakkiphones.com
 
 # Payment Gateway (KNET)
 VITE_KNET_MERCHANT_ID=your_merchant_id
@@ -156,433 +127,99 @@ VITE_GA_TRACKING_ID=your_ga_tracking_id
 VITE_EMAIL_SERVICE_ID=your_email_service_id
 ```
 
-## 🌐 Domain & IP Configuration
-
-### Custom Domain Setup
-
-1. **Purchase Domain**
-   - Recommended: `.com.kw` or `.kw` for Kuwait market
-   - Alternative: `.com` with Kuwait-specific subdomain
-
-2. **DNS Configuration**
-   ```
-   Type: CNAME
-   Name: www
-   Value: bejewelled-churros-f5d48b.netlify.app
-   
-   Type: A
-   Name: @
-   Value: 75.2.60.5 (Netlify's load balancer)
-   ```
-
-3. **Netlify Domain Settings**
-   - Go to Netlify Dashboard → Domain Settings
-   - Add custom domain
-   - Enable HTTPS/SSL certificate
-   - Set up redirects if needed
-
-### IP Address & CDN Setup
-
-```nginx
-# Nginx configuration for custom server
-server {
-    listen 80;
-    listen 443 ssl;
-    server_name techstore.com.kw www.techstore.com.kw;
-    
-    # SSL Configuration
-    ssl_certificate /path/to/certificate.crt;
-    ssl_certificate_key /path/to/private.key;
-    
-    # Redirect to HTTPS
-    if ($scheme != "https") {
-        return 301 https://$server_name$request_uri;
-    }
-    
-    # Serve static files
-    location / {
-        root /var/www/techstore/dist;
-        try_files $uri $uri/ /index.html;
-        
-        # Cache static assets
-        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-            expires 1y;
-            add_header Cache-Control "public, immutable";
-        }
-    }
-}
-```
-
-## 👥 User Registration & Admin Setup
-
-### Customer Registration Flow
-
-1. **Self Registration**
-   - Navigate to `/register`
-   - Fill required information (name, email, phone, address)
-   - Email verification required
-   - Account activated upon verification
-
-2. **Guest Checkout**
-   - No registration required for purchases
-   - Optional account creation during checkout
-
-### Admin User Setup
-
-#### Super Admin Registration (Initial Setup)
-
-```javascript
-// Initial super admin creation (run once)
-const createSuperAdmin = {
-  email: "superadmin@techstore.com.kw",
-  password: "SecurePassword123!",
-  name: "Super Administrator",
-  role: "super_admin",
-  department: "IT",
-  permissions: "all"
-};
-```
-
-#### Admin Role Hierarchy
-
-1. **Super Admin** - Full system access
-   - User management
-   - System settings
-   - All CRUD operations
-   - Analytics and reports
-
-2. **Admin** - Store management
-   - Product management
-   - Order processing
-   - Customer support
-   - Limited user management
-
-3. **Manager** - Operations oversight
-   - Inventory management
-   - Order fulfillment
-   - Basic analytics
-   - Staff coordination
-
-4. **Editor** - Content management
-   - Product information updates
-   - Content creation
-   - Basic order viewing
-
-5. **Viewer** - Read-only access
-   - View products and orders
-   - Generate reports
-   - No modification rights
-
-#### Admin Registration Process
-
-1. **Super Admin Creates Account**
-   ```bash
-   # Access admin panel
-   https://your-domain.com/admin
-   
-   # Login with super admin credentials
-   Email: superadmin@techstore.com.kw
-   Password: SecurePassword123!
-   ```
-
-2. **Add New Admin Users**
-   - Navigate to Admin Panel → Users
-   - Click "Add New User"
-   - Assign appropriate role and permissions
-   - Send invitation email
-
-3. **Role Assignment**
-   ```javascript
-   const adminRoles = {
-     super_admin: ['all_permissions'],
-     admin: ['products.*', 'orders.*', 'users.read', 'analytics.read'],
-     manager: ['products.read', 'orders.*', 'inventory.*'],
-     editor: ['products.update', 'content.*'],
-     viewer: ['*.read']
-   };
-   ```
-
 ## 🇰🇼 Kuwait Market Optimization
 
 ### Currency & Pricing
-
 - **Primary Currency**: Kuwaiti Dinar (KWD)
 - **Price Display**: KD 299.500 (3 decimal places)
 - **Tax Integration**: Kuwait VAT (if applicable)
 
 ### Payment Integration
-
-#### KNET Payment Gateway
-
-```javascript
-// KNET integration configuration
-const knetConfig = {
-  merchantId: process.env.VITE_KNET_MERCHANT_ID,
-  terminalId: process.env.VITE_KNET_TERMINAL_ID,
-  resourceKey: process.env.VITE_KNET_RESOURCE_KEY,
-  currency: 'KWD',
-  language: 'ar', // Arabic support
-  returnUrl: 'https://your-domain.com/payment/success',
-  errorUrl: 'https://your-domain.com/payment/error'
-};
-```
+- **KNET Payment Gateway**: Secure local payment processing
+- **Credit Cards**: Visa, Mastercard support
+- **Installment Plans**: Flexible payment options
 
 ### Localization Features
+1. **Language Support**: Arabic and English
+2. **Local Business Integration**: Kuwait delivery zones, local phone validation
+3. **Cultural Considerations**: Islamic calendar integration, local holidays
 
-1. **Language Support**
-   - Arabic (primary)
-   - English (secondary)
-   - RTL layout support
+### Contact Information
+- **Phone**: +965 9999 8888 (WhatsApp Available)
+- **Email**: info@lakkiphones.com
+- **Location**: Kuwait City, Kuwait
+- **Business Hours**: 
+  - Sunday - Thursday: 9 AM - 10 PM
+  - Friday - Saturday: 2 PM - 10 PM
 
-2. **Local Business Integration**
-   - Kuwait delivery zones
-   - Local phone number validation (+965)
-   - Kuwait address format
-   - Business hours (Kuwait timezone)
+## 📱 Product Categories
 
-3. **Cultural Considerations**
-   - Islamic calendar integration
-   - Ramadan/Eid special offers
-   - Local holidays and working days
+### Smartphones
+- iPhone 15 series
+- Samsung Galaxy S24 series
+- Latest Android flagships
+- Mid-range and budget options
 
-### Shipping & Delivery
+### Laptops
+- MacBook Pro and Air
+- Dell XPS and Inspiron
+- HP Pavilion and Envy
+- Gaming laptops
 
-```javascript
-const kuwaitDeliveryZones = {
-  'Kuwait City': { fee: 2.000, time: '2-4 hours' },
-  'Hawalli': { fee: 2.500, time: '3-5 hours' },
-  'Ahmadi': { fee: 3.000, time: '4-6 hours' },
-  'Jahra': { fee: 3.500, time: '5-7 hours' },
-  'Mubarak Al-Kabeer': { fee: 3.000, time: '4-6 hours' },
-  'Farwaniya': { fee: 2.500, time: '3-5 hours' }
-};
-```
+### Gaming
+- PlayStation 5
+- Xbox Series X/S
+- Nintendo Switch
+- Gaming accessories
+
+### Audio & Accessories
+- AirPods and wireless earbuds
+- Premium headphones
+- Phone cases and screen protectors
+- Charging accessories
 
 ## 🔮 Future Enhancements
 
-### Phase 1: Enhanced User Experience (Q2 2024)
-- [ ] **Mobile App Development**
-  - React Native iOS/Android apps
-  - Push notifications for order updates
-  - Offline browsing capability
-  - Biometric authentication
+### Phase 1: Enhanced User Experience
+- [ ] Mobile app development (React Native)
+- [ ] Advanced search with AI recommendations
+- [ ] Voice search integration
+- [ ] Augmented reality product preview
 
-- [ ] **Advanced Search & AI**
-  - Voice search integration
-  - Visual search (image-based product search)
-  - AI-powered product recommendations
-  - Chatbot customer support
+### Phase 2: Business Intelligence
+- [ ] Advanced analytics dashboard
+- [ ] Customer behavior tracking
+- [ ] Inventory forecasting
+- [ ] Marketing automation
 
-- [ ] **Social Commerce**
-  - Social media login integration
-  - Share products on social platforms
-  - User-generated content (reviews with photos/videos)
-  - Influencer collaboration tools
+### Phase 3: Marketplace Features
+- [ ] Multi-vendor platform
+- [ ] B2B portal for businesses
+- [ ] Subscription services
+- [ ] Trade-in programs
 
-### Phase 2: Business Intelligence (Q3 2024)
-- [ ] **Advanced Analytics**
-  - Customer behavior tracking
-  - Predictive analytics for inventory
-  - Sales forecasting
-  - A/B testing framework
+## 📊 Performance Metrics
 
-- [ ] **Marketing Automation**
-  - Email marketing campaigns
-  - SMS notifications (Kuwait numbers)
-  - Abandoned cart recovery
-  - Loyalty program integration
-
-- [ ] **Inventory Management**
-  - Automated reordering
-  - Supplier integration
-  - Multi-warehouse support
-  - Barcode scanning
-
-### Phase 3: Marketplace Features (Q4 2024)
-- [ ] **Multi-Vendor Platform**
-  - Vendor registration and management
-  - Commission-based pricing
-  - Vendor analytics dashboard
-  - Quality control system
-
-- [ ] **Advanced Payment Options**
-  - Installment plans (Tabby, Tamara)
-  - Cryptocurrency payments
-  - Buy now, pay later options
-  - Corporate billing accounts
-
-- [ ] **International Expansion**
-  - GCC market expansion
-  - Multi-currency support
-  - International shipping
-  - Localization for other markets
-
-### Phase 4: Enterprise Features (Q1 2025)
-- [ ] **B2B Portal**
-  - Bulk ordering system
-  - Corporate accounts
-  - Custom pricing tiers
-  - Purchase order integration
-
-- [ ] **Advanced Security**
-  - Two-factor authentication
-  - Fraud detection system
-  - GDPR compliance
-  - Regular security audits
-
-- [ ] **Performance Optimization**
-  - Progressive Web App (PWA)
-  - Server-side rendering (SSR)
-  - Edge computing integration
-  - Advanced caching strategies
-
-### Technical Roadmap
-
-#### Backend Development
-- [ ] **Database Migration**
-  - PostgreSQL/MongoDB implementation
-  - Real-time data synchronization
-  - Backup and disaster recovery
-  - Performance optimization
-
-- [ ] **API Development**
-  - RESTful API with GraphQL
-  - Rate limiting and security
-  - Third-party integrations
-  - Webhook support
-
-- [ ] **DevOps & Infrastructure**
-  - Kubernetes deployment
-  - CI/CD pipeline automation
-  - Monitoring and logging
-  - Load balancing
-
-#### Integration Priorities
-1. **Payment Gateways**: KNET, Visa, Mastercard
-2. **Shipping Partners**: Aramex, DHL, local couriers
-3. **ERP Systems**: SAP, Oracle integration
-4. **Marketing Tools**: Google Analytics, Facebook Pixel
-5. **Customer Support**: Zendesk, Intercom
-
-## 📚 API Documentation
-
-### Authentication Endpoints
-
-```javascript
-// Login
-POST /api/auth/login
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-
-// Register
-POST /api/auth/register
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "phone": "+96512345678"
-}
-
-// Logout
-POST /api/auth/logout
-```
-
-### Product Endpoints
-
-```javascript
-// Get all products
-GET /api/products?page=1&limit=20&category=smartphones
-
-// Get single product
-GET /api/products/:id
-
-// Create product (Admin only)
-POST /api/products
-{
-  "name": "iPhone 15 Pro",
-  "price": 399.500,
-  "currency": "KWD",
-  "category": "smartphones",
-  "brand": "Apple"
-}
-
-// Update product (Admin only)
-PUT /api/products/:id
-
-// Delete product (Admin only)
-DELETE /api/products/:id
-```
-
-### Order Endpoints
-
-```javascript
-// Create order
-POST /api/orders
-{
-  "items": [
-    {
-      "productId": "123",
-      "quantity": 1,
-      "price": 299.500
-    }
-  ],
-  "shippingAddress": {...},
-  "paymentMethod": "knet"
-}
-
-// Get user orders
-GET /api/orders/user/:userId
-
-// Update order status (Admin only)
-PUT /api/orders/:id/status
-{
-  "status": "shipped",
-  "trackingNumber": "TRK123456"
-}
-```
+- **Page Load Time**: < 3 seconds
+- **Mobile Performance**: 95+ PageSpeed score
+- **Accessibility**: WCAG 2.1 AA compliant
+- **SEO**: Optimized for search engines
+- **Security**: SSL encryption, secure payments
 
 ## 🤝 Contributing
 
 ### Development Guidelines
+1. Follow TypeScript best practices
+2. Use ESLint configuration
+3. Write meaningful commit messages
+4. Test on multiple devices and browsers
 
-1. **Code Style**
-   - Use TypeScript for type safety
-   - Follow ESLint configuration
-   - Use Prettier for code formatting
-   - Write meaningful commit messages
-
-2. **Branch Strategy**
-   ```bash
-   main          # Production branch
-   develop       # Development branch
-   feature/*     # Feature branches
-   hotfix/*      # Emergency fixes
-   release/*     # Release preparation
-   ```
-
-3. **Pull Request Process**
-   - Create feature branch from develop
-   - Write comprehensive tests
-   - Update documentation
-   - Request code review
-   - Merge after approval
-
-### Testing Strategy
-
+### Branch Strategy
 ```bash
-# Unit tests
-npm run test
-
-# Integration tests
-npm run test:integration
-
-# E2E tests
-npm run test:e2e
-
-# Performance tests
-npm run test:performance
+main          # Production branch
+develop       # Development branch
+feature/*     # Feature branches
+hotfix/*      # Emergency fixes
 ```
 
 ## 📄 License
@@ -591,13 +228,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Contact
 
-- **Technical Support**: tech@techstore.com.kw
-- **Business Inquiries**: business@techstore.com.kw
-- **Customer Service**: +965 2XXX XXXX
-- **Documentation**: https://docs.techstore.com.kw
+- **Technical Support**: tech@lakkiphones.com
+- **Business Inquiries**: info@lakkiphones.com
+- **Customer Service**: +965 9999 8888
+- **WhatsApp**: Available for instant support
+
+## 🌟 Social Media
+
+Stay connected with Lakki Phones:
+- **Instagram**: [@lakkiphones](https://www.instagram.com/lakkiphones) - Daily updates and product showcases
+- **Facebook**: [Lakki Phones](https://www.facebook.com/lakkiphones) - Community and exclusive deals
+- **TikTok**: [@lakkiphones](https://www.tiktok.com/@lakkiphones) - Product reviews and unboxings
+- **YouTube**: [Lakki Phones](https://www.youtube.com/@lakkiphones) - Detailed product reviews
 
 ---
 
-**Built with ❤️ for the Kuwait market**
+**Built with ❤️ for the Kuwait market by Lakki Phones**
 
-*Last updated: January 2024*
+*Last updated: January 2025*

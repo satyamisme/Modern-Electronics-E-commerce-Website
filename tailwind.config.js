@@ -4,15 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#2C3E50',
-        secondary: '#E74C3C',
-        accent: '#3498DB',
-        neutral: '#F8F9FA',
-        dark: '#1A252F',
-        light: '#ECF0F1',
-        success: '#27AE60',
-        warning: '#F39C12',
-        error: '#E74C3C'
+        primary: '#2563EB', // Blue-600
+        secondary: '#DC2626', // Red-600
+        accent: '#7C3AED', // Purple-600
+        neutral: '#F8FAFC', // Slate-50
+        dark: '#0F172A', // Slate-900
+        light: '#F1F5F9', // Slate-100
+        success: '#059669', // Emerald-600
+        warning: '#D97706', // Amber-600
+        error: '#DC2626' // Red-600
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

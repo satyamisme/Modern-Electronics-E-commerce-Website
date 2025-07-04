@@ -31,7 +31,7 @@ export const categories: Category[] = [
   },
   {
     id: 'headphones',
-    name: 'Headphones',
+    name: 'Audio & Headphones',
     slug: 'headphones',
     image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=800',
     description: 'Premium audio devices for immersive sound',
@@ -39,13 +39,13 @@ export const categories: Category[] = [
     productCount: 30
   },
   {
-    id: 'smart-home',
-    name: 'Smart Home',
-    slug: 'smart-home',
-    image: 'https://images.pexels.com/photos/4498307/pexels-photo-4498307.jpeg?auto=compress&cs=tinysrgb&w=800',
-    description: 'Smart devices to automate your home',
+    id: 'gaming',
+    name: 'Gaming',
+    slug: 'gaming',
+    image: 'https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg?auto=compress&cs=tinysrgb&w=800',
+    description: 'Gaming consoles, accessories, and peripherals',
     children: [],
-    productCount: 22
+    productCount: 15
   },
   {
     id: 'accessories',
@@ -60,30 +60,30 @@ export const categories: Category[] = [
 
 export const products: Product[] = [
   {
-    id: 'iphone-15-pro',
-    name: 'iPhone 15 Pro',
+    id: 'iphone-15-pro-max',
+    name: 'iPhone 15 Pro Max',
     brand: 'Apple',
     category: 'smartphones',
-    price: convertUSDToKWD(999), // ~306.693 KWD
-    originalPrice: convertUSDToKWD(1099), // ~337.393 KWD
-    description: 'The most advanced iPhone ever with titanium design and A17 Pro chip.',
+    price: convertUSDToKWD(1199), // ~368 KWD
+    originalPrice: convertUSDToKWD(1299), // ~399 KWD
+    description: 'The ultimate iPhone with titanium design, A17 Pro chip, and advanced camera system.',
     images: [
       'https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=800',
       'https://images.pexels.com/photos/1275229/pexels-photo-1275229.jpeg?auto=compress&cs=tinysrgb&w=800',
       'https://images.pexels.com/photos/699122/pexels-photo-699122.jpeg?auto=compress&cs=tinysrgb&w=800'
     ],
     specifications: {
-      'Display': '6.1-inch Super Retina XDR',
+      'Display': '6.7-inch Super Retina XDR',
       'Processor': 'A17 Pro chip',
-      'Storage': '128GB',
+      'Storage': '256GB',
       'Camera': '48MP Main + 12MP Ultra Wide + 12MP Telephoto',
-      'Battery': 'Up to 23 hours video playback',
+      'Battery': 'Up to 29 hours video playback',
       'Operating System': 'iOS 17'
     },
     inStock: true,
-    stockCount: 15,
-    rating: 4.8,
-    reviewCount: 342,
+    stockCount: 12,
+    rating: 4.9,
+    reviewCount: 456,
     features: [
       'Titanium design',
       'A17 Pro chip',
@@ -97,11 +97,11 @@ export const products: Product[] = [
     updatedAt: new Date('2024-01-20')
   },
   {
-    id: 'samsung-galaxy-s24',
+    id: 'samsung-galaxy-s24-ultra',
     name: 'Samsung Galaxy S24 Ultra',
     brand: 'Samsung',
     category: 'smartphones',
-    price: convertUSDToKWD(1199), // ~368.093 KWD
+    price: convertUSDToKWD(1299), // ~399 KWD
     description: 'Ultimate productivity powerhouse with S Pen and AI features.',
     images: [
       'https://images.pexels.com/photos/1275229/pexels-photo-1275229.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -111,15 +111,15 @@ export const products: Product[] = [
     specifications: {
       'Display': '6.8-inch Dynamic AMOLED 2X',
       'Processor': 'Snapdragon 8 Gen 3',
-      'Storage': '256GB',
+      'Storage': '512GB',
       'Camera': '200MP Main + 50MP Periscope + 50MP Ultra Wide + 12MP Front',
       'Battery': '5000mAh with 45W fast charging',
       'Operating System': 'Android 14'
     },
     inStock: true,
-    stockCount: 22,
-    rating: 4.7,
-    reviewCount: 189,
+    stockCount: 18,
+    rating: 4.8,
+    reviewCount: 289,
     features: [
       'S Pen included',
       'AI photography',
@@ -133,123 +133,86 @@ export const products: Product[] = [
     updatedAt: new Date('2024-01-18')
   },
   {
-    id: 'macbook-pro-m3',
-    name: 'MacBook Pro 14-inch M3',
+    id: 'macbook-pro-m3-max',
+    name: 'MacBook Pro 16-inch M3 Max',
     brand: 'Apple',
     category: 'laptops',
-    price: convertUSDToKWD(1599), // ~490.893 KWD
-    originalPrice: convertUSDToKWD(1699), // ~521.593 KWD
-    description: 'Supercharged for pros with M3 chip and Liquid Retina XDR display.',
+    price: convertUSDToKWD(2499), // ~767 KWD
+    originalPrice: convertUSDToKWD(2699), // ~828 KWD
+    description: 'The most powerful MacBook Pro ever with M3 Max chip for extreme performance.',
     images: [
       'https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=800',
       'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=800',
       'https://images.pexels.com/photos/1444416/pexels-photo-1444416.jpeg?auto=compress&cs=tinysrgb&w=800'
     ],
     specifications: {
-      'Display': '14.2-inch Liquid Retina XDR',
-      'Processor': 'Apple M3 chip',
-      'Memory': '8GB unified memory',
-      'Storage': '512GB SSD',
-      'Graphics': '10-core GPU',
+      'Display': '16.2-inch Liquid Retina XDR',
+      'Processor': 'Apple M3 Max chip',
+      'Memory': '36GB unified memory',
+      'Storage': '1TB SSD',
+      'Graphics': '40-core GPU',
       'Battery': 'Up to 22 hours',
       'Operating System': 'macOS Sonoma'
     },
     inStock: true,
-    stockCount: 8,
+    stockCount: 5,
     rating: 4.9,
-    reviewCount: 156,
+    reviewCount: 178,
     features: [
-      'M3 chip performance',
+      'M3 Max chip performance',
       'Liquid Retina XDR display',
       'Studio-quality mics',
       '1080p FaceTime HD camera',
       'MagSafe 3 charging',
       'Thunderbolt 4 ports'
     ],
-    tags: ['professional', 'creative', 'portable', 'performance'],
+    tags: ['professional', 'creative', 'performance', 'video-editing'],
     createdAt: new Date('2024-01-05'),
     updatedAt: new Date('2024-01-12')
   },
   {
-    id: 'dell-xps-13',
-    name: 'Dell XPS 13',
-    brand: 'Dell',
-    category: 'laptops',
-    price: convertUSDToKWD(899), // ~275.993 KWD
-    description: 'Premium ultrabook with stunning InfinityEdge display.',
+    id: 'ps5-console',
+    name: 'PlayStation 5 Console',
+    brand: 'Sony',
+    category: 'gaming',
+    price: convertUSDToKWD(499), // ~153 KWD
+    description: 'Next-generation gaming console with ultra-high speed SSD and ray tracing.',
     images: [
-      'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/1444416/pexels-photo-1444416.jpeg?auto=compress&cs=tinysrgb&w=800'
+      'https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg?auto=compress&cs=tinysrgb&w=800'
     ],
     specifications: {
-      'Display': '13.4-inch FHD+ InfinityEdge',
-      'Processor': 'Intel Core i7-1355U',
-      'Memory': '16GB LPDDR5',
-      'Storage': '512GB SSD',
-      'Graphics': 'Intel Iris Xe',
-      'Battery': 'Up to 12 hours',
-      'Operating System': 'Windows 11'
+      'CPU': 'AMD Zen 2, 8 Cores',
+      'GPU': 'AMD RDNA 2',
+      'Memory': '16GB GDDR6',
+      'Storage': '825GB SSD',
+      'Optical Drive': '4K UHD Blu-ray',
+      'Audio': 'Tempest 3D AudioTech'
     },
     inStock: true,
-    stockCount: 12,
-    rating: 4.6,
-    reviewCount: 89,
+    stockCount: 8,
+    rating: 4.7,
+    reviewCount: 892,
     features: [
-      'InfinityEdge display',
-      'Premium build quality',
-      'Thunderbolt 4',
-      'Backlit keyboard',
-      'Fingerprint reader',
-      'WiFi 6E'
+      'Ultra-high speed SSD',
+      'Ray tracing',
+      '4K gaming',
+      'DualSense controller',
+      '3D audio',
+      'Backward compatibility'
     ],
-    tags: ['ultrabook', 'business', 'portable', 'windows'],
+    tags: ['gaming', 'console', '4k', 'next-gen'],
     createdAt: new Date('2024-01-08'),
     updatedAt: new Date('2024-01-15')
-  },
-  {
-    id: 'ipad-air-m2',
-    name: 'iPad Air M2',
-    brand: 'Apple',
-    category: 'tablets',
-    price: convertUSDToKWD(599), // ~183.893 KWD
-    description: 'Serious performance in a gorgeous, ultra-portable design.',
-    images: [
-      'https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/1841841/pexels-photo-1841841.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg?auto=compress&cs=tinysrgb&w=800'
-    ],
-    specifications: {
-      'Display': '10.9-inch Liquid Retina',
-      'Processor': 'Apple M2 chip',
-      'Storage': '64GB',
-      'Camera': '12MP Wide + 12MP Ultra Wide Front',
-      'Battery': 'Up to 10 hours',
-      'Operating System': 'iPadOS 17'
-    },
-    inStock: true,
-    stockCount: 25,
-    rating: 4.7,
-    reviewCount: 234,
-    features: [
-      'M2 chip power',
-      'Apple Pencil support',
-      'Magic Keyboard compatible',
-      'Touch ID',
-      'USB-C connectivity',
-      'Wi-Fi 6'
-    ],
-    tags: ['creative', 'productivity', 'portable', 'apple'],
-    createdAt: new Date('2024-01-12'),
-    updatedAt: new Date('2024-01-19')
   },
   {
     id: 'airpods-pro-2',
     name: 'AirPods Pro (2nd generation)',
     brand: 'Apple',
     category: 'headphones',
-    price: convertUSDToKWD(249), // ~76.443 KWD
-    originalPrice: convertUSDToKWD(279), // ~85.653 KWD
+    price: convertUSDToKWD(249), // ~76 KWD
+    originalPrice: convertUSDToKWD(279), // ~86 KWD
     description: 'Next-level sound with Adaptive Transparency and Personalized Spatial Audio.',
     images: [
       'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -265,9 +228,9 @@ export const products: Product[] = [
       'Connectivity': 'Bluetooth 5.3'
     },
     inStock: true,
-    stockCount: 45,
+    stockCount: 35,
     rating: 4.8,
-    reviewCount: 567,
+    reviewCount: 1247,
     features: [
       'Active Noise Cancellation',
       'Adaptive Transparency',
@@ -281,80 +244,43 @@ export const products: Product[] = [
     updatedAt: new Date('2024-01-10')
   },
   {
-    id: 'sony-wh1000xm5',
-    name: 'Sony WH-1000XM5',
-    brand: 'Sony',
-    category: 'headphones',
-    price: convertUSDToKWD(399), // ~122.493 KWD
-    description: 'Industry-leading noise canceling with premium sound quality.',
+    id: 'ipad-pro-m4',
+    name: 'iPad Pro 12.9-inch M4',
+    brand: 'Apple',
+    category: 'tablets',
+    price: convertUSDToKWD(1099), // ~337 KWD
+    description: 'The most advanced iPad Pro with M4 chip and stunning Liquid Retina XDR display.',
     images: [
-      'https://images.pexels.com/photos/4393021/pexels-photo-4393021.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/4393021/pexels-photo-4393021.jpeg?auto=compress&cs=tinysrgb&w=800'
+      'https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1841841/pexels-photo-1841841.jpeg?auto=compress&cs=tinysrgb&w=800',
+      'https://images.pexels.com/photos/1334597/pexels-photo-1334597.jpeg?auto=compress&cs=tinysrgb&w=800'
     ],
     specifications: {
-      'Driver': '30mm drivers',
-      'Frequency Response': '4Hz-40kHz',
-      'Impedance': '48 ohms',
-      'Battery': 'Up to 30 hours',
-      'Charging': 'USB-C quick charge',
-      'Weight': '250g'
+      'Display': '12.9-inch Liquid Retina XDR',
+      'Processor': 'Apple M4 chip',
+      'Storage': '256GB',
+      'Camera': '12MP Wide + 10MP Ultra Wide + LiDAR',
+      'Battery': 'Up to 10 hours',
+      'Operating System': 'iPadOS 17'
     },
     inStock: true,
-    stockCount: 18,
-    rating: 4.7,
-    reviewCount: 423,
+    stockCount: 15,
+    rating: 4.9,
+    reviewCount: 334,
     features: [
-      'Industry-leading noise canceling',
-      '30-hour battery life',
-      'Quick charge (3min = 3hrs)',
-      'Speak-to-chat technology',
-      'Multipoint connection',
-      'Touch sensor controls'
+      'M4 chip power',
+      'Liquid Retina XDR display',
+      'Apple Pencil Pro support',
+      'Magic Keyboard compatible',
+      'Face ID',
+      'Thunderbolt connectivity'
     ],
-    tags: ['over-ear', 'noise-cancelling', 'premium', 'sony'],
-    createdAt: new Date('2024-01-03'),
-    updatedAt: new Date('2024-01-14')
-  },
-  {
-    id: 'echo-dot-5',
-    name: 'Amazon Echo Dot (5th Gen)',
-    brand: 'Amazon',
-    category: 'smart-home',
-    price: convertUSDToKWD(49), // ~15.043 KWD
-    originalPrice: convertUSDToKWD(59), // ~18.113 KWD
-    description: 'Smart speaker with Alexa - better sound and performance.',
-    images: [
-      'https://images.pexels.com/photos/4498307/pexels-photo-4498307.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/4498307/pexels-photo-4498307.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/4498307/pexels-photo-4498307.jpeg?auto=compress&cs=tinysrgb&w=800'
-    ],
-    specifications: {
-      'Speaker': '1.73" front-firing speaker',
-      'Microphone': 'Far-field voice recognition',
-      'Connectivity': 'Wi-Fi, Bluetooth',
-      'Dimensions': '3.9" x 3.9" x 3.5"',
-      'Weight': '10.7 oz',
-      'Voice Assistant': 'Alexa built-in'
-    },
-    inStock: true,
-    stockCount: 67,
-    rating: 4.5,
-    reviewCount: 1234,
-    features: [
-      'Alexa built-in',
-      'Improved sound quality',
-      'Smart home control',
-      'Voice control',
-      'Compact design',
-      'Multiple colors'
-    ],
-    tags: ['smart-speaker', 'voice-control', 'alexa', 'affordable'],
-    createdAt: new Date('2024-01-02'),
-    updatedAt: new Date('2024-01-16')
+    tags: ['professional', 'creative', 'tablet', 'apple'],
+    createdAt: new Date('2024-01-12'),
+    updatedAt: new Date('2024-01-19')
   }
 ];
 
 export const featuredProducts = products.slice(0, 4);
-export const bestSellers = products.slice(2, 6);
+export const bestSellers = products.slice(1, 5);
 export const newArrivals = products.slice(0, 3);
