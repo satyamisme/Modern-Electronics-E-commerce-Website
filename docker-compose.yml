@@ -7,8 +7,9 @@ services:
       dockerfile: Dockerfile
     container_name: modern-electronics-ecommerce-app # Consistent name
     ports:
-      - "8080:80" # Map host port 8080 to container port 80 (Nginx default)
+      - "80:80" # Map host port 80 to container port 80 (Nginx default)
     restart: unless-stopped
+    # Note: Binding to port 80 on the host may require running 'docker-compose up' with sudo.
     # For local development with live reload, you might add a volume like:
     # volumes:
     #   - ./src:/app/src

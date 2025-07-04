@@ -147,24 +147,200 @@ This section details features specifically implemented for the Kuwaiti market. *
 
 ---
 
-## Project Setup & Installation
+## Local Development Setup
 
-1.  **Clone the repository:**
+This section guides you through setting up the project for local development on your machine.
+
+### Prerequisites
+- **Node.js:** Version 18.x or later is recommended. We suggest using [nvm (Node Version Manager)](https://github.com/nvm-sh/nvm) to manage Node.js versions.
+- **npm:** Version 8.x or later (usually comes with Node.js).
+- **Git:** For cloning the repository and version control.
+
+### General Setup Steps
+
+1.  **Clone the Repository:**
     ```bash
-    git clone <YOUR_REPOSITORY_URL> modern-electronics-ecommerce
-    cd modern-electronics-ecommerce
+    git clone https://github.com/your-username/modern-electronics-ecommerce-website.git # Replace with actual URL
+    cd modern-electronics-ecommerce-website
     ```
-2.  **Install dependencies:**
+
+2.  **Install Dependencies:**
     ```bash
     npm install
     ```
-3.  **Run the development server:**
+    *If you encounter peer dependency issues, you might try `npm install --legacy-peer-deps`.*
+
+3.  **Run the Development Server:**
     ```bash
     npm run dev
     ```
-    The application will typically be available at `http://localhost:5173`.
+    The application will typically be available at `http://localhost:5173` (or the port specified by Vite).
 
-*(This section will be expanded with more detailed OS-specific guides and Docker instructions later.)*
+### OS-Specific Guidance
+
+#### Windows
+*   **Recommended:** Use [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install). WSL 2 provides a Linux environment directly on Windows, offering better performance and compatibility for Node.js development.
+    1.  Install WSL and a Linux distribution (e.g., Ubuntu) from the Microsoft Store.
+    2.  Open your WSL terminal.
+    3.  Install nvm, Node.js, and Git within WSL:
+        ```bash
+        # Install nvm (get the latest command from nvm GitHub)
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+        # Ensure your shell profile (e.g., ~/.bashrc or ~/.zshrc) is sourced or restart your terminal
+        # Example for bash:
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+        # Then run:
+        source ~/.bashrc
+        nvm install 18 # Or desired Node.js version
+        nvm use 18
+        sudo apt update && sudo apt install git -y
+        ```
+    4.  Follow the "General Setup Steps" above within your WSL environment.
+*   **Editing on Windows with WSL:**
+    *   Install [Visual Studio Code](https://code.visualstudio.com/).
+    *   Install the "Remote - WSL" extension in VS Code.
+    *   Open your project folder (located within WSL, e.g., `/home/username/modern-electronics-ecommerce-website`) using VS Code connected to WSL. This provides a seamless development experience.
+*   **Alternative (Native Windows - Not Recommended for Best Experience):**
+    *   Install Node.js directly from the [official website](https://nodejs.org/).
+    *   Install Git for Windows from [git-scm.com](https://git-scm.com/download/win).
+    *   Use PowerShell or Command Prompt to follow the "General Setup Steps". You might encounter path issues or differences in script execution.
+
+#### Linux (Ubuntu, Debian, Fedora, etc.)
+1.  **Install nvm and Node.js:**
+    ```bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    # Ensure your shell profile (e.g., ~/.bashrc or ~/.zshrc) is sourced or restart your terminal
+    # Example for bash:
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    source ~/.bashrc
+    nvm install 18
+    nvm use 18
+    ```
+2.  **Install Git:** (Usually pre-installed. If not, use your distribution's package manager, e.g., `sudo apt install git` for Debian/Ubuntu).
+3.  Follow the "General Setup Steps" above.
+
+#### macOS
+1.  **Install Homebrew (if not already installed):** `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+2.  **Install nvm and Node.js:**
+    ```bash
+    brew install nvm
+    mkdir ~/.nvm # If it doesn't exist
+    # Add nvm setup to your shell profile (e.g., ~/.zshrc or ~/.bash_profile)
+    # For Zsh (default on newer macOS):
+    echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.zshrc
+    echo '[ -s "$(brew --prefix nvm)/nvm.sh" ] && \. "$(brew --prefix nvm)/nvm.sh"  # This loads nvm' >> ~/.zshrc
+    echo '[ -s "$(brew --prefix nvm)/etc/bash_completion.d/nvm" ] && \. "$(brew --prefix nvm)/etc/bash_completion.d/nvm"  # This loads nvm bash_completion' >> ~/.zshrc
+    source ~/.zshrc # Or your respective shell profile
+    nvm install 18
+    nvm use 18
+    ```
+3.  **Install Git:** (Usually pre-installed. If not, `brew install git`).
+4.  Follow the "General Setup Steps" above.
+
+### Editor Recommendation
+*   **Visual Studio Code (VS Code):** Highly recommended due to its excellent JavaScript/TypeScript support, integrated terminal, Git integration, and vast extension marketplace.
+    *   Useful extensions: ESLint, Prettier - Code formatter, Tailwind CSS IntelliSense.
+
+---
+
+## Running with Docker
+
+This project includes a `Dockerfile` and `docker-compose.yml` to build and run the application in a containerized environment. This is recommended for production deployment and can also be used for a consistent development environment.
+
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker/) installed on your system.
+- [Docker Compose](https://docs.docker.com/compose/install/) installed (usually included with Docker Desktop).
+
+### Building the Docker Image
+To build the Docker image directly:
+```bash
+docker build -t modern-electronics-ecommerce .
+```
+
+### Running with Docker
+After building the image, you can run it as a container:
+```bash
+docker run -p 80:80 modern-electronics-ecommerce
+```
+The application will be accessible at `http://localhost:80` (or just `http://localhost`).
+**Note:** Binding to port 80 on your host machine might require `sudo` or administrator privileges. If port 80 is in use, choose another host port, e.g., `-p 8080:80`, and update the access URL accordingly.
+
+### Running with Docker Compose
+Using Docker Compose is often simpler:
+```bash
+# Might require sudo if port 80 is privileged and not already free
+docker-compose up
+```
+To run in detached mode (in the background):
+```bash
+# Might require sudo
+docker-compose up -d
+```
+The application will be accessible at `http://localhost` (as it's mapped to port 80 on the host by default in `docker-compose.yml`). To stop the services:
+```bash
+docker-compose down
+```
+
+---
+
+## Deployment
+
+This section provides conceptual guidance for deploying the application, primarily focusing on using Docker on a Virtual Private Server (VPS).
+
+### Prerequisites for VPS
+- A VPS (e.g., from DigitalOcean, Linode, AWS EC2, Google Cloud Compute Engine).
+- SSH access to your VPS.
+- Docker and Docker Compose installed on the VPS.
+
+### General VPS Deployment Steps (using Docker)
+
+1.  **Prepare your VPS:**
+    *   Ensure your VPS is up-to-date: `sudo apt update && sudo apt upgrade -y` (for Debian/Ubuntu).
+    *   Install Docker and Docker Compose if not already present. Follow official Docker documentation for your VPS's OS.
+
+2.  **Get Your Code onto the VPS:**
+    *   **Option A (Recommended):** Clone your Git repository directly onto the VPS.
+        ```bash
+        git clone https://github.com/your-username/modern-electronics-ecommerce-website.git # Replace with actual URL
+        cd modern-electronics-ecommerce-website
+        ```
+    *   **Option B:** If you build the image locally and push it to a Docker registry (like Docker Hub, GitHub Container Registry, AWS ECR), you can then pull it on the VPS.
+
+3.  **Build and Run the Application:**
+    *   Navigate to your project directory on the VPS.
+    *   Use Docker Compose to build and run the application in detached mode:
+        ```bash
+        docker-compose up --build -d
+        ```
+        The `--build` flag ensures the image is built (or rebuilt if changes exist). The `-d` flag runs it in the background.
+
+4.  **Accessing Your Application:**
+    *   With the updated `docker-compose.yml` (mapping to host port 80), your application attempts to run on port 80 of your VPS. You should try accessing it via `http://<your_vps_ip>`.
+    *   **Crucial Firewall Note:** For this to be accessible from the internet, you **must** ensure that **port 80 (TCP)** is open for incoming traffic in your VPS's firewall (e.g., `ufw`, `firewalld`) AND in any cloud provider security groups (e.g., AWS EC2 Security Groups, Google Cloud Firewall Rules). If port 80 is not open, you will not be able to access the application from outside the VPS.
+    *   If you are running `docker-compose up -d` and it fails due to port 80 being in use or permission issues, check that no other service (like a default web server on the VPS) is using port 80, or run the command with `sudo`.
+
+5.  **Setting up a Reverse Proxy (Recommended for Production):**
+    *   Even if your Docker container is directly mapped to port 80 on the host, for a production environment, using a dedicated reverse proxy (like Nginx or Caddy installed directly on the VPS, or as another Docker container) is **highly recommended**.
+    *   **Benefits:**
+        *   **SSL/TLS Termination:** Easily add HTTPS to your site (e.g., with Let's Encrypt). This is essential for security.
+        *   **Domain Name:** Serve your application from a custom domain name (e.g., `www.your-ecommerce.com`) instead of an IP address and port.
+        *   **Load Balancing:** (If you scale to multiple containers).
+        *   **Serving Static Assets:** Can be more efficient for serving static files directly.
+        *   **Easier Port Management:** Your application container can run on an internal Docker network port (e.g., the default 80 inside the container), and the reverse proxy on the VPS handles external traffic on ports 80/443 and forwards it. This avoids needing to run your application container with elevated privileges just to bind to host port 80.
+    *   **Conceptual Nginx Setup (Nginx on Host, App in Docker on an internal port e.g. 8080):**
+        1.  Modify `docker-compose.yml` to map ports like `ports: - "127.0.0.1:8080:80"` (making the container accessible only on localhost of the VPS at port 8080).
+        2.  Install Nginx on your VPS (`sudo apt install nginx`).
+        3.  Configure an Nginx server block (virtual host) on the VPS to listen on port 80 (and 443 for HTTPS). This server block would then `proxy_pass` requests to `http://localhost:8080`.
+        4.  Set up SSL using Certbot with Let's Encrypt on the Nginx server block on the host.
+    *   *(Detailed Nginx/Caddy setup is beyond the scope of this README but is a standard and critical practice for web application deployment.)*
+
+6.  **Monitoring and Maintenance:**
+    *   Use `docker-compose logs -f app` to view application logs.
+    *   Regularly update your VPS and application dependencies.
 
 ---
 
