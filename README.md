@@ -5,7 +5,9 @@ This project is a modern e-commerce platform for electronics, featuring a compre
 ## Table of Contents
 - [Key Features](#key-features)
 - [🇰🇼 Kuwait Market Features](#kuwait-market-features)
-- [Project Setup & Installation](#project-setup--installation)
+- [Local Development Setup](#local-development-setup)
+- [Running with Docker](#running-with-docker)
+- [Deployment](#deployment)
 - [Development Guidelines](#development-guidelines)
 - [Technical Implementation](#technical-implementation)
 - [Future Enhancements Roadmap](#future-enhancements-roadmap)
@@ -149,8 +151,8 @@ This section details features specifically implemented for the Kuwaiti market. *
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
-    cd modern-electronics-ecommerce-website
+    git clone <YOUR_REPOSITORY_URL> modern-electronics-ecommerce
+    cd modern-electronics-ecommerce
     ```
 2.  **Install dependencies:**
     ```bash
@@ -162,7 +164,7 @@ This section details features specifically implemented for the Kuwaiti market. *
     ```
     The application will typically be available at `http://localhost:5173`.
 
-*(Further details on domain/IP configuration, user registration, and admin setup will be added as the project progresses.)*
+*(This section will be expanded with more detailed OS-specific guides and Docker instructions later.)*
 
 ---
 
@@ -211,48 +213,49 @@ Use Semantic Versioning (Major.Minor.Patch):
 
 ## Future Enhancements Roadmap
 
-This roadmap outlines the planned features and improvements for the platform.
+This roadmap outlines the planned features and improvements for the platform. It integrates items previously mentioned in `developmen.md` and `CHANGELOG.md`.
 
 ### Phase 1: Implement Core Kuwait Market Features (High Priority)
 -   [ ] **Currency Utilities (`src/utils/currency.ts`):**
-    -   [ ] KWD currency formatting (3 decimal places).
-    -   [ ] USD to KWD conversion functions.
-    -   [ ] Kuwait-specific price validation.
+    -   [ ] Implement KWD currency formatting (3 decimal places).
+    -   [ ] Implement USD to KWD conversion functions.
+    -   [ ] Implement Kuwait-specific price validation.
 -   [ ] **KNET Payment Integration (`src/utils/knet.ts`):**
-    -   [ ] KNET payment gateway service logic.
-    -   [ ] Payment URL generation.
-    -   [ ] Response verification.
-    -   [ ] Refund processing.
+    -   [ ] Implement KNET payment gateway service logic.
+    -   [ ] Implement payment URL generation.
+    -   [ ] Implement response verification.
+    -   [ ] Implement refund processing.
 -   [ ] **Kuwait-Specific Utilities (`src/utils/kuwait.ts`):**
-    -   [ ] Data for 6 Kuwait governorates & delivery zones.
-    -   [ ] Phone number validation (+965).
-    -   [ ] Business hours and holiday management.
-    -   [ ] Civil ID validation.
-    -   [ ] Address formatting for Kuwait.
+    -   [ ] Populate data for 6 Kuwait governorates & delivery zones.
+    -   [ ] Implement phone number validation (+965).
+    -   [ ] Implement business hours and holiday management.
+    -   [ ] Implement Civil ID validation.
+    -   [ ] Implement address formatting for Kuwait.
 -   [ ] **Kuwait Address Form (`src/components/ui/KuwaitAddressForm.tsx`):**
-    -   [ ] Governorate and area selection.
-    -   [ ] Block, street, building inputs.
-    -   [ ] Delivery fee calculation.
-    -   [ ] Arabic language support.
+    -   [ ] Implement governorate and area selection.
+    -   [ ] Implement block, street, building inputs.
+    -   [ ] Implement delivery fee calculation.
+    -   [ ] Add Arabic language support.
 -   [ ] **KNET Payment Button (`src/components/ui/KNETPaymentButton.tsx`):**
-    -   [ ] Secure KNET payment processing.
-    -   [ ] Payment status handling.
-    -   [ ] Security information display.
+    -   [ ] Implement secure KNET payment processing.
+    -   [ ] Implement payment status handling.
+    -   [ ] Add security information display.
 -   [ ] **Payment Success Page (`src/pages/PaymentSuccessPage.tsx`):**
-    -   [ ] Order confirmation (KWD pricing).
-    -   [ ] Delivery information for Kuwait.
-    -   [ ] Receipt download option.
-    -   [ ] Customer support contact.
+    -   [ ] Display order confirmation (KWD pricing).
+    -   [ ] Display delivery information for Kuwait.
+    -   [ ] Implement receipt download option.
+    -   [ ] Add customer support contact.
 -   [ ] **Payment Error Page (`src/pages/PaymentErrorPage.tsx`):**
-    -   [ ] Comprehensive error handling.
-    -   [ ] Troubleshooting tips.
-    -   [ ] Alternative payment methods.
-    -   [ ] Customer support integration.
+    -   [ ] Implement comprehensive error handling.
+    -   [ ] Add troubleshooting tips.
+    -   [ ] Link to alternative payment methods.
+    -   [ ] Add customer support integration.
 -   [ ] **Product Data Update:**
-    -   [ ] Convert all product prices to KWD.
-    -   [ ] Add Kuwait-specific product information.
+    -   [ ] Convert all product prices in mock data/backend to KWD.
+    -   [ ] Add Kuwait-specific product information fields and data.
+-   [ ] **Add New Payment Pages to Router:** Integrate `PaymentSuccessPage` and `PaymentErrorPage` into `App.tsx` routing.
 
-### Phase 2: General Platform Enhancements
+### Phase 2: General Platform Enhancements (From original CHANGELOG.md ideas)
 -   [ ] **Customer Management System:**
     -   [ ] User profiles and order history.
     -   [ ] Address book management.
@@ -264,41 +267,43 @@ This roadmap outlines the planned features and improvements for the platform.
     -   [ ] Shipping updates.
     -   [ ] Promotional emails (opt-in).
 -   [ ] **Bulk Product Import/Export:**
-    -   [ ] CSV or Excel format support.
+    -   [ ] CSV or Excel format support for admin panel.
 -   [ ] **Advanced Search with Filters:**
-    -   [ ] More granular search options (e.g., by specification, brand).
+    -   [ ] More granular search options (e.g., by specification, brand, dynamic facets).
 
-### Phase 3: Further Expansion
+### Phase 3: Further Expansion (From original CHANGELOG.md ideas)
 -   [ ] **Multi-language Support:**
     -   [ ] Full Arabic language support for storefront and admin.
-    -   [ ] Framework for adding other languages.
+    -   [ ] Framework for adding other languages (i18n).
 -   [ ] **Additional Payment Gateway Integrations:**
-    -   [ ] Credit/Debit card processing (non-KNET).
+    -   [ ] Credit/Debit card processing (e.g., Stripe, Checkout.com) beyond KNET.
 -   [ ] **Shipping Management:**
-    -   [ ] Integration with local delivery services.
-    -   [ ] Shipping rate calculations.
+    -   [ ] Integration with local delivery services APIs.
+    -   [ ] Real-time shipping rate calculations.
 -   [ ] **Customer Reviews System:**
-    -   [ ] Product ratings and reviews.
-    -   [ ] Moderation tools.
+    -   [ ] Allow users to submit product ratings and reviews.
+    -   [ ] Admin moderation tools for reviews.
 -   [ ] **SEO Optimization Tools:**
-    -   [ ] Meta tag management.
+    -   [ ] Meta tag management for products/categories.
     -   [ ] Sitemap generation.
+    -   [ ] Structured data (JSON-LD).
 
-### Phase 4: Long-Term Vision
+### Phase 4: Long-Term Vision (From original `developmen.md` and `CHANGELOG.md`)
 -   [ ] **Mobile App Development:**
-    -   [ ] iOS and Android companion apps.
+    -   [ ] iOS and Android companion apps (React Native or native).
 -   [ ] **AI-Powered Recommendations:**
-    -   [ ] Personalized product suggestions.
+    -   [ ] Personalized product suggestions engine.
 -   [ ] **Multi-Vendor Marketplace:**
-    -   [ ] Allow third-party sellers.
+    -   [ ] Allow third-party sellers to list products.
+    -   [ ] Vendor dashboards and commission system.
 -   [ ] **B2B Portal:**
-    -   [ ] Features for business customers.
+    -   [ ] Features for business customers (bulk ordering, custom pricing).
 -   [ ] **GCC Market Expansion:**
-    -   [ ] Support for other Gulf Cooperation Council countries (currencies, shipping, etc.).
+    -   [ ] Support for other Gulf Cooperation Council countries (currencies, shipping, regulations).
 -   [ ] **Advanced Reporting & Business Intelligence:**
-    -   [ ] Customizable reports and data visualization.
+    -   [ ] Customizable reports and data visualization tools.
 -   [ ] **API for Third-Party Integrations:**
-    -   [ ] Allow external systems to connect.
+    -   [ ] Public or partner API for external systems to connect.
 
 ---
 

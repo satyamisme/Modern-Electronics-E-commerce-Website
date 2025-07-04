@@ -1,45 +1,67 @@
+import { ProductImage, ProductSpecification, ProductFeature, ProductTag, CartItem, KuwaitAddress, UserRole, OrderStatus } from "./index";
+
 export interface AdminUser {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'manager' | 'editor';
+  role: UserRole; // Using shared UserRole
   avatar?: string;
-  permissions: string[];
-  lastLogin: Date;
-  createdAt: Date;
+  permissions: string[]; // This could be more specific, e.g., an enum of permissions
+  lastLogin: Date | string; // Allow string for ISO dates
+  createdAt: Date | string; // Allow string for ISO dates
 }
 
-import { ProductImage, ProductSpecification, ProductFeature, ProductTag } from "./index";
-
-export interface ProductFormData {
+export interface ProductFormData { // Aligned with new Product structure
   name: string;
   brand: string;
-  category: string;
+  category: string; // Should be Category['id'] or Category['slug']
   price: number;
   originalPrice?: number;
   description: string;
-  images: ProductImage[]; // Changed from string[]
-  specifications: ProductSpecification[]; // Changed from Record<string, string>
-  stock: number; // Renamed from stockCount, removed inStock
-  features: ProductFeature[]; // Changed from string[]
-  tags: ProductTag[]; // Changed from string[]
+  images: ProductImage[];
+  specifications: ProductSpecification[];
+  stock: number; // Renamed from stockCount, removed inStock (derived)
+  features: ProductFeature[];
+  tags: ProductTag[];
+  sku?: string; // Consider adding SKU
 }
 
-export interface OrderManagement {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  items: Array<{
-    productId: string;
-    productName: string;
-    quantity: number;
-    price: number;
-  }>;
-  total: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  orderDate: Date;
-  shippingAddress: string;
+// Replacing original OrderManagement with more specific AdminOrder types
+export interface AdminOrderSummary {
+  orderId: string;
+  customerName: string; // Could be User['name'] or a denormalized string
+  customerEmail: string; // User['email']
+  totalAmount: number;
+  currency: 'KWD';
+  status: OrderStatus; // Using shared OrderStatus
+  orderDate: Date | string;
+  itemCount: number;
+}
+
+export interface AdminOrderDetails {
+  orderId: string;
+  userId?: string;
+  customerDetails: {
+    id?: string;
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  items: CartItem[]; // Using CartItem from payment.ts
+  shippingAddress: KuwaitAddress; // Or generic Address if applicable
+  billingAddress?: KuwaitAddress;
+  paymentMethod: string;
+  paymentTransactionId?: string;
+  subtotal: number;
+  shippingCost: number;
+  discountAmount?: number;
+  grandTotal: number;
+  currency: 'KWD';
+  status: OrderStatus;
+  orderDate: Date | string;
+  lastUpdated: Date | string;
   trackingNumber?: string;
+  notes?: Array<{ date: Date | string; note: string; by: string }>; // Admin notes for order
 }
 
 export interface InventoryAlert {
@@ -49,7 +71,7 @@ export interface InventoryAlert {
   currentStock: number;
   threshold: number;
   severity: 'low' | 'critical' | 'out-of-stock';
-  createdAt: Date;
+  createdAt: Date | string; // Allow string for ISO dates
 }
 
 export interface SalesAnalytics {

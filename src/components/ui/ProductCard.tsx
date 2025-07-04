@@ -127,11 +127,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <div className="relative">
           <img
-            src={product.images.find(img => img.isMain)?.url || product.images[0]?.url || 'https://via.placeholder.com/300x200?text=No+Image'}
+            src={product.images?.find(img => img.isMain)?.url || product.images?.[0]?.url || 'https://via.placeholder.com/300x200?text=No+Image'}
             alt={product.name}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          {product.originalPrice && (
+          {product.originalPrice && product.price && (
             <span className="absolute top-2 left-2 bg-secondary text-white px-2 py-1 rounded text-xs font-medium">
               Save KWD {(product.originalPrice - product.price).toFixed(3)}
             </span>

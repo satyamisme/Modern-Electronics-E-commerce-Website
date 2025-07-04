@@ -11,21 +11,23 @@ interface ProductFormProps {
   onCancel: () => void;
 }
 
+const initialFormData: ProductFormData = {
+  name: '',
+  brand: '',
+  category: '',
+  price: 0,
+  originalPrice: undefined,
+  description: '',
+  images: [],
+  specifications: [],
+  stock: 0,
+  features: [],
+  tags: [],
+  sku: '',
+};
+
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) => {
-  // const { state } = useAdmin(); // If needed for categories/brands from context
-  const [formData, setFormData] = useState<ProductFormData>({
-    name: '',
-    brand: '',
-    category: '',
-    price: 0,
-    originalPrice: undefined,
-    description: '',
-    images: [], // ProductImage[]
-    specifications: [], // ProductSpecification[]
-    stock: 0,
-    features: [], // ProductFeature[]
-    tags: [], // ProductTag[]
-  });
+  const [formData, setFormData] = useState<ProductFormData>(initialFormData);
 
   const [newSpecName, setNewSpecName] = useState('');
   const [newSpecValue, setNewSpecValue] = useState('');
@@ -33,15 +35,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
   const [newTagText, setNewTagText] = useState('');
 
   // Mock data, ideally from context or props
-  const categories = ['smartphones', 'laptops', 'tablets', 'headphones', 'smart-home', 'accessories'];
-  const brands = ['Apple', 'Samsung', 'Sony', 'Dell', 'Amazon', 'Google', 'Microsoft', 'HP'];
+  const categories = ['smartphones', 'laptops', 'tablets', 'headphones', 'smart-home', 'accessories']; // TODO: Fetch from API or context
+  const brands = ['Apple', 'Samsung', 'Sony', 'Dell', 'Amazon', 'Google', 'Microsoft', 'HP']; // TODO: Fetch from API or context
 
   useEffect(() => {
     if (product) {
       setFormData({
         name: product.name || '',
         brand: product.brand || '',
-        category: product.category || '', // Ensure category is a string ID/name
+        category: product.category || '',
         price: product.price || 0,
         originalPrice: product.originalPrice,
         description: product.description || '',
@@ -50,17 +52,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
         stock: product.stock || 0,
         features: product.features || [],
         tags: product.tags || [],
+        sku: product.sku || '',
       });
     } else {
-      // Reset form for new product
-      setFormData({
-        name: '', brand: '', category: '', price: 0, originalPrice: undefined,
-        description: '', images: [], specifications: [], stock: 0, features: [], tags: []
-      });
+      setFormData(initialFormData); // Reset form for new product
     }
   }, [product]);
 
-  const handleInputChange = (field: keyof ProductFormData, value: any) => {
+  const handleInputChange = (field: keyof Omit<ProductFormData, 'images' | 'specifications' | 'features' | 'tags'>, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -71,7 +70,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
   const addSpecification = () => {
     if (newSpecName && newSpecValue) {
       const newSpec: ProductSpecification = {
-        id: crypto.randomUUID(), // Or generate ID as needed
+        id: crypto.randomUUID(),
         name: newSpecName,
         value: newSpecValue,
       };
@@ -92,10 +91,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
   };
 
   const addFeature = () => {
-    if (newFeatureText && !formData.features.some(f => f.text === newFeatureText)) {
+    if (newFeatureText.trim() && !formData.features.some(f => f.text.toLowerCase() === newFeatureText.trim().toLowerCase())) {
       const newFeat: ProductFeature = {
         id: crypto.randomUUID(),
-        text: newFeatureText,
+        text: newFeatureText.trim(),
       };
       setFormData(prev => ({
         ...prev,
@@ -113,10 +112,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
   };
 
   const addTag = () => {
-    if (newTagText && !formData.tags.some(t => t.name === newTagText)) {
+    if (newTagText.trim() && !formData.tags.some(t => t.name.toLowerCase() === newTagText.trim().toLowerCase())) {
       const newT: ProductTag = {
         id: crypto.randomUUID(),
-        name: newTagText,
+        name: newTagText.trim(),
       };
       setFormData(prev => ({
         ...prev,

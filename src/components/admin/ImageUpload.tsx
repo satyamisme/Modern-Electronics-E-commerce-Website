@@ -44,14 +44,29 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     handleFiles(files);
   };
 
-  const createProductImage = (url: string, currentImages: ProductImage[]): ProductImage => {
+  const createProductImageObject = (url: string, currentImages: ProductImage[]): ProductImage => {
     return {
-      id: crypto.randomUUID(),
+      id: crypto.randomUUID(), // Generate a unique ID
       url,
-      altText: '', // Can be added later by user if UI supports
-      isMain: currentImages.length === 0, // First image is main by default
+      altText: '', // User can fill this later if UI is provided
+      isMain: currentImages.length === 0, // First image added is main by default
     };
   };
+
+  const updateImages = (newImage: ProductImage) => {
+    let updatedImages = [...images];
+    // If the new image is set to main, unset other main images
+    if (newImage.isMain) {
+      updatedImages = updatedImages.map(img => ({ ...img, isMain: false }));
+    }
+    updatedImages.push(newImage);
+     // If no image is main after adding, set the first one to main
+    if (updatedImages.length > 0 && !updatedImages.some(img => img.isMain)) {
+      updatedImages[0].isMain = true;
+    }
+    onImagesChange(updatedImages);
+  };
+
 
   const handleFiles = (files: File[]) => {
     setError(null);
@@ -72,18 +87,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       return true;
     });
 
-    let newImages = [...images];
     validFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        const productImage = createProductImage(result, newImages);
-        // If adding the first image, it becomes main. If others exist, ensure only one is main.
-        if (productImage.isMain && newImages.some(img => img.isMain && img.id !== productImage.id)) {
-            newImages = newImages.map(img => ({...img, isMain: false }));
-        }
-        newImages = [...newImages, productImage];
-        onImagesChange(newImages);
+        const newImage = createProductImageObject(result, images);
+        updateImages(newImage);
       };
       reader.readAsDataURL(file);
     });
@@ -97,15 +106,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
 
     try {
-      new URL(urlInput); // Basic URL validation
+      new URL(urlInput);
       if (!images.some(img => img.url === urlInput)) {
-        let newImages = [...images];
-        const productImage = createProductImage(urlInput, newImages);
-        if (productImage.isMain && newImages.some(img => img.isMain && img.id !== productImage.id)) {
-            newImages = newImages.map(img => ({...img, isMain: false }));
-        }
-        newImages = [...newImages, productImage];
-        onImagesChange(newImages);
+        const newImage = createProductImageObject(urlInput, images);
+        updateImages(newImage);
         setUrlInput('');
         setError(null);
       } else {
@@ -117,12 +121,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   };
 
   const removeImage = (idToRemove: string) => {
-    const newImages = images.filter(img => img.id !== idToRemove);
+    let updatedImages = images.filter(img => img.id !== idToRemove);
     // If the removed image was main, and there are other images, make the new first one main.
-    if (images.find(img => img.id === idToRemove)?.isMain && newImages.length > 0 && !newImages.some(img => img.isMain)) {
-      newImages[0].isMain = true;
+    if (images.find(img => img.id === idToRemove)?.isMain && updatedImages.length > 0 && !updatedImages.some(img => img.isMain)) {
+      updatedImages[0].isMain = true;
     }
-    onImagesChange(newImages);
+    onImagesChange(updatedImages);
   };
 
   const setMainImage = (idToSetMain: string) => {
