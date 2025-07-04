@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, Shield, Headphones, CreditCard, Star, Smartphone, Laptop, Gamepad2 } from 'lucide-react';
+import { ArrowRight, Truck, Shield, Headphones, CreditCard, Star, Smartphone, Phone, MapPin } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
-import CategoryCard from '../components/ui/CategoryCard';
-import { featuredProducts, bestSellers, categories } from '../data/products';
+import { featuredProducts, bestSellers } from '../data/products';
 
 const HomePage: React.FC = () => {
   return (
@@ -15,14 +14,14 @@ const HomePage: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-2 mb-4">
                 <Smartphone className="h-8 w-8" />
-                <span className="text-xl font-bold">Lakki Phones</span>
+                <span className="text-xl font-bold">LAKKI PHONES</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-                Premium Electronics in Kuwait
+                Your Mobile Phone Shop in Kuwait
               </h1>
               <p className="text-xl text-gray-100 leading-relaxed">
-                Discover the latest smartphones, laptops, gaming consoles, and accessories. 
-                Your trusted partner for premium technology with exceptional service and competitive prices.
+                Discover the latest mobile phones and accessories at LAKKI PHONES. 
+                Located in Khaitan, we offer special deals and exceptional service for all your mobile needs.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -33,37 +32,94 @@ const HomePage: React.FC = () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
                 <Link
-                  to="/categories"
+                  to="/offers"
                   className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors inline-flex items-center justify-center"
                 >
-                  Browse Categories
+                  Special Offers
                 </Link>
               </div>
               <div className="flex items-center space-x-6 pt-4">
                 <div className="text-center">
-                  <p className="text-2xl font-bold">1000+</p>
-                  <p className="text-sm text-gray-200">Happy Customers</p>
+                  <p className="text-2xl font-bold">220</p>
+                  <p className="text-sm text-gray-200">Posts</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold">500+</p>
-                  <p className="text-sm text-gray-200">Products</p>
+                  <p className="text-2xl font-bold">66</p>
+                  <p className="text-sm text-gray-200">Followers</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold">24/7</p>
-                  <p className="text-sm text-gray-200">Support</p>
+                  <p className="text-2xl font-bold">42</p>
+                  <p className="text-sm text-gray-200">Following</p>
                 </div>
               </div>
             </div>
             <div className="relative">
               <img
-                src="https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt="Latest Electronics"
+                src="https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=800"
+                alt="Latest Mobile Phones"
                 className="w-full h-96 object-cover rounded-lg shadow-2xl"
               />
               <div className="absolute -bottom-6 -left-6 bg-white text-blue-600 p-4 rounded-lg shadow-lg">
                 <div className="flex items-center space-x-2">
                   <Star className="h-5 w-5 fill-current text-yellow-500" />
-                  <span className="font-semibold">4.9/5 Customer Rating</span>
+                  <span className="font-semibold">Trusted Mobile Shop</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Store Location */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Visit Our Store
+              </h2>
+              <p className="text-xl text-gray-600">
+                Located in the heart of Khaitan, Kuwait
+              </p>
+            </div>
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="h-6 w-6 text-blue-600 mt-1" />
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Address</h3>
+                      <p className="text-gray-600">Fahad Al-Dabous Complex</p>
+                      <p className="text-gray-600">Muscat Street, opposite Gulf Bank</p>
+                      <p className="text-gray-600">Khaitan, Al 'Āşimah, Kuwait 83000</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <Phone className="h-6 w-6 text-blue-600 mt-1" />
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Contact</h3>
+                      <p className="text-gray-600">+965 5043 0606</p>
+                      <p className="text-gray-600">+965 5546 3597</p>
+                    </div>
+                  </div>
+                  <div className="pt-4">
+                    <a 
+                      href="https://www.lakkiphones.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Visit our website
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </a>
+                  </div>
+                </div>
+                <div className="relative">
+                  <img
+                    src="https://images.pexels.com/photos/1036936/pexels-photo-1036936.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    alt="Mobile Phone Store"
+                    className="w-full h-64 object-cover rounded-lg shadow-lg"
+                  />
                 </div>
               </div>
             </div>
@@ -72,22 +128,29 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center space-y-4">
               <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <Truck className="h-8 w-8" />
+                <Smartphone className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold">Fast Delivery</h3>
-              <p className="text-gray-600">Same day delivery across Kuwait</p>
+              <h3 className="text-xl font-semibold">Latest Mobile Phones</h3>
+              <p className="text-gray-600">Latest smartphones from top brands</p>
             </div>
             <div className="text-center space-y-4">
               <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                 <Shield className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold">Authentic Products</h3>
-              <p className="text-gray-600">100% genuine products with warranty</p>
+              <h3 className="text-xl font-semibold">Phone Accessories</h3>
+              <p className="text-gray-600">Complete range of mobile accessories</p>
+            </div>
+            <div className="text-center space-y-4">
+              <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                <Star className="h-8 w-8" />
+              </div>
+              <h3 className="text-xl font-semibold">Special Offers</h3>
+              <p className="text-gray-600">Amazing deals and discounts available</p>
             </div>
             <div className="text-center space-y-4">
               <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
@@ -96,35 +159,28 @@ const HomePage: React.FC = () => {
               <h3 className="text-xl font-semibold">Expert Support</h3>
               <p className="text-gray-600">Professional customer service team</p>
             </div>
-            <div className="text-center space-y-4">
-              <div className="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <CreditCard className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-semibold">Flexible Payment</h3>
-              <p className="text-gray-600">KNET, Credit Cards & Installments</p>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Popular Categories */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Popular Categories
+              Our Products
             </h2>
             <p className="text-xl text-gray-600">
-              Explore our wide range of premium electronics
+              Everything you need for your mobile phone
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <Link to="/categories/smartphones" className="group">
-              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border">
                 <div className="relative">
                   <img
                     src="https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=800"
-                    alt="Smartphones"
+                    alt="Mobile Phones"
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300"></div>
@@ -133,56 +189,33 @@ const HomePage: React.FC = () => {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Smartphones</h3>
-                  <p className="text-gray-600 text-sm mb-3">Latest iPhone, Samsung, and more</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Mobile Phones</h3>
+                  <p className="text-gray-600 text-sm mb-3">Latest smartphones from all major brands</p>
                   <span className="text-blue-600 font-medium text-sm group-hover:underline">
-                    Explore Smartphones →
+                    Explore Mobile Phones →
                   </span>
                 </div>
               </div>
             </Link>
 
-            <Link to="/categories/laptops" className="group">
-              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <Link to="/categories/accessories" className="group">
+              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border">
                 <div className="relative">
                   <img
-                    src="https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=800"
-                    alt="Laptops"
+                    src="https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    alt="Phone Accessories"
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300"></div>
                   <div className="absolute top-4 left-4 bg-blue-600 text-white p-2 rounded-lg">
-                    <Laptop className="h-6 w-6" />
+                    <Shield className="h-6 w-6" />
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Laptops</h3>
-                  <p className="text-gray-600 text-sm mb-3">MacBook, Dell, HP, and gaming laptops</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Phone Accessories</h3>
+                  <p className="text-gray-600 text-sm mb-3">Cases, chargers, headphones, and more</p>
                   <span className="text-blue-600 font-medium text-sm group-hover:underline">
-                    Explore Laptops →
-                  </span>
-                </div>
-              </div>
-            </Link>
-
-            <Link to="/categories/gaming" className="group">
-              <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                <div className="relative">
-                  <img
-                    src="https://images.pexels.com/photos/442576/pexels-photo-442576.jpeg?auto=compress&cs=tinysrgb&w=800"
-                    alt="Gaming"
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300"></div>
-                  <div className="absolute top-4 left-4 bg-blue-600 text-white p-2 rounded-lg">
-                    <Gamepad2 className="h-6 w-6" />
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Gaming</h3>
-                  <p className="text-gray-600 text-sm mb-3">PS5, Xbox, Nintendo, and accessories</p>
-                  <span className="text-blue-600 font-medium text-sm group-hover:underline">
-                    Explore Gaming →
+                    Explore Accessories →
                   </span>
                 </div>
               </div>
@@ -192,14 +225,14 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Featured Products
             </h2>
             <p className="text-xl text-gray-600">
-              Handpicked premium products with exceptional quality
+              Handpicked products with exceptional quality
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -219,25 +252,6 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Best Sellers */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Best Sellers
-            </h2>
-            <p className="text-xl text-gray-600">
-              Most popular products loved by our customers
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Social Proof */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
@@ -252,14 +266,18 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <a href="https://www.instagram.com/lakkiphones" target="_blank" rel="noopener noreferrer" className="group">
               <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-8 rounded-lg text-center hover:shadow-lg transition-all duration-300">
-                <Instagram className="h-12 w-12 mx-auto mb-4" />
+                <svg className="h-12 w-12 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
                 <h3 className="text-xl font-semibold mb-2">Instagram</h3>
                 <p className="text-pink-100">Follow for daily updates and product showcases</p>
               </div>
             </a>
             <a href="https://www.facebook.com/lakkiphones" target="_blank" rel="noopener noreferrer" className="group">
               <div className="bg-blue-600 text-white p-8 rounded-lg text-center hover:shadow-lg transition-all duration-300">
-                <Facebook className="h-12 w-12 mx-auto mb-4" />
+                <svg className="h-12 w-12 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
                 <h3 className="text-xl font-semibold mb-2">Facebook</h3>
                 <p className="text-blue-100">Join our community for exclusive deals</p>
               </div>
@@ -285,7 +303,7 @@ const HomePage: React.FC = () => {
               Stay Updated
             </h2>
             <p className="text-xl text-gray-100 mb-8">
-              Subscribe to our newsletter for the latest deals, product launches, and tech news
+              Subscribe to our newsletter for the latest deals, product launches, and special offers
             </p>
             <form className="flex flex-col sm:flex-row gap-4">
               <input

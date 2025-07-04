@@ -14,13 +14,13 @@ const Footer: React.FC = () => {
                 <Smartphone className="w-6 h-6" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold">Lakki Phones</span>
-                <span className="text-xs text-gray-300">Premium Electronics Kuwait</span>
+                <span className="text-xl font-bold">LAKKI PHONES</span>
+                <span className="text-xs text-gray-300">Mobile Phone Shop</span>
               </div>
             </div>
             <p className="text-gray-300 text-sm">
-              Your trusted partner for premium electronics in Kuwait. We specialize in the latest 
-              smartphones, laptops, gaming consoles, and accessories with exceptional customer service.
+              Your trusted mobile phone shop in Kuwait. We specialize in the latest 
+              smartphones, phone accessories, and offer special deals with exceptional customer service.
             </p>
             <div className="flex space-x-4">
               <a href="https://www.facebook.com/lakkiphones" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
@@ -51,17 +51,17 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="/categories/smartphones" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Smartphones
+                  Mobile Phones
                 </Link>
               </li>
               <li>
-                <Link to="/categories/laptops" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Laptops
+                <Link to="/categories/accessories" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  Phone Accessories
                 </Link>
               </li>
               <li>
-                <Link to="/categories/gaming" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Gaming
+                <Link to="/offers" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  Special Offers
                 </Link>
               </li>
               <li>
@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/shipping" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link to="/delivery" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Delivery Info
                 </Link>
               </li>
@@ -111,23 +111,28 @@ const Footer: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gray-300" />
                 <div>
-                  <p className="text-gray-300 text-sm">+965 9999 8888</p>
-                  <p className="text-xs text-gray-400">WhatsApp Available</p>
+                  <p className="text-gray-300 text-sm">+965 5043 0606</p>
+                  <p className="text-gray-300 text-sm">+965 5546 3597</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gray-300" />
                 <span className="text-gray-300 text-sm">info@lakkiphones.com</span>
               </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300 text-sm">Kuwait City, Kuwait</span>
+              <div className="flex items-start space-x-3">
+                <MapPin className="h-5 w-5 text-gray-300 mt-1" />
+                <div className="text-gray-300 text-sm">
+                  <p>Fahad Al-Dabous Complex</p>
+                  <p>Muscat Street, opposite Gulf Bank</p>
+                  <p>Khaitan, Al 'Āşimah, Kuwait 83000</p>
+                </div>
               </div>
             </div>
             <div className="mt-4">
-              <p className="text-xs text-gray-400 mb-2">Business Hours:</p>
-              <p className="text-xs text-gray-300">Sunday - Thursday: 9 AM - 10 PM</p>
-              <p className="text-xs text-gray-300">Friday - Saturday: 2 PM - 10 PM</p>
+              <p className="text-xs text-gray-400 mb-2">Visit our website:</p>
+              <a href="https://www.lakkiphones.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm">
+                www.lakkiphones.com
+              </a>
             </div>
           </div>
         </div>
@@ -135,7 +140,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-700 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-300 text-sm">
-              © 2024 Lakki Phones. All rights reserved.
+              © 2024 LAKKI PHONES. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors text-sm">

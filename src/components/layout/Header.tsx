@@ -29,9 +29,9 @@ const Header: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Lakki Phones
+                LAKKI PHONES
               </span>
-              <span className="text-xs text-gray-500 font-medium">Premium Electronics Kuwait</span>
+              <span className="text-xs text-gray-500 font-medium">Mobile Phone Shop</span>
             </div>
           </Link>
 
@@ -41,13 +41,13 @@ const Header: React.FC = () => {
               Products
             </Link>
             <Link to="/categories/smartphones" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Smartphones
+              Mobile Phones
             </Link>
-            <Link to="/categories/laptops" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Laptops
+            <Link to="/categories/accessories" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              Accessories
             </Link>
-            <Link to="/categories/gaming" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Gaming
+            <Link to="/offers" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              Special Offers
             </Link>
             <Link to="/support" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Support
@@ -61,7 +61,7 @@ const Header: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for phones, laptops, gaming..."
+                placeholder="Search for phones, accessories..."
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -118,7 +118,7 @@ const Header: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for phones, laptops, gaming..."
+              placeholder="Search for phones, accessories..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -141,21 +141,21 @@ const Header: React.FC = () => {
                 className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Smartphones
+                Mobile Phones
               </Link>
               <Link
-                to="/categories/laptops"
+                to="/categories/accessories"
                 className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Laptops
+                Accessories
               </Link>
               <Link
-                to="/categories/gaming"
+                to="/offers"
                 className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Gaming
+                Special Offers
               </Link>
               <Link
                 to="/support"

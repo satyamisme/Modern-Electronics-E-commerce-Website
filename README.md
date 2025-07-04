@@ -1,47 +1,50 @@
-# Lakki Phones - Premium Electronics E-commerce Platform
+# LAKKI PHONES - Mobile Phone Shop Kuwait
 
-A modern, full-featured e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically designed for Lakki Phones - a premium electronics retailer in Kuwait.
+A modern e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically designed for LAKKI PHONES - a mobile phone shop located in Khaitan, Kuwait.
 
 ## 🚀 Live Demo
 
 **Production URL:** https://bejewelled-churros-f5d48b.netlify.app
 
-## 📱 About Lakki Phones
+## 📱 About LAKKI PHONES
 
-Lakki Phones is Kuwait's trusted partner for premium electronics, specializing in:
-- Latest smartphones (iPhone, Samsung, etc.)
-- High-performance laptops (MacBook, Dell, HP)
-- Gaming consoles (PlayStation, Xbox, Nintendo)
-- Audio accessories and premium headphones
-- Tech accessories and peripherals
+LAKKI PHONES is Kuwait's trusted mobile phone shop, specializing in:
+- Latest smartphones from all major brands
+- Complete range of phone accessories
+- Special offers and competitive pricing
+- Expert customer service and support
+
+### Store Information
+- **Location**: Fahad Al-Dabous Complex, Muscat Street, opposite Gulf Bank
+- **Area**: Khaitan, Al 'Āşimah, Kuwait 83000
+- **Phone**: +965 5043 0606, +965 5546 3597
+- **Website**: www.lakkiphones.com
 
 ### Social Media Presence
-- **Instagram:** [@lakkiphones](https://www.instagram.com/lakkiphones)
-- **Facebook:** [Lakki Phones](https://www.facebook.com/lakkiphones)
-- **TikTok:** [@lakkiphones](https://www.tiktok.com/@lakkiphones)
-- **YouTube:** [Lakki Phones](https://www.youtube.com/@lakkiphones)
+- **Instagram**: [@lakkiphones](https://www.instagram.com/lakkiphones) - 220 posts, 66 followers
+- **Facebook**: [LAKKI PHONES](https://www.facebook.com/lakkiphones)
+- **TikTok**: [@lakkiphones](https://www.tiktok.com/@lakkiphones)
+- **YouTube**: [LAKKI PHONES](https://www.youtube.com/@lakkiphones)
 
 ## ✨ Features
 
 ### Customer Features
-- **Product Discovery**: Advanced search with filters, categories, and real-time stock updates
-- **Product Presentation**: High-resolution image galleries, detailed specifications, customer reviews
-- **Shopping Experience**: Persistent cart, wishlist, product comparison (up to 4 items)
-- **Responsive Design**: Optimized for mobile, tablet, and desktop (320px - 1440px+)
+- **Product Discovery**: Advanced search for mobile phones and accessories
+- **Product Presentation**: High-resolution image galleries, detailed specifications
+- **Shopping Experience**: Persistent cart, wishlist, product comparison
+- **Responsive Design**: Optimized for mobile, tablet, and desktop
 - **Kuwait Localization**: KWD currency, Arabic language support, local payment methods
 
 ### Admin Features
-- **Role-Based Access Control**: Super Admin, Admin, Manager, Editor, Viewer roles
-- **Product Management**: CRUD operations with drag & drop image upload
+- **Role-Based Access Control**: Multiple admin roles with different permissions
+- **Product Management**: CRUD operations with image upload functionality
 - **Order Management**: Real-time order tracking and status updates
-- **Inventory Management**: Low stock alerts and automated notifications
+- **Inventory Management**: Stock alerts and automated notifications
 - **Analytics Dashboard**: Sales metrics, top products, revenue tracking
-- **Changelog System**: Track all system updates and changes
 
 ### Security Features
-- **Authentication**: JWT-based session management with role validation
+- **Authentication**: Secure session management with role validation
 - **Protected Routes**: Permission-based access control
-- **Secure File Upload**: Image validation and size limits
 - **Input Validation**: Comprehensive form validation and sanitization
 
 ## 🛠 Technology Stack
@@ -111,8 +114,8 @@ Create a `.env` file in the root directory:
 
 ```env
 # Application Settings
-VITE_APP_NAME=Lakki Phones
-VITE_APP_URL=https://lakkiphones.com
+VITE_APP_NAME=LAKKI PHONES
+VITE_APP_URL=https://www.lakkiphones.com
 VITE_API_URL=https://api.lakkiphones.com
 
 # Payment Gateway (KNET)
@@ -137,7 +140,7 @@ VITE_EMAIL_SERVICE_ID=your_email_service_id
 ### Payment Integration
 - **KNET Payment Gateway**: Secure local payment processing
 - **Credit Cards**: Visa, Mastercard support
-- **Installment Plans**: Flexible payment options
+- **Cash on Delivery**: Available for local orders
 
 ### Localization Features
 1. **Language Support**: Arabic and English
@@ -145,46 +148,35 @@ VITE_EMAIL_SERVICE_ID=your_email_service_id
 3. **Cultural Considerations**: Islamic calendar integration, local holidays
 
 ### Contact Information
-- **Phone**: +965 9999 8888 (WhatsApp Available)
+- **Phone**: +965 5043 0606, +965 5546 3597
 - **Email**: info@lakkiphones.com
-- **Location**: Kuwait City, Kuwait
+- **Location**: Fahad Al-Dabous Complex, Khaitan, Kuwait
 - **Business Hours**: 
   - Sunday - Thursday: 9 AM - 10 PM
   - Friday - Saturday: 2 PM - 10 PM
 
 ## 📱 Product Categories
 
-### Smartphones
-- iPhone 15 series
-- Samsung Galaxy S24 series
-- Latest Android flagships
-- Mid-range and budget options
+### Mobile Phones
+- iPhone series (latest models)
+- Samsung Galaxy series
+- Android smartphones
+- Budget-friendly options
 
-### Laptops
-- MacBook Pro and Air
-- Dell XPS and Inspiron
-- HP Pavilion and Envy
-- Gaming laptops
-
-### Gaming
-- PlayStation 5
-- Xbox Series X/S
-- Nintendo Switch
-- Gaming accessories
-
-### Audio & Accessories
-- AirPods and wireless earbuds
-- Premium headphones
-- Phone cases and screen protectors
-- Charging accessories
+### Phone Accessories
+- Phone cases and covers
+- Screen protectors
+- Chargers and cables
+- Wireless accessories
+- Headphones and earbuds
 
 ## 🔮 Future Enhancements
 
 ### Phase 1: Enhanced User Experience
-- [ ] Mobile app development (React Native)
-- [ ] Advanced search with AI recommendations
-- [ ] Voice search integration
-- [ ] Augmented reality product preview
+- [ ] Mobile app development
+- [ ] Advanced search with filters
+- [ ] Customer reviews system
+- [ ] Live chat support
 
 ### Phase 2: Business Intelligence
 - [ ] Advanced analytics dashboard
@@ -228,21 +220,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Contact
 
-- **Technical Support**: tech@lakkiphones.com
-- **Business Inquiries**: info@lakkiphones.com
-- **Customer Service**: +965 9999 8888
-- **WhatsApp**: Available for instant support
+- **Store Phone**: +965 5043 0606, +965 5546 3597
+- **Email**: info@lakkiphones.com
+- **Website**: www.lakkiphones.com
+- **Location**: Fahad Al-Dabous Complex, Muscat Street, opposite Gulf Bank, Khaitan, Kuwait
 
 ## 🌟 Social Media
 
-Stay connected with Lakki Phones:
-- **Instagram**: [@lakkiphones](https://www.instagram.com/lakkiphones) - Daily updates and product showcases
-- **Facebook**: [Lakki Phones](https://www.facebook.com/lakkiphones) - Community and exclusive deals
+Stay connected with LAKKI PHONES:
+- **Instagram**: [@lakkiphones](https://www.instagram.com/lakkiphones) - Product showcases and updates
+- **Facebook**: [LAKKI PHONES](https://www.facebook.com/lakkiphones) - Community and exclusive deals
 - **TikTok**: [@lakkiphones](https://www.tiktok.com/@lakkiphones) - Product reviews and unboxings
-- **YouTube**: [Lakki Phones](https://www.youtube.com/@lakkiphones) - Detailed product reviews
+- **YouTube**: [LAKKI PHONES](https://www.youtube.com/@lakkiphones) - Detailed product reviews
 
 ---
 
-**Built with ❤️ for the Kuwait market by Lakki Phones**
+**Built for LAKKI PHONES - Your trusted mobile phone shop in Kuwait**
 
 *Last updated: January 2025*
