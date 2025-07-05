@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: modern-electronics-ecommerce-app # Consistent name
+    ports:
+      - "80:80" # Map host port 80 to container port 80 (Nginx default)
+    restart: unless-stopped
+    # Note: Binding to port 80 on the host may require running 'docker-compose up' with sudo.
+    # For local development with live reload, you might add a volume like:
+    # volumes:
+    #   - ./src:/app/src
+    # This would typically require the Dockerfile's build stage to use a development server (e.g., `npm run dev`)
+    # or use a separate docker-compose.dev.yml with a Node service that runs the dev server.
+    # The current Dockerfile is optimized for production builds.
+    # For most React/Vite local development, running `npm run dev` directly on your host machine is often preferred for speed and HMR.
+    environment:
+      - NODE_ENV=production # Informative for any scripts that might check it, Nginx doesn't use this directly.
+      # Example environment variables that might be baked in at build time or configured in Nginx:
+      # - VITE_API_BASE_URL=https://api.yourdomain.com
+      # (Note: For Vite, env vars need to be prefixed with VITE_ to be embedded in the client bundle)
+    networks:
+      - electronics_network # Using underscore for network name consistency
+
+networks:
+  electronics_network: # Changed to underscore
+    driver: bridge
+
+# Placeholder for potential future services:
+#
+#  backend:
+#    build:
+#      context: ./backend # Assuming a backend Dockerfile in a 'backend' folder
+#    container_name: modern-electronics-backend
+#    ports:
+#      - "3001:3000" # Example: backend runs on 3000 inside container, mapped to 3001 on host
+#    environment:
+#      - DATABASE_URL=your_database_url
+#      - JWT_SECRET=your_jwt_secret
+#    depends_on:
+#      - db
+#    networks:
+#      - electronics_network
+#
+#  db:
+#    image: postgres:15-alpine
+#    container_name: modern-electronics-db
+#    environment:
+#      POSTGRES_USER: youruser
+#      POSTGRES_PASSWORD: yoursecurepassword
+#      POSTGRES_DB: electronicsdb
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data # Persist database data
+#    ports:
+#      - "5432:5432" # Standard PostgreSQL port
+#    networks:
+#      - electronics_network
+#
+# volumes:
+#  postgres_data:
+#    driver: local
+```

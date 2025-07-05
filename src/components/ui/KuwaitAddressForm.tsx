@@ -1,189 +1,100 @@
 import React, { useState } from 'react';
-import { MapPin, Building, Hash, Loader as Road } from 'lucide-react';
-import { KUWAIT_GOVERNORATES, KuwaitAddress, formatKuwaitAddress } from '../../utils/kuwait';
+
+// Placeholder for Kuwait Address Form component
+// - Governorate and area selection
+// - Block, street, building input
+// - Delivery fee calculation
+// - Arabic language support
 
 interface KuwaitAddressFormProps {
-  address?: KuwaitAddress;
-  onAddressChange: (address: KuwaitAddress) => void;
-  className?: string;
+  onSubmit: (address: any) => void;
 }
 
-const KuwaitAddressForm: React.FC<KuwaitAddressFormProps> = ({
-  address,
-  onAddressChange,
-  className = ''
-}) => {
-  const [formData, setFormData] = useState<KuwaitAddress>(
-    address || {
-      governorate: '',
-      area: '',
-      block: '',
-      street: '',
-      building: '',
-      floor: '',
-      apartment: '',
-      additionalInfo: ''
-    }
-  );
+const KuwaitAddressForm: React.FC<KuwaitAddressFormProps> = ({ onSubmit }) => {
+  const [governorate, setGovernorate] = useState('');
+  const [area, setArea] = useState('');
+  const [block, setBlock] = useState('');
+  const [street, setStreet] = useState('');
+  const [building, setBuilding] = useState('');
 
-  const handleChange = (field: keyof KuwaitAddress, value: string) => {
-    const updatedAddress = { ...formData, [field]: value };
-    setFormData(updatedAddress);
-    onAddressChange(updatedAddress);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Implement delivery fee calculation and more robust validation
+    onSubmit({ governorate, area, block, street, building });
   };
 
-  const selectedGovernorate = KUWAIT_GOVERNORATES[formData.governorate as keyof typeof KUWAIT_GOVERNORATES];
-
   return (
-    <div className={`space-y-4 ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Governorate */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <MapPin className="h-4 w-4 inline mr-1" />
-            Governorate / المحافظة
-          </label>
-          <select
-            value={formData.governorate}
-            onChange={(e) => handleChange('governorate', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          >
-            <option value="">Select Governorate</option>
-            {Object.entries(KUWAIT_GOVERNORATES).map(([key, gov]) => (
-              <option key={key} value={key}>
-                {gov.name} - {gov.nameAr}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Area */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Area / المنطقة
-          </label>
-          <select
-            value={formData.area}
-            onChange={(e) => handleChange('area', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-            disabled={!selectedGovernorate}
-          >
-            <option value="">Select Area</option>
-            {selectedGovernorate?.areas.map((area) => (
-              <option key={area} value={area}>
-                {area}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Block */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <Hash className="h-4 w-4 inline mr-1" />
-            Block / القطعة
-          </label>
-          <input
-            type="text"
-            value={formData.block}
-            onChange={(e) => handleChange('block', e.target.value)}
-            placeholder="e.g., 1, 2A, 15"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-        </div>
-
-        {/* Street */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <Road className="h-4 w-4 inline mr-1" />
-            Street / الشارع
-          </label>
-          <input
-            type="text"
-            value={formData.street}
-            onChange={(e) => handleChange('street', e.target.value)}
-            placeholder="Street name or number"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-        </div>
-
-        {/* Building */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <Building className="h-4 w-4 inline mr-1" />
-            Building / المبنى
-          </label>
-          <input
-            type="text"
-            value={formData.building}
-            onChange={(e) => handleChange('building', e.target.value)}
-            placeholder="Building number or name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required
-          />
-        </div>
-
-        {/* Floor */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Floor / الطابق (Optional)
-          </label>
-          <input
-            type="text"
-            value={formData.floor}
-            onChange={(e) => handleChange('floor', e.target.value)}
-            placeholder="e.g., Ground, 1, 2"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-
-        {/* Apartment */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Apartment / الشقة (Optional)
-          </label>
-          <input
-            type="text"
-            value={formData.apartment}
-            onChange={(e) => handleChange('apartment', e.target.value)}
-            placeholder="Apartment number"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      {/* Additional Information */}
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg">
+      <h3 className="text-lg font-semibold">Kuwait Address</h3>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Additional Information / معلومات إضافية (Optional)
-        </label>
-        <textarea
-          value={formData.additionalInfo}
-          onChange={(e) => handleChange('additionalInfo', e.target.value)}
-          placeholder="Landmarks, special instructions, etc."
-          rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+        <label htmlFor="governorate" className="block text-sm font-medium text-gray-700">Governorate</label>
+        <select
+          id="governorate"
+          value={governorate}
+          onChange={(e) => setGovernorate(e.target.value)}
+          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+          required
+        >
+          <option value="">Select Governorate</option>
+          {/* TODO: Populate with actual governorates from utils/kuwait.ts */}
+          <option value="AH">Al Ahmadi</option>
+          <option value="AS">Al Asimah</option>
+          <option value="FA">Al Farwaniyah</option>
+          <option value="JA">Al Jahra</option>
+          <option value="HA">Hawalli</option>
+          <option value="MU">Mubarak Al-Kabeer</option>
+        </select>
+      </div>
+      <div>
+        <label htmlFor="area" className="block text-sm font-medium text-gray-700">Area</label>
+        <input
+          type="text"
+          id="area"
+          value={area}
+          onChange={(e) => setArea(e.target.value)}
+          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+          required
         />
       </div>
-
-      {/* Address Preview */}
-      {formData.governorate && formData.area && formData.block && formData.street && formData.building && (
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Address Preview:</h4>
-          <p className="text-sm text-gray-600">{formatKuwaitAddress(formData)}</p>
-          {selectedGovernorate && (
-            <div className="mt-2 text-xs text-gray-500">
-              Delivery Fee: KD {selectedGovernorate.deliveryFee.toFixed(3)} | 
-              Estimated Time: {selectedGovernorate.deliveryTime}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+      <div>
+        <label htmlFor="block" className="block text-sm font-medium text-gray-700">Block</label>
+        <input
+          type="text"
+          id="block"
+          value={block}
+          onChange={(e) => setBlock(e.target.value)}
+          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="street" className="block text-sm font-medium text-gray-700">Street</label>
+        <input
+          type="text"
+          id="street"
+          value={street}
+          onChange={(e) => setStreet(e.target.value)}
+          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="building" className="block text-sm font-medium text-gray-700">Building/House No.</label>
+        <input
+          type="text"
+          id="building"
+          value={building}
+          onChange={(e) => setBuilding(e.target.value)}
+          className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+          required
+        />
+      </div>
+      {/* TODO: Add delivery fee display */}
+      {/* TODO: Add Arabic language support (input fields, labels) */}
+      <button type="submit" className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        Save Address
+      </button>
+    </form>
   );
 };
 

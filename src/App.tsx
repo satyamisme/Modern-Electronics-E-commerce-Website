@@ -11,8 +11,6 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
-import PaymentSuccessPage from './pages/PaymentSuccessPage';
-import PaymentErrorPage from './pages/PaymentErrorPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
@@ -69,10 +67,6 @@ function App() {
                   </AdminLayout>
                 </ProtectedRoute>
               } />
-              
-              {/* Payment Routes */}
-              <Route path="/payment/success" element={<PaymentSuccessPage />} />
-              <Route path="/payment/error" element={<PaymentErrorPage />} />
               
               {/* Public Routes */}
               <Route path="/*" element={

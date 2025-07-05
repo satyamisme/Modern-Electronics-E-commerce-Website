@@ -1,18 +1,19 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Link, AlertCircle } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Link as LinkIcon, AlertCircle, Star } from 'lucide-react';
+import { ProductImage } from '../../types'; // Assuming ProductImage is exported from types/index or types/product
 
 interface ImageUploadProps {
-  images: string[];
-  onImagesChange: (images: string[]) => void;
+  images: ProductImage[];
+  onImagesChange: (images: ProductImage[]) => void;
   maxImages?: number;
   acceptedFormats?: string[];
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ 
-  images, 
-  onImagesChange, 
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  images,
+  onImagesChange,
   maxImages = 10,
-  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp']
+  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp'],
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [urlInput, setUrlInput] = useState('');
@@ -34,7 +35,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
     const files = Array.from(e.dataTransfer.files);
     handleFiles(files);
   };
@@ -44,9 +44,32 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     handleFiles(files);
   };
 
+  const createProductImageObject = (url: string, currentImages: ProductImage[]): ProductImage => {
+    return {
+      id: crypto.randomUUID(), // Generate a unique ID
+      url,
+      altText: '', // User can fill this later if UI is provided
+      isMain: currentImages.length === 0, // First image added is main by default
+    };
+  };
+
+  const updateImages = (newImage: ProductImage) => {
+    let updatedImages = [...images];
+    // If the new image is set to main, unset other main images
+    if (newImage.isMain) {
+      updatedImages = updatedImages.map(img => ({ ...img, isMain: false }));
+    }
+    updatedImages.push(newImage);
+     // If no image is main after adding, set the first one to main
+    if (updatedImages.length > 0 && !updatedImages.some(img => img.isMain)) {
+      updatedImages[0].isMain = true;
+    }
+    onImagesChange(updatedImages);
+  };
+
+
   const handleFiles = (files: File[]) => {
     setError(null);
-    
     if (images.length + files.length > maxImages) {
       setError(`Maximum ${maxImages} images allowed`);
       return;
@@ -64,12 +87,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       return true;
     });
 
-    // Convert files to base64 URLs (in real app, upload to cloud storage)
     validFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        onImagesChange([...images, result]);
+        const newImage = createProductImageObject(result, images);
+        updateImages(newImage);
       };
       reader.readAsDataURL(file);
     });
@@ -77,17 +100,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const handleUrlAdd = () => {
     if (!urlInput.trim()) return;
-    
     if (images.length >= maxImages) {
       setError(`Maximum ${maxImages} images allowed`);
       return;
     }
 
-    // Basic URL validation
     try {
       new URL(urlInput);
-      if (!images.includes(urlInput)) {
-        onImagesChange([...images, urlInput]);
+      if (!images.some(img => img.url === urlInput)) {
+        const newImage = createProductImageObject(urlInput, images);
+        updateImages(newImage);
         setUrlInput('');
         setError(null);
       } else {
@@ -98,8 +120,22 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  const removeImage = (index: number) => {
-    onImagesChange(images.filter((_, i) => i !== index));
+  const removeImage = (idToRemove: string) => {
+    let updatedImages = images.filter(img => img.id !== idToRemove);
+    // If the removed image was main, and there are other images, make the new first one main.
+    if (images.find(img => img.id === idToRemove)?.isMain && updatedImages.length > 0 && !updatedImages.some(img => img.isMain)) {
+      updatedImages[0].isMain = true;
+    }
+    onImagesChange(updatedImages);
+  };
+
+  const setMainImage = (idToSetMain: string) => {
+    onImagesChange(
+      images.map(img => ({
+        ...img,
+        isMain: img.id === idToSetMain,
+      }))
+    );
   };
 
   return (

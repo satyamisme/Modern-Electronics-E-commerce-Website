@@ -127,13 +127,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <div className="relative">
           <img
-            src={product.images[0]}
+            src={product.images?.find(img => img.isMain)?.url || product.images?.[0]?.url || 'https://via.placeholder.com/300x200?text=No+Image'}
             alt={product.name}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          {product.originalPrice && (
+          {product.originalPrice && product.price && (
             <span className="absolute top-2 left-2 bg-secondary text-white px-2 py-1 rounded text-xs font-medium">
-              Save ${product.originalPrice - product.price}
+              Save KWD {(product.originalPrice - product.price).toFixed(3)}
             </span>
           )}
           <div className="absolute top-2 right-2 flex flex-col space-y-1">
@@ -150,7 +150,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
               <Compare className="h-4 w-4" />
             </button>
           </div>
-          {!product.inStock && (
+          {(product.stock === undefined || product.stock <= 0) && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
               <span className="text-white font-semibold">Out of Stock</span>
             </div>
