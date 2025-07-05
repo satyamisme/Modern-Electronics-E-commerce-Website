@@ -163,7 +163,7 @@ const PaymentErrorPage: React.FC = () => {
             </a>
             
             <a
-              href="mailto:support@techstore.com.kw"
+              href="mailto:support@lakkiphones.com"
               className="flex items-center justify-center space-x-2 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <Mail className="h-5 w-5" />
@@ -173,7 +173,7 @@ const PaymentErrorPage: React.FC = () => {
           
           <div className="mt-4 text-sm text-gray-600">
             <p>📞 +965 2XXX XXXX</p>
-            <p>📧 support@techstore.com.kw</p>
+            <p>📧 support@lakkiphones.com</p>
             <p>🕒 Sunday - Thursday: 9 AM - 10 PM</p>
           </div>
         </div>

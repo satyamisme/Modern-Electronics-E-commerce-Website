@@ -43,7 +43,9 @@ const SupportPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Phone Support</h3>
             <p className="text-gray-600 mb-4">Speak directly with our support team</p>
             <div className="space-y-2">
-              <p className="font-medium text-primary">+965 2XXX XXXX</p>
+              <p className="font-medium text-primary">50430606 / 55463597</p>
+              <p className="text-xs text-gray-500">محل تلفون لكي,خيطان مجمع فهد الدبوس علي كل التلفونات والاكسسوارت عرض</p>
+              {/* Assuming general hours, replace if specific hours for these numbers are different */}
               <p className="text-sm text-gray-500">Sunday - Thursday: 9 AM - 10 PM</p>
               <p className="text-sm text-gray-500">Friday: 2 PM - 10 PM</p>
             </div>
@@ -56,7 +58,7 @@ const SupportPage: React.FC = () => {
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Email Support</h3>
             <p className="text-gray-600 mb-4">Send us an email anytime</p>
             <div className="space-y-2">
-              <p className="font-medium text-primary">support@techstore.com.kw</p>
+              <p className="font-medium text-primary">support@lakkiphones.com</p>
               <p className="text-sm text-gray-500">Response within 24 hours</p>
               <p className="text-sm text-gray-500">Available 24/7</p>
             </div>
@@ -211,15 +213,16 @@ const SupportPage: React.FC = () => {
                 <div className="flex items-start space-x-3">
                   <MapPin className="h-5 w-5 text-primary mt-1" />
                   <div>
-                    <p className="font-medium text-gray-900">TechStore Kuwait</p>
-                    <p className="text-gray-600">Block 5, Street 15, Salmiya</p>
-                    <p className="text-gray-600">Hawalli, Kuwait</p>
+                    <p className="font-medium text-gray-900">LAKKI PHONES</p>
+                    <p className="text-gray-600">Muscat street, opp gulf bank, Khaitan</p>
+                    <p className="text-gray-600">Al 'Āşimah, Kuwait 83000</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Clock className="h-5 w-5 text-primary mt-1" />
                   <div>
                     <p className="font-medium text-gray-900">Store Hours</p>
+                    {/* Assuming general hours, replace if specific hours are different */}
                     <p className="text-gray-600">Sunday - Thursday: 9 AM - 10 PM</p>
                     <p className="text-gray-600">Friday: 2 PM - 10 PM</p>
                     <p className="text-gray-600">Saturday: 9 AM - 10 PM</p>

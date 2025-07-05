@@ -189,7 +189,7 @@ const PaymentSuccessPage: React.FC = () => {
           <p className="text-sm text-gray-600 mb-2">Need help with your order?</p>
           <div className="space-y-1 text-sm">
             <p>📞 Customer Service: +965 2XXX XXXX</p>
-            <p>📧 Email: support@techstore.com.kw</p>
+            <p>📧 Email: support@lakkiphones.com</p>
             <p>🕒 Available: Sunday - Thursday, 9 AM - 10 PM</p>
           </div>
         </div>

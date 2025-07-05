@@ -35,7 +35,7 @@ export class KNETPaymentService {
       language: this.config.language,
       returnUrl: this.config.returnUrl,
       errorUrl: this.config.errorUrl,
-      description: paymentRequest.description || 'TechStore Purchase'
+      description: paymentRequest.description || 'LAKKI PHONES Purchase'
     });
 
     // In production, this would be the actual KNET gateway URL

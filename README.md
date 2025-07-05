@@ -1,4 +1,4 @@
-# TechStore - Premium Electronics E-commerce Platform
+# LAKKI PHONES - Premium Electronics E-commerce Platform
 
 A modern, full-featured e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically optimized for the Kuwait market with KWD currency and KNET payment integration.
 
@@ -103,8 +103,8 @@ A modern, full-featured e-commerce platform built with React, TypeScript, and Ta
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-username/techstore-kuwait.git
-cd techstore-kuwait
+git clone https://github.com/satyamisme/Modern-Electronics-E-commerce-Website.git
+cd Modern-Electronics-E-commerce-Website
 ```
 
 2. **Install dependencies**
@@ -170,9 +170,9 @@ Create a `.env` file in the root directory:
 
 ```env
 # Application Settings
-VITE_APP_NAME=TechStore Kuwait
-VITE_APP_URL=https://your-domain.com
-VITE_API_URL=https://api.your-domain.com
+VITE_APP_NAME=LAKKI PHONES
+VITE_APP_URL=https://www.lakkiphones.com
+VITE_API_URL=https://api.lakkiphones.com
 
 # Payment Gateway (KNET)
 VITE_KNET_MERCHANT_ID=your_merchant_id
@@ -218,7 +218,7 @@ VITE_EMAIL_SERVICE_ID=your_email_service_id
 server {
     listen 80;
     listen 443 ssl;
-    server_name techstore.com.kw www.techstore.com.kw;
+    server_name www.lakkiphones.com lakkiphones.com;
     
     # SSL Configuration
     ssl_certificate /path/to/certificate.crt;
@@ -264,7 +264,7 @@ server {
 ```javascript
 // Initial super admin creation (run once)
 const createSuperAdmin = {
-  email: "superadmin@techstore.com.kw",
+  email: "superadmin@lakkiphones.com",
   password: "SecurePassword123!",
   name: "Super Administrator",
   role: "super_admin",
@@ -308,10 +308,10 @@ const createSuperAdmin = {
 1. **Super Admin Creates Account**
    ```bash
    # Access admin panel
-   https://your-domain.com/admin
+   https://www.lakkiphones.com/admin
    
    # Login with super admin credentials
-   Email: superadmin@techstore.com.kw
+   Email: superadmin@lakkiphones.com
    Password: SecurePassword123!
    ```
 
@@ -352,8 +352,8 @@ const knetConfig = {
   resourceKey: process.env.VITE_KNET_RESOURCE_KEY,
   currency: 'KWD',
   language: 'ar', // Arabic support
-  returnUrl: 'https://your-domain.com/payment/success',
-  errorUrl: 'https://your-domain.com/payment/error'
+  returnUrl: 'https://www.lakkiphones.com/payment/success',
+  errorUrl: 'https://www.lakkiphones.com/payment/error'
 };
 ```
 
@@ -621,10 +621,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support & Contact
 
-- **Technical Support**: tech@techstore.com.kw
-- **Business Inquiries**: business@techstore.com.kw
-- **Customer Service**: +965 2XXX XXXX
-- **Documentation**: https://docs.techstore.com.kw
+- **Technical Support**: support@lakkiphones.com
+- **Business Inquiries**: support@lakkiphones.com
+- **Customer Service**: 50430606 / 55463597 (محل تلفون لكي,خيطان مجمع فهد الدبوس علي كل التلفونات والاكسسوارت عرض)
+- **Address**: muscat street, opp gulf bank, khaitan, Kuwait, Khaitan, Al 'Āşimah, Kuwait 83000
+- **Website**: www.lakkiphones.com
+- **Documentation**: (Consider if a separate docs site is needed for LAKKI PHONES or remove/update this line)
+
 
 ---
 

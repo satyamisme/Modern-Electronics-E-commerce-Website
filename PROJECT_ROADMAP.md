@@ -1,8 +1,8 @@
-# TechStore Kuwait - Project Roadmap & Development Plan
+# LAKKI PHONES - Project Roadmap & Development Plan
 
 ## 🏪 Store Information
-- **Store Name**: TechStore Kuwait
-- **Domain**: techstore.com.kw
+- **Store Name**: LAKKI PHONES
+- **Domain**: www.lakkiphones.com
 - **Currency**: Kuwaiti Dinar (KWD) - 3 decimal places
 - **Payment Gateway**: KNET (Kuwait's national payment system)
 - **Target Market**: Kuwait electronics consumers

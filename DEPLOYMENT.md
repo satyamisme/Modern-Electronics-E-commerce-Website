@@ -39,7 +39,7 @@ Create `ecosystem.config.js`:
 ```javascript
 module.exports = {
   apps: [{
-    name: 'techstore',
+    name: 'lakkiphones',
     script: 'npm',
     args: 'run preview',
     cwd: '/path/to/your/project',
@@ -73,14 +73,14 @@ pm2 startup
 sudo apt install nginx -y
 
 # Create site configuration
-sudo nano /etc/nginx/sites-available/techstore
+sudo nano /etc/nginx/sites-available/lakkiphones
 ```
 
 Add this configuration:
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com www.your-domain.com;
+    server_name www.lakkiphones.com lakkiphones.com;
 
     location / {
         proxy_pass http://localhost:4173;
@@ -99,7 +99,7 @@ server {
 ### 7. Enable Site and Restart Nginx
 ```bash
 # Enable site
-sudo ln -s /etc/nginx/sites-available/techstore /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/lakkiphones /etc/nginx/sites-enabled/
 
 # Test configuration
 sudo nginx -t
@@ -122,7 +122,7 @@ sudo ufw enable
 sudo apt install certbot python3-certbot-nginx -y
 
 # Get SSL certificate
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot --nginx -d lakkiphones.com -d www.lakkiphones.com
 ```
 
 ## Troubleshooting
@@ -130,7 +130,7 @@ sudo certbot --nginx -d your-domain.com -d www.your-domain.com
 ### Check if application is running:
 ```bash
 pm2 status
-pm2 logs techstore
+pm2 logs lakkiphones
 ```
 
 ### Check Nginx status:
@@ -154,15 +154,15 @@ sudo netstat -tlnp | grep :80
 
 - **Local**: http://localhost:4173
 - **VPS IP**: http://YOUR_VPS_IP
-- **Domain**: http://your-domain.com
+- **Domain**: http://www.lakkiphones.com
 
 ## Environment Variables
 
 Create `.env` file in project root:
 ```env
-VITE_APP_NAME=TechStore Kuwait
-VITE_APP_URL=https://your-domain.com
-VITE_API_URL=https://api.your-domain.com
+VITE_APP_NAME=LAKKI PHONES
+VITE_APP_URL=https://www.lakkiphones.com
+VITE_API_URL=https://api.lakkiphones.com
 VITE_KNET_MERCHANT_ID=your_merchant_id
 VITE_KNET_TERMINAL_ID=your_terminal_id
 VITE_KNET_RESOURCE_KEY=your_resource_key
@@ -188,5 +188,5 @@ To update the application:
 git pull origin main
 npm install
 npm run build
-pm2 restart techstore
+pm2 restart lakkiphones
 ```

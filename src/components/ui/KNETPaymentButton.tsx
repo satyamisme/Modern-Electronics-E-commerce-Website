@@ -37,7 +37,7 @@ const KNETPaymentButton: React.FC<KNETPaymentButtonProps> = ({
         orderId,
         customerEmail,
         customerPhone,
-        description: `TechStore Order #${orderId}`
+        description: `LAKKI PHONES Order #${orderId}`
       };
 
       const paymentUrl = knetService.generatePaymentUrl(paymentRequest);
