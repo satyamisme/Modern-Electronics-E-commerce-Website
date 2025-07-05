@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShoppingCart, Heart, User, Menu, X, GitCompare as Compare } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import lakkiLogo from '/src/assets/logo.webp'; // Import the logo
 import CompareModal from '../ui/CompareModal';
 import WishlistModal from '../ui/WishlistModal';
 import CheckoutModal from '../ui/CheckoutModal';
@@ -31,12 +32,9 @@ const Header: React.FC = () => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-primary text-white p-2 rounded-lg">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M13 3L4 14h7v7l9-11h-7V3z" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold text-primary">TechStore</span>
+              <img src={lakkiLogo} alt="LAKKI PHONES Logo" className="h-10 w-auto" />
+              {/* Adjusted height, can be further styled as needed */}
+              <span className="text-xl font-bold text-primary hidden sm:inline-block">LAKKI PHONES</span>
             </Link>
 
             {/* Desktop Navigation */}

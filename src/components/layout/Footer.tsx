@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import lakkiLogo from '/src/assets/logo.webp'; // Import the logo
 
 const Footer: React.FC = () => {
   return (
@@ -10,12 +11,9 @@ const Footer: React.FC = () => {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="bg-white text-primary p-2 rounded-lg">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M13 3L4 14h7v7l9-11h-7V3z" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold">TechStore</span>
+              <img src={lakkiLogo} alt="LAKKI PHONES Logo" className="h-10 w-auto rounded-lg" />
+              {/* Adjusted height, can be further styled. Added rounded-lg to match previous style if desired */}
+              <span className="text-xl font-bold">LAKKI PHONES</span>
             </div>
             <p className="text-gray-300 text-sm">
               Your trusted partner for the latest consumer electronics. We deliver quality products
@@ -105,17 +103,20 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Contact Info</h3>
             <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300 text-sm">+1 (555) 123-4567</span>
+              <div className="flex items-start space-x-3">
+                <Phone className="h-5 w-5 text-gray-300 mt-1" />
+                <div>
+                  <span className="text-gray-300 text-sm">50430606 / 55463597</span>
+                  <p className="text-gray-400 text-xs">محل تلفون لكي,خيطان مجمع فهد الدبوس علي كل التلفونات والاكسسوارت عرض</p>
+                </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300 text-sm">support@techstore.com</span>
+                <span className="text-gray-300 text-sm">support@lakkiphones.com</span>
               </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-gray-300" />
-                <span className="text-gray-300 text-sm">123 Tech Street, Silicon Valley, CA 94043</span>
+              <div className="flex items-start space-x-3">
+                <MapPin className="h-5 w-5 text-gray-300 mt-1" />
+                <span className="text-gray-300 text-sm">Muscat street, opp gulf bank, Khaitan, Al 'Āşimah, Kuwait 83000</span>
               </div>
             </div>
           </div>
@@ -124,7 +125,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-600 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-300 text-sm">
-              © 2024 TechStore. All rights reserved.
+              © 2024 LAKKI PHONES. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors text-sm">
