@@ -1,67 +1,44 @@
-import { ProductImage, ProductSpecification, ProductFeature, ProductTag, CartItem, KuwaitAddress, UserRole, OrderStatus } from "./index";
-
 export interface AdminUser {
   id: string;
   email: string;
   name: string;
-  role: UserRole; // Using shared UserRole
+  role: 'admin' | 'manager' | 'editor';
   avatar?: string;
-  permissions: string[]; // This could be more specific, e.g., an enum of permissions
-  lastLogin: Date | string; // Allow string for ISO dates
-  createdAt: Date | string; // Allow string for ISO dates
+  permissions: string[];
+  lastLogin: Date;
+  createdAt: Date;
 }
 
-export interface ProductFormData { // Aligned with new Product structure
+export interface ProductFormData {
   name: string;
   brand: string;
-  category: string; // Should be Category['id'] or Category['slug']
+  category: string;
   price: number;
   originalPrice?: number;
   description: string;
-  images: ProductImage[];
-  specifications: ProductSpecification[];
-  stock: number; // Renamed from stockCount, removed inStock (derived)
-  features: ProductFeature[];
-  tags: ProductTag[];
-  sku?: string; // Consider adding SKU
+  images: string[];
+  specifications: Record<string, string>;
+  inStock: boolean;
+  stockCount: number;
+  features: string[];
+  tags: string[];
 }
 
-// Replacing original OrderManagement with more specific AdminOrder types
-export interface AdminOrderSummary {
-  orderId: string;
-  customerName: string; // Could be User['name'] or a denormalized string
-  customerEmail: string; // User['email']
-  totalAmount: number;
-  currency: 'KWD';
-  status: OrderStatus; // Using shared OrderStatus
-  orderDate: Date | string;
-  itemCount: number;
-}
-
-export interface AdminOrderDetails {
-  orderId: string;
-  userId?: string;
-  customerDetails: {
-    id?: string;
-    name: string;
-    email: string;
-    phone?: string;
-  };
-  items: CartItem[]; // Using CartItem from payment.ts
-  shippingAddress: KuwaitAddress; // Or generic Address if applicable
-  billingAddress?: KuwaitAddress;
-  paymentMethod: string;
-  paymentTransactionId?: string;
-  subtotal: number;
-  shippingCost: number;
-  discountAmount?: number;
-  grandTotal: number;
-  currency: 'KWD';
-  status: OrderStatus;
-  orderDate: Date | string;
-  lastUpdated: Date | string;
+export interface OrderManagement {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  items: Array<{
+    productId: string;
+    productName: string;
+    quantity: number;
+    price: number;
+  }>;
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  orderDate: Date;
+  shippingAddress: string;
   trackingNumber?: string;
-  notes?: Array<{ date: Date | string; note: string; by: string }>; // Admin notes for order
 }
 
 export interface InventoryAlert {
@@ -71,7 +48,7 @@ export interface InventoryAlert {
   currentStock: number;
   threshold: number;
   severity: 'low' | 'critical' | 'out-of-stock';
-  createdAt: Date | string; // Allow string for ISO dates
+  createdAt: Date;
 }
 
 export interface SalesAnalytics {

@@ -1,62 +1,182 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom'; // Assuming usage of react-router for state/query params
-
-// Placeholder for Payment Error Page
-// - Comprehensive error handling
-// - Troubleshooting tips
-// - Alternative payment methods
-// - Customer support integration
+import { useSearchParams, Link } from 'react-router-dom';
+import { XCircle, RefreshCw, ArrowLeft, Phone, Mail } from 'lucide-react';
 
 const PaymentErrorPage: React.FC = () => {
-  const location = useLocation();
-  // Example: const { errorCode, errorMessage } = location.state || {};
-  // In a real app, you'd get error details from query params or state
+  const [searchParams] = useSearchParams();
+  const errorCode = searchParams.get('error');
+  const orderId = searchParams.get('orderId');
+
+  const getErrorMessage = (code: string | null) => {
+    switch (code) {
+      case 'INSUFFICIENT_FUNDS':
+        return 'Insufficient funds in your account. Please check your balance and try again.';
+      case 'CARD_DECLINED':
+        return 'Your card was declined. Please contact your bank or try a different payment method.';
+      case 'EXPIRED_CARD':
+        return 'Your card has expired. Please use a valid card.';
+      case 'INVALID_PIN':
+        return 'Invalid PIN entered. Please try again with the correct PIN.';
+      case 'TRANSACTION_TIMEOUT':
+        return 'Transaction timed out. Please try again.';
+      case 'NETWORK_ERROR':
+        return 'Network connection error. Please check your internet connection and try again.';
+      case 'CANCELLED':
+        return 'Payment was cancelled. You can try again or choose a different payment method.';
+      default:
+        return 'An unexpected error occurred during payment processing. Please try again.';
+    }
+  };
+
+  const getErrorTitle = (code: string | null) => {
+    switch (code) {
+      case 'CANCELLED':
+        return 'Payment Cancelled';
+      case 'NETWORK_ERROR':
+        return 'Connection Error';
+      case 'TRANSACTION_TIMEOUT':
+        return 'Transaction Timeout';
+      default:
+        return 'Payment Failed';
+    }
+  };
 
   return (
-    <div className="container mx-auto p-4 sm:p-8 text-center">
-      <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-md shadow-md">
-        <h1 className="text-3xl font-bold mb-4">Payment Failed</h1>
-        <p className="text-lg mb-2">
-          Unfortunately, we were unable to process your payment.
-        </p>
-
-        {/* TODO: Display specific error message if available */}
-        <div className="my-6 p-4 bg-white rounded-md text-left">
-          <h2 className="text-xl font-semibold mb-3">Error Details (Placeholder)</h2>
-          <p><strong>Error Code:</strong> KNET_ERROR_005</p>
-          <p><strong>Message:</strong> Insufficient funds or transaction declined by the bank.</p>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4 max-w-2xl">
+        {/* Error Header */}
+        <div className="text-center mb-8">
+          <div className="bg-red-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+            <XCircle className="h-12 w-12 text-red-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{getErrorTitle(errorCode)}</h1>
+          <p className="text-gray-600">{getErrorMessage(errorCode)}</p>
         </div>
 
-        <div className="my-6 p-4 bg-white rounded-md text-left">
-          <h2 className="text-xl font-semibold mb-3">Troubleshooting Tips</h2>
-          <ul className="list-disc list-inside space-y-1">
-            <li>Please check if your card details are correct.</li>
-            <li>Ensure you have sufficient funds in your account.</li>
-            <li>Try using a different payment card or method.</li>
-            <li>Contact your bank for more information if the issue persists.</li>
+        {/* Error Details */}
+        {orderId && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Transaction Details</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Order ID:</span>
+                <span className="font-medium">{orderId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Error Code:</span>
+                <span className="font-medium text-red-600">{errorCode || 'UNKNOWN'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Time:</span>
+                <span className="font-medium">{new Date().toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Troubleshooting Tips */}
+        <div className="bg-blue-50 rounded-lg p-6 mb-6">
+          <h3 className="font-semibold text-gray-900 mb-3">Troubleshooting Tips</h3>
+          <ul className="space-y-2 text-sm text-gray-700">
+            <li className="flex items-start">
+              <span className="text-blue-500 mr-2">•</span>
+              Ensure your card has sufficient balance
+            </li>
+            <li className="flex items-start">
+              <span className="text-blue-500 mr-2">•</span>
+              Check that your card is not expired
+            </li>
+            <li className="flex items-start">
+              <span className="text-blue-500 mr-2">•</span>
+              Verify your internet connection is stable
+            </li>
+            <li className="flex items-start">
+              <span className="text-blue-500 mr-2">•</span>
+              Contact your bank if the issue persists
+            </li>
+            <li className="flex items-start">
+              <span className="text-blue-500 mr-2">•</span>
+              Try using a different browser or device
+            </li>
           </ul>
         </div>
 
-        {/* TODO: Link to actual alternative payment methods or cart */}
-        <Link
-          to="/cart" // Or checkout page to try again
-          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded my-4 inline-block mr-3"
-        >
-          Try Again
-        </Link>
-        <Link
-          to="/contact"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded my-4 inline-block"
-        >
-          Contact Support
-        </Link>
+        {/* Action Buttons */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link
+              to="/cart"
+              className="flex items-center justify-center space-x-2 bg-primary text-white py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              <RefreshCw className="h-5 w-5" />
+              <span>Try Again</span>
+            </Link>
+            
+            <Link
+              to="/products"
+              className="flex items-center justify-center space-x-2 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span>Continue Shopping</span>
+            </Link>
+          </div>
+        </div>
 
-        <p className="text-md mt-6">
-          We apologize for any inconvenience. Please <Link to="/contact" className="text-blue-600 hover:underline">contact customer support</Link> if you need further assistance.
-        </p>
-        <Link to="/" className="inline-block mt-8 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded">
-          Back to Homepage
-        </Link>
+        {/* Alternative Payment Methods */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 className="font-semibold text-gray-900 mb-4">Alternative Payment Options</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold">KNET</div>
+                <span className="text-sm">Try with a different card</span>
+              </div>
+              <Link to="/cart" className="text-primary hover:underline text-sm">
+                Use KNET
+              </Link>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold">COD</div>
+                <span className="text-sm">Cash on Delivery</span>
+              </div>
+              <Link to="/cart" className="text-primary hover:underline text-sm">
+                Select COD
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Customer Support */}
+        <div className="bg-gray-100 rounded-lg p-6 text-center">
+          <h3 className="font-semibold text-gray-900 mb-4">Need Help?</h3>
+          <p className="text-gray-600 mb-4">Our customer support team is here to assist you</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a
+              href="tel:+96522345678"
+              className="flex items-center justify-center space-x-2 bg-primary text-white py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              <Phone className="h-5 w-5" />
+              <span>Call Support</span>
+            </a>
+            
+            <a
+              href="mailto:support@techstore.com.kw"
+              className="flex items-center justify-center space-x-2 border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Mail className="h-5 w-5" />
+              <span>Email Support</span>
+            </a>
+          </div>
+          
+          <div className="mt-4 text-sm text-gray-600">
+            <p>📞 +965 2XXX XXXX</p>
+            <p>📧 support@techstore.com.kw</p>
+            <p>🕒 Sunday - Thursday: 9 AM - 10 PM</p>
+          </div>
+        </div>
       </div>
     </div>
   );

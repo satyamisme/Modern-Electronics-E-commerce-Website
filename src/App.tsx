@@ -11,6 +11,11 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
+import CategoriesPage from './pages/CategoriesPage';
+import DealsPage from './pages/DealsPage';
+import SupportPage from './pages/SupportPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentErrorPage from './pages/PaymentErrorPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
@@ -68,6 +73,10 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              {/* Payment Routes */}
+              <Route path="/payment/success" element={<PaymentSuccessPage />} />
+              <Route path="/payment/error" element={<PaymentErrorPage />} />
+              
               {/* Public Routes */}
               <Route path="/*" element={
                 <div className="flex flex-col min-h-screen">
@@ -78,7 +87,10 @@ function App() {
                       <Route path="/products" element={<ProductsPage />} />
                       <Route path="/products/:id" element={<ProductDetailPage />} />
                       <Route path="/cart" element={<CartPage />} />
+                      <Route path="/categories" element={<CategoriesPage />} />
                       <Route path="/categories/:slug" element={<ProductsPage />} />
+                      <Route path="/deals" element={<DealsPage />} />
+                      <Route path="/support" element={<SupportPage />} />
                       <Route path="/search" element={<ProductsPage />} />
                     </Routes>
                   </main>
