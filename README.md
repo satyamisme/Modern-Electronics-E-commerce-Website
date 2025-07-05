@@ -134,6 +134,36 @@ npm run preview
 npm run lint
 ```
 
+### Running with Start/Stop Scripts (for development on a server/VPS)
+
+To run the development server and make it accessible on your network (e.g., from your VPS's IP address), use the provided scripts:
+
+**Start the server:**
+```bash
+./start_server.sh
+```
+This will:
+- Start the Vite development server.
+- Make it listen on all available network interfaces (`0.0.0.0`).
+- Run it in the background using `nohup`.
+- Store the server's process ID (PID) in `server.pid`.
+- Redirect server output (stdout and stderr) to `server.log`.
+You should then be able to access the application at `http://<your-server-ip>:5173` (or the port configured in `vite.config.js`).
+
+**Stop the server:**
+```bash
+./stop_server.sh
+```
+This will:
+- Read the PID from `server.pid`.
+- Stop the server process.
+- Remove the `server.pid` file.
+
+**Note:** Ensure the scripts are executable:
+```bash
+chmod +x start_server.sh stop_server.sh
+```
+
 ### Environment Variables
 
 Create a `.env` file in the root directory:
