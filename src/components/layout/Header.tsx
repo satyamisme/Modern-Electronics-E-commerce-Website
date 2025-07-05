@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Heart, User, Menu, X, GitCompare as Compare } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, Menu, X, GitCompare as Compare, Smartphone } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 const Header: React.FC = () => {
@@ -23,27 +23,33 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-primary text-white p-2 rounded-lg">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13 3L4 14h7v7l9-11h-7V3z" />
-              </svg>
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 rounded-xl">
+              <Smartphone className="w-8 h-8" />
             </div>
-            <span className="text-xl font-bold text-primary">TechStore</span>
+            <div className="flex flex-col">
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                LAKKI PHONES
+              </span>
+              <span className="text-xs text-gray-500 font-medium">Mobile Phone Shop</span>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/products" className="text-gray-700 hover:text-primary transition-colors">
+            <Link to="/products" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Products
             </Link>
-            <Link to="/categories" className="text-gray-700 hover:text-primary transition-colors">
-              Categories
+            <Link to="/categories/smartphones" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              Mobile Phones
             </Link>
-            <Link to="/deals" className="text-gray-700 hover:text-primary transition-colors">
-              Deals
+            <Link to="/categories/accessories" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              Accessories
             </Link>
-            <Link to="/support" className="text-gray-700 hover:text-primary transition-colors">
+            <Link to="/offers" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              Special Offers
+            </Link>
+            <Link to="/support" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Support
             </Link>
           </nav>
@@ -55,8 +61,8 @@ const Header: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Search for phones, accessories..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
@@ -64,41 +70,41 @@ const Header: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-gray-700 hover:text-primary transition-colors">
+            <button className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors">
               <Compare className="h-6 w-6" />
               {state.compareProducts.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {state.compareProducts.length}
                 </span>
               )}
             </button>
 
-            <button className="relative p-2 text-gray-700 hover:text-primary transition-colors">
+            <button className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors">
               <Heart className="h-6 w-6" />
               {state.wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {state.wishlist.length}
                 </span>
               )}
             </button>
 
-            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-primary transition-colors">
+            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors">
               <ShoppingCart className="h-6 w-6" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartItemCount}
                 </span>
               )}
             </Link>
 
-            <button className="p-2 text-gray-700 hover:text-primary transition-colors">
+            <button className="p-2 text-gray-700 hover:text-blue-600 transition-colors">
               <User className="h-6 w-6" />
             </button>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 text-gray-700 hover:text-primary transition-colors"
+              className="md:hidden p-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -112,8 +118,8 @@ const Header: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Search for phones, accessories..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
@@ -125,28 +131,35 @@ const Header: React.FC = () => {
             <div className="flex flex-col space-y-4">
               <Link
                 to="/products"
-                className="text-gray-700 hover:text-primary transition-colors"
+                className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Products
+                All Products
               </Link>
               <Link
-                to="/categories"
-                className="text-gray-700 hover:text-primary transition-colors"
+                to="/categories/smartphones"
+                className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Categories
+                Mobile Phones
               </Link>
               <Link
-                to="/deals"
-                className="text-gray-700 hover:text-primary transition-colors"
+                to="/categories/accessories"
+                className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Deals
+                Accessories
+              </Link>
+              <Link
+                to="/offers"
+                className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Special Offers
               </Link>
               <Link
                 to="/support"
-                className="text-gray-700 hover:text-primary transition-colors"
+                className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Support
