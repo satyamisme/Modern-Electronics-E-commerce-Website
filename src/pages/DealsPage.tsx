@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Clock, Percent, Star, Filter } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import { products } from '../data/products';
+import OptimizedImage from '../components/ui/OptimizedImage';
 import { formatKWD } from '../utils/currency';
 
 const DealsPage: React.FC = () => {
