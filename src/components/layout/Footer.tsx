@@ -1,35 +1,38 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
-import lakkiLogo from '/src/assets/logo.webp'; // Import the logo
+import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Clock } from 'lucide-react';
+import lakkiLogo from '/src/assets/logo.webp';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-primary text-white">
+    <footer className="bg-gray-900 text-white">
+      {/* Main Footer */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <img src={lakkiLogo} alt="LAKKI PHONES Logo" className="h-10 w-auto rounded-lg" />
-              {/* Adjusted height, can be further styled. Added rounded-lg to match previous style if desired */}
-              <span className="text-xl font-bold">LAKKI PHONES</span>
+          <div className="space-y-6">
+            <div className="flex items-center space-x-3">
+              <img src={lakkiLogo} alt="LAKKI PHONES Logo" className="h-12 w-auto rounded-lg" />
+              <div>
+                <span className="text-xl font-bold">LAKKI PHONES</span>
+                <p className="text-sm text-gray-400">Premium Electronics</p>
+              </div>
             </div>
-            <p className="text-gray-300 text-sm">
-              Your trusted partner for the latest consumer electronics. We deliver quality products
-              with exceptional customer service.
+            <p className="text-gray-300 text-sm leading-relaxed">
+              Your trusted partner for the latest mobile technology and electronics. 
+              We deliver quality products with exceptional customer service across Kuwait.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors p-2 bg-gray-800 rounded-full">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors p-2 bg-gray-800 rounded-full">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors p-2 bg-gray-800 rounded-full">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-white transition-colors">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors p-2 bg-gray-800 rounded-full">
                 <Youtube className="h-5 w-5" />
               </a>
             </div>
@@ -37,21 +40,26 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/products" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link to="/products" className="text-gray-300 hover:text-white transition-colors text-sm flex items-center">
                   All Products
                 </Link>
               </li>
               <li>
-                <Link to="/categories" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Categories
+                <Link to="/categories/smartphones" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  Smartphones
+                </Link>
+              </li>
+              <li>
+                <Link to="/categories/accessories" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  Accessories
                 </Link>
               </li>
               <li>
                 <Link to="/deals" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Deals & Offers
+                  Special Offers
                 </Link>
               </li>
               <li>
@@ -59,21 +67,21 @@ const Footer: React.FC = () => {
                   About Us
                 </Link>
               </li>
-              <li>
-                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Contact
-                </Link>
-              </li>
             </ul>
           </div>
 
           {/* Customer Service */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Customer Service</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold">Customer Service</h3>
+            <ul className="space-y-3">
               <li>
                 <Link to="/support" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Help Center
+                </Link>
+              </li>
+              <li>
+                <Link to="/track-order" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  Track Your Order
                 </Link>
               </li>
               <li>
@@ -82,18 +90,13 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/shipping" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Shipping Info
-                </Link>
-              </li>
-              <li>
                 <Link to="/warranty" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Warranty
+                  Warranty Information
                 </Link>
               </li>
               <li>
-                <Link to="/track-order" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Track Order
+                <Link to="/shipping" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  Shipping Information
                 </Link>
               </li>
             </ul>
@@ -101,40 +104,64 @@ const Footer: React.FC = () => {
 
           {/* Contact Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Contact Info</h3>
-            <div className="space-y-3">
+            <h3 className="text-lg font-bold">Contact Information</h3>
+            <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <Phone className="h-5 w-5 text-gray-300 mt-1" />
+                <Phone className="h-5 w-5 text-blue-400 mt-1 flex-shrink-0" />
                 <div>
-                  <span className="text-gray-300 text-sm">50430606 / 55463597</span>
-                  <p className="text-gray-400 text-xs">محل تلفون لكي,خيطان مجمع فهد الدبوس علي كل التلفونات والاكسسوارت عرض</p>
+                  <p className="text-white font-medium">50430606 / 55463597</p>
+                  <p className="text-gray-400 text-xs">محل تلفون لكي,خيطان مجمع فهد الدبوس</p>
                 </div>
               </div>
+              
               <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gray-300" />
+                <Mail className="h-5 w-5 text-blue-400 flex-shrink-0" />
                 <span className="text-gray-300 text-sm">support@lakkiphones.com</span>
               </div>
+              
               <div className="flex items-start space-x-3">
-                <MapPin className="h-5 w-5 text-gray-300 mt-1" />
-                <span className="text-gray-300 text-sm">Muscat street, opp gulf bank, Khaitan, Al 'Āşimah, Kuwait 83000</span>
+                <MapPin className="h-5 w-5 text-blue-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="text-gray-300 text-sm">Muscat street, opp gulf bank</p>
+                  <p className="text-gray-300 text-sm">Khaitan, Al 'Āşimah, Kuwait 83000</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <Clock className="h-5 w-5 text-blue-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="text-white font-medium text-sm">Store Hours</p>
+                  <p className="text-gray-400 text-xs">Sunday - Thursday: 9 AM - 10 PM</p>
+                  <p className="text-gray-400 text-xs">Friday: 2 PM - 10 PM</p>
+                  <p className="text-gray-400 text-xs">Saturday: 9 AM - 10 PM</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="border-t border-gray-600 mt-8 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-300 text-sm">
-              © 2024 LAKKI PHONES. All rights reserved.
-            </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors text-sm">
+      {/* Bottom Footer */}
+      <div className="border-t border-gray-800">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-center md:text-left">
+              <p className="text-gray-400 text-sm">
+                © 2024 LAKKI PHONES. All rights reserved.
+              </p>
+              <p className="text-gray-500 text-xs mt-1">
+                Premium Electronics Store in Kuwait
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap justify-center md:justify-end space-x-6">
+              <Link to="/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-gray-300 hover:text-white transition-colors text-sm">
+              <Link to="/terms" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Terms of Service
               </Link>
-              <Link to="/cookies" className="text-gray-300 hover:text-white transition-colors text-sm">
+              <Link to="/cookies" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Cookie Policy
               </Link>
             </div>

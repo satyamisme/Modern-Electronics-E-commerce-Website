@@ -4,15 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#2C3E50',
-        secondary: '#E74C3C',
-        accent: '#3498DB',
+        primary: '#1E40AF', // Blue-700
+        secondary: '#DC2626', // Red-600
+        accent: '#F59E0B', // Amber-500
         neutral: '#F8F9FA',
-        dark: '#1A252F',
-        light: '#ECF0F1',
-        success: '#27AE60',
-        warning: '#F39C12',
-        error: '#E74C3C'
+        dark: '#111827', // Gray-900
+        light: '#F3F4F6', // Gray-100
+        success: '#10B981', // Emerald-500
+        warning: '#F59E0B', // Amber-500
+        error: '#EF4444' // Red-500
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -32,15 +32,18 @@ export default {
       },
       screens: {
         'xs': '320px',
-        'sm': '768px',
-        'md': '1024px',
-        'lg': '1440px'
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px'
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'bounce-subtle': 'bounceSubtle 0.6s ease-in-out',
-        'pulse-slow': 'pulse 3s infinite'
+        'pulse-slow': 'pulse 3s infinite',
+        'float': 'float 6s ease-in-out infinite'
       },
       keyframes: {
         fadeIn: {
@@ -55,7 +58,21 @@ export default {
           '0%, 20%, 50%, 80%, 100%': { transform: 'translateY(0)' },
           '40%': { transform: 'translateY(-10px)' },
           '60%': { transform: 'translateY(-5px)' }
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' }
         }
+      },
+      boxShadow: {
+        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+        'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        'large': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+      },
+      borderRadius: {
+        'xl': '1rem',
+        '2xl': '1.5rem',
+        '3xl': '2rem'
       }
     },
   },

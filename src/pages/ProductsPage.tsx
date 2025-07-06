@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Grid, List, SlidersHorizontal } from 'lucide-react';
+import { Grid, List, SlidersHorizontal, Filter as FilterIcon } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import SearchFilters from '../components/ui/SearchFilters';
 import { products } from '../data/products';
@@ -24,7 +24,6 @@ const ProductsPage: React.FC = () => {
     }
     
     if (searchQuery) {
-      // Handle search query here
       console.log('Search query:', searchQuery);
     }
   }, [searchParams]);
@@ -71,6 +70,7 @@ const ProductsPage: React.FC = () => {
         product.tags.some(tag => tag.toLowerCase().includes(query))
       );
     }
+
     // Sort products
     switch (sortBy) {
       case 'price-low':
@@ -91,7 +91,7 @@ const ProductsPage: React.FC = () => {
     }
 
     setFilteredProducts(filtered);
-  }, [filters, sortBy]);
+  }, [filters, sortBy, searchParams]);
 
   const handleFiltersChange = (newFilters: Filter) => {
     setFilters(newFilters);
@@ -105,45 +105,63 @@ const ProductsPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">All Products</h1>
-            <p className="text-gray-600">
-              {filteredProducts.length} products found
-            </p>
-          </div>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              <span>Filters</span>
-            </button>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="popularity">Sort by Popularity</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest First</option>
-            </select>
-            <div className="flex items-center space-x-2">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">All Products</h1>
+              <p className="text-gray-600">
+                {filteredProducts.length} products found
+                {searchParams.get('q') && (
+                  <span className="ml-2 text-blue-600">
+                    for "{searchParams.get('q')}"
+                  </span>
+                )}
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-4 w-full lg:w-auto">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setShowFilters(!showFilters)}
+                className="lg:hidden flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <Grid className="h-4 w-4" />
+                <FilterIcon className="h-4 w-4" />
+                <span>Filters</span>
               </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded ${viewMode === 'list' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700'}`}
+              
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               >
-                <List className="h-4 w-4" />
-              </button>
+                <option value="popularity">Sort by Popularity</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+                <option value="newest">Newest First</option>
+              </select>
+              
+              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-md transition-colors ${
+                    viewMode === 'grid' 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Grid className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-md transition-colors ${
+                    viewMode === 'list' 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -151,29 +169,37 @@ const ProductsPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
           <div className={`lg:col-span-1 ${showFilters ? 'block' : 'hidden'} lg:block`}>
-            <SearchFilters
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              onClearFilters={handleClearFilters}
-            />
+            <div className="sticky top-8">
+              <SearchFilters
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                onClearFilters={handleClearFilters}
+              />
+            </div>
           </div>
 
           {/* Products Grid */}
           <div className="lg:col-span-3">
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+              <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+                <div className="text-gray-400 mb-4">
+                  <FilterIcon className="h-16 w-16 mx-auto" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">No products found</h3>
+                <p className="text-gray-600 mb-6">
+                  No products match your current filters. Try adjusting your search criteria.
+                </p>
                 <button
                   onClick={handleClearFilters}
-                  className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Clear Filters
+                  Clear All Filters
                 </button>
               </div>
             ) : (
               <div className={`grid gap-6 ${
                 viewMode === 'grid' 
-                  ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+                  ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' 
                   : 'grid-cols-1'
               }`}>
                 {filteredProducts.map((product) => (
@@ -181,17 +207,17 @@ const ProductsPage: React.FC = () => {
                 ))}
               </div>
             )}
+
+            {/* Load More Button */}
+            {filteredProducts.length > 0 && filteredProducts.length >= 12 && (
+              <div className="text-center mt-12">
+                <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  Load More Products
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Load More Button */}
-        {filteredProducts.length > 0 && (
-          <div className="text-center mt-12">
-            <button className="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-              Load More Products
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
