@@ -28,7 +28,7 @@ export interface PhoneModelResponse {
 }
 
 class PhoneModelService {
-  private baseUrl = 'https://gsmarena-api.vercel.app/api';
+  private baseUrl = '/gsmarena-api/api';
   private fallbackBrands = ['Apple', 'Samsung', 'Huawei', 'Xiaomi', 'OnePlus', 'Google', 'Sony', 'LG', 'Nokia', 'Oppo', 'Vivo'];
   
   // Get all brands
