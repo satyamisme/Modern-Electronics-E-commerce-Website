@@ -12,8 +12,10 @@ import {
   Menu,
   X,
   LogOut,
-  GitCommit,
-  Smartphone
+  GitCommit, 
+  Smartphone,
+  BarChart,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -40,21 +42,27 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       permission: 'products.read' as const
     },
     { 
+      name: 'Users', 
+      href: '/admin/users', 
+      icon: Users,
+      permission: 'users.read' as const
+    },
+    { 
       name: 'Orders', 
       href: '/admin/orders', 
       icon: ShoppingCart,
       permission: 'orders.read' as const
     },
     { 
-      name: 'Customers', 
-      href: '/admin/customers', 
-      icon: Users,
-      permission: 'users.read' as const
-    },
-    { 
       name: 'Analytics', 
       href: '/admin/analytics', 
       icon: BarChart3,
+      permission: 'analytics.read' as const
+    },
+    { 
+      name: 'Search Analytics', 
+      href: '/admin/search-analytics', 
+      icon: BarChart,
       permission: 'analytics.read' as const
     },
     { 

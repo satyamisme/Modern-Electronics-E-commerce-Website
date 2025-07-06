@@ -20,6 +20,8 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminModels from './pages/admin/AdminModels';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminSearchAnalytics from './pages/admin/AdminSearchAnalytics';
 import AdminChangelog from './pages/admin/AdminChangelog';
 import ModelsPage from './pages/models/ModelsPage';
 
@@ -45,19 +47,24 @@ function App() {
                           <AdminProducts />
                         </ProtectedRoute>
                       } />
+                      <Route path="users" element={
+                        <ProtectedRoute requiredPermission="users.read">
+                          <AdminUsers />
+                        </ProtectedRoute>
+                      } />
                       <Route path="orders" element={
                         <ProtectedRoute requiredPermission="orders.read">
                           <AdminOrders />
                         </ProtectedRoute>
                       } />
-                      <Route path="customers" element={
-                        <ProtectedRoute requiredPermission="users.read">
-                          <div className="p-8 text-center text-gray-500">Customers page coming soon...</div>
-                        </ProtectedRoute>
-                      } />
                       <Route path="analytics" element={
                         <ProtectedRoute requiredPermission="analytics.read">
                           <div className="p-8 text-center text-gray-500">Analytics page coming soon...</div>
+                        </ProtectedRoute>
+                      } />
+                      <Route path="search-analytics" element={
+                        <ProtectedRoute requiredPermission="analytics.read">
+                          <AdminSearchAnalytics />
                         </ProtectedRoute>
                       } />
                       <Route path="changelog" element={

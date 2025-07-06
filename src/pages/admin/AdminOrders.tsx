@@ -3,6 +3,14 @@ import {
   Search, 
   Filter, 
   Eye, 
+  Download,
+  Upload,
+  RefreshCw,
+  FileText,
+  Printer,
+  Mail,
+  BarChart2,
+  DollarSign,
   Package, 
   Truck, 
   CheckCircle,
@@ -18,6 +26,11 @@ const AdminOrders: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filteredOrders, setFilteredOrders] = useState<OrderManagement[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year'>('week');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     // Mock orders data
@@ -115,6 +128,51 @@ const AdminOrders: React.FC = () => {
     dispatch({ type: 'UPDATE_ORDER_STATUS', payload: { orderId, status: newStatus } });
   };
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+    // In a real implementation, this would refresh data from the API
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+    // In a real implementation, this would generate and download a file
+    alert(`Exporting orders as ${format.toUpperCase()}`);
+    setShowExportModal(false);
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedOrders([]);
+    } else {
+      setSelectedOrders(filteredOrders.map(order => order.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelectOrder = (orderId: string) => {
+    if (selectedOrders.includes(orderId)) {
+      setSelectedOrders(selectedOrders.filter(id => id !== orderId));
+    } else {
+      setSelectedOrders([...selectedOrders, orderId]);
+    }
+  };
+
+  const handleBulkAction = (action: 'process' | 'ship' | 'cancel') => {
+    if (selectedOrders.length === 0) return;
+    
+    // In a real implementation, this would call an API
+    const newStatus = action === 'process' ? 'processing' : action === 'ship' ? 'shipped' : 'cancelled';
+    
+    selectedOrders.forEach(orderId => {
+      handleStatusChange(orderId, newStatus);
+    });
+    
+    setSelectedOrders([]);
+    setSelectAll(false);
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
@@ -151,10 +209,42 @@ const AdminOrders: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
-        <p className="text-gray-600">Manage customer orders and fulfillment</p>
+      {/* Enhanced Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
+          <p className="text-gray-600">Manage customer orders and fulfillment</p>
+        </div>
+        <div className="mt-4 sm:mt-0 flex flex-wrap gap-2">
+          <div className="relative">
+            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value as any)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="today">Today</option>
+              <option value="week">Last 7 days</option>
+              <option value="month">Last 30 days</option>
+              <option value="year">This year</option>
+            </select>
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2 disabled:opacity-50"
+          >
+            <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+            <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+          </button>
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center space-x-2"
+          >
+            <Download className="h-5 w-5" />
+            <span>Export</span>
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -210,12 +300,51 @@ const AdminOrders: React.FC = () => {
         </div>
       </div>
 
+      {/* Bulk Actions */}
+      {selectedOrders.length > 0 && (
+        <div className="bg-blue-50 rounded-lg p-4 flex items-center justify-between">
+          <div className="text-blue-700">
+            <span className="font-medium">{selectedOrders.length}</span> orders selected
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleBulkAction('process')}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Process
+            </button>
+            <button
+              onClick={() => handleBulkAction('ship')}
+              className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+            >
+              Mark Shipped
+            </button>
+            <button
+              onClick={() => handleBulkAction('cancel')}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Orders Table */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                      className="rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                  </div>
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Order ID
                 </th>
@@ -242,6 +371,14 @@ const AdminOrders: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={selectedOrders.includes(order.id)}
+                      onChange={() => handleSelectOrder(order.id)}
+                      className="rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{order.id}</div>
                     {order.trackingNumber && (
@@ -285,7 +422,13 @@ const AdminOrders: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button className="text-blue-600 hover:text-blue-900">
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4" title="View Order" />
+                    </button>
+                    <button className="text-green-600 hover:text-green-900 ml-2">
+                      <Printer className="h-4 w-4" title="Print Invoice" />
+                    </button>
+                    <button className="text-purple-600 hover:text-purple-900 ml-2">
+                      <Mail className="h-4 w-4" title="Email Customer" />
                     </button>
                   </td>
                 </tr>
@@ -294,6 +437,144 @@ const AdminOrders: React.FC = () => {
           </table>
         </div>
       </div>
+      
+      {/* Order Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Products */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Top Selling Products</h2>
+            <BarChart2 className="h-5 w-5 text-gray-400" />
+          </div>
+          <div className="space-y-3">
+            {[
+              { name: 'iPhone 15 Pro', quantity: 156, revenue: 62322.000 },
+              { name: 'MacBook Pro M3', quantity: 89, revenue: 57841.100 },
+              { name: 'AirPods Pro', quantity: 234, revenue: 21037.600 },
+              { name: 'Samsung Galaxy S24', quantity: 78, revenue: 35880.200 },
+              { name: 'iPad Air', quantity: 65, revenue: 14943.500 }
+            ].map((product, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <span className="flex items-center justify-center w-6 h-6 bg-primary text-white rounded-full text-xs font-bold">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="font-medium text-gray-900">{product.name}</p>
+                    <p className="text-sm text-gray-600">{product.quantity} units sold</p>
+                  </div>
+                </div>
+                <span className="font-semibold text-gray-900">
+                  {formatKWD(product.revenue)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Order Value Trends */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Order Value Trends</h2>
+            <DollarSign className="h-5 w-5 text-gray-400" />
+          </div>
+          <div className="h-64 flex items-center justify-center">
+            <div className="text-center">
+              <BarChart2 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">Order value trend chart would appear here</p>
+              <p className="text-xs text-gray-400 mt-1">Using Recharts library in the actual implementation</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 mt-6">
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">Avg. Order</p>
+              <p className="text-xl font-bold text-gray-900">{formatKWD(308.250)}</p>
+            </div>
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">Highest</p>
+              <p className="text-xl font-bold text-gray-900">{formatKWD(1250.750)}</p>
+            </div>
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">Lowest</p>
+              <p className="text-xl font-bold text-gray-900">{formatKWD(89.900)}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-bold text-gray-900">Export Orders</h2>
+              <button onClick={() => setShowExportModal(false)} className="p-2 text-gray-400 hover:text-gray-600">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="mb-6">
+                <p className="text-gray-600 mb-4">
+                  Select the format for exporting order data:
+                </p>
+              </div>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 text-green-600 mr-3" />
+                    <span className="font-medium text-gray-900">Export as CSV</span>
+                  </div>
+                  <button
+                    onClick={() => handleExport('csv')}
+                    className="px-3 py-1 bg-green-100 text-green-800 rounded-lg text-sm"
+                  >
+                    Download
+                  </button>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 text-blue-600 mr-3" />
+                    <span className="font-medium text-gray-900">Export as Excel</span>
+                  </div>
+                  <button
+                    onClick={() => handleExport('excel')}
+                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm"
+                  >
+                    Download
+                  </button>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <div className="flex items-center">
+                    <FileText className="h-5 w-5 text-red-600 mr-3" />
+                    <span className="font-medium text-gray-900">Export as PDF</span>
+                  </div>
+                  <button
+                    onClick={() => handleExport('pdf')}
+                    className="px-3 py-1 bg-red-100 text-red-800 rounded-lg text-sm"
+                  >
+                    Download
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowExportModal(false)}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
