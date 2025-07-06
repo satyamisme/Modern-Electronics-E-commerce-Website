@@ -20,6 +20,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminChangelog from './pages/admin/AdminChangelog';
+import ModelsPage from './pages/models/ModelsPage';
 
 function App() {
   return (
@@ -90,6 +91,7 @@ function App() {
                       <Route path="/categories" element={<CategoriesPage />} />
                       <Route path="/categories/:slug" element={<ProductsPage />} />
                       <Route path="/deals" element={<DealsPage />} />
+                      <Route path="/models" element={<ModelsPage />} />
                       <Route path="/support" element={<SupportPage />} />
                       <Route path="/search" element={<ProductsPage />} />
                     </Routes>

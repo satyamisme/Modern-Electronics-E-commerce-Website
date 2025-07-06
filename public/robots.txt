@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://lakkiphones.com/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /temp/
+Disallow: /backup/
+
+# Allow important pages
+Allow: /products
+Allow: /categories
+Allow: /models
+Allow: /deals
+Allow: /support
+
+# Crawl-delay
+Crawl-delay: 1

@@ -193,6 +193,7 @@ const Header: React.FC = () => {
                 { name: 'Accessories', path: '/categories/accessories', icon: '🎧' },
                 { name: 'Tablets', path: '/categories/tablets', icon: '📱' },
                 { name: 'Laptops', path: '/categories/laptops', icon: '💻' },
+                { name: 'Phone Models', path: '/models', icon: '📱' },
                 { name: 'Special Offers', path: '/deals', icon: '🔥' },
                 { name: 'Support', path: '/support', icon: '💬' }
               ].map((item) => (
@@ -219,6 +220,7 @@ const Header: React.FC = () => {
                 { name: 'Accessories', path: '/categories/accessories' },
                 { name: 'Tablets', path: '/categories/tablets' },
                 { name: 'Laptops', path: '/categories/laptops' },
+                { name: 'Phone Models', path: '/models' },
                 { name: 'Special Offers', path: '/deals' },
                 { name: 'Support', path: '/support' }
               ].map((item) => (
