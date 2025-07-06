@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Smartphone, Star, Eye, Heart, ShoppingCart } from 'lucide-react';
-import { gsmarenaAPI, PhoneModel } from '../../api/gsmarena';
+import { phoneModelService, PhoneModel } from '../../services/phoneModelService';
 import { useSEO } from '../../utils/seo';
 import OptimizedImage from '../../components/ui/OptimizedImage';
 
@@ -35,8 +35,8 @@ const ModelsPage: React.FC = () => {
     try {
       setLoading(true);
       const [brandsData, phonesData] = await Promise.all([
-        gsmarenaAPI.getBrands(),
-        gsmarenaAPI.getPhonesByBrand('apple', 1)
+        phoneModelService.getBrands(),
+        phoneModelService.getPhonesByBrand('apple', 1)
       ]);
       
       setBrands(brandsData);
@@ -51,7 +51,7 @@ const ModelsPage: React.FC = () => {
   const loadPhonesByBrand = async (brand: string) => {
     try {
       setLoading(true);
-      const data = await gsmarenaAPI.getPhonesByBrand(brand, currentPage);
+      const data = await phoneModelService.getPhonesByBrand(brand, currentPage);
       setPhones(data.phones);
     } catch (error) {
       console.error('Error loading phones:', error);
@@ -66,7 +66,7 @@ const ModelsPage: React.FC = () => {
 
     try {
       setLoading(true);
-      const results = await gsmarenaAPI.searchPhones(searchQuery);
+      const results = await phoneModelService.searchPhones(searchQuery);
       setPhones(results);
       setSelectedBrand('');
     } catch (error) {

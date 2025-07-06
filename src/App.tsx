@@ -19,6 +19,7 @@ import PaymentErrorPage from './pages/PaymentErrorPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminModels from './pages/admin/AdminModels';
 import AdminChangelog from './pages/admin/AdminChangelog';
 import ModelsPage from './pages/models/ModelsPage';
 
@@ -62,6 +63,11 @@ function App() {
                       <Route path="changelog" element={
                         <ProtectedRoute requiredPermission="settings.read">
                           <AdminChangelog />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="models" element={
+                        <ProtectedRoute requiredPermission="products.read">
+                          <AdminModels />
                         </ProtectedRoute>
                       } />
                       <Route path="settings" element={

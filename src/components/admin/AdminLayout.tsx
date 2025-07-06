@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   LogOut,
-  GitCommit
+  GitCommit,
+  Smartphone
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -60,6 +61,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       name: 'Changelog', 
       href: '/admin/changelog', 
       icon: GitCommit,
+      permission: 'settings.read' as const
+    },
+    { 
+      name: 'Phone Models', 
+      href: '/admin/models', 
+      icon: Smartphone,
       permission: 'settings.read' as const
     },
     { 
