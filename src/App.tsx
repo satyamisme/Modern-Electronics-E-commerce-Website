@@ -59,7 +59,7 @@ function App() {
                       } />
                       <Route path="analytics" element={
                         <ProtectedRoute requiredPermission="analytics.read">
-                          <div className="p-8 text-center text-gray-500">Analytics page coming soon...</div>
+                          <AdminAnalytics />
                         </ProtectedRoute>
                       } />
                       <Route path="search-analytics" element={
