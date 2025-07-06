@@ -107,19 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } catch (error) {
           console.error('Error loading profile:', error);
-          // Fallback to mock admin for demo
-          const mockAdmin: AuthUser = {
-            id: 'admin-1',
-            email: 'admin@lakkiphones.com',
-            name: 'Admin User',
-            role: 'admin',
-            permissions: [],
-            lastLogin: new Date(),
-            createdAt: new Date(),
-            isActive: true,
-            department: 'IT'
-          };
-          dispatch({ type: 'SET_PROFILE', payload: mockAdmin });
+          dispatch({ type: 'SET_PROFILE', payload: null });
         }
       } else {
         dispatch({ type: 'SET_PROFILE', payload: null });

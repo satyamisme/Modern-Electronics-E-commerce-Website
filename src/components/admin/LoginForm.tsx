@@ -85,7 +85,7 @@ const LoginForm: React.FC = () => {
             <p><strong>Editor:</strong> editor@lakkiphones.com / admin123</p>
           </div>
           <p className="text-xs text-gray-400 mt-2">
-            Note: Demo users will be created automatically on first login attempt.
+            Note: Demo users must be created manually in Supabase dashboard.
           </p>
         </div>
       </div>
