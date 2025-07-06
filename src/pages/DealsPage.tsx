@@ -116,10 +116,12 @@ const DealsPage: React.FC = () => {
             
             {dealsProducts.length > 0 && (
               <div className="bg-white text-gray-900 rounded-lg p-6 max-w-md mx-auto">
-                <img
+                <OptimizedImage
                   src={dealsProducts[0].images[0]}
                   alt={dealsProducts[0].name}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  width={400}
+                  height={300}
+                  className="w-full h-48 rounded-lg mb-4"
                 />
                 <h3 className="text-xl font-bold mb-2">{dealsProducts[0].name}</h3>
                 <div className="flex items-center justify-center space-x-4 mb-4">

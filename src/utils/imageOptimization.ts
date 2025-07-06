@@ -58,6 +58,14 @@ export class ImageOptimizer {
     return url.replace('/upload/', `/upload/${transformations}/`);
   }
 
+  // Optimize Pexels images
+  optimizePexelsImage(url: string, width: number = 800, height: number = 600): string {
+    if (!url.includes('pexels.com')) return url;
+    
+    // Extract the base URL and add optimization parameters
+    const baseUrl = url.split('?')[0];
+    return `${baseUrl}?auto=compress&cs=tinysrgb&w=${width}&h=${height}&fit=crop`;
+  }
   // Generate responsive image URLs
   generateResponsiveUrls(url: string): Record<string, string> {
     return {

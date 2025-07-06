@@ -149,11 +149,11 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ filters, onFiltersChange,
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Under $100', range: [0, 100] },
-                  { label: '$100 - $500', range: [100, 500] },
-                  { label: '$500 - $1000', range: [500, 1000] },
-                  { label: '$1000 - $2000', range: [1000, 2000] },
-                  { label: 'Over $2000', range: [2000, 10000] }
+                  { label: 'Under KD 30', range: [0, 30] },
+                  { label: 'KD 30 - KD 150', range: [30, 150] },
+                  { label: 'KD 150 - KD 300', range: [150, 300] },
+                  { label: 'KD 300 - KD 600', range: [300, 600] },
+                  { label: 'Over KD 600', range: [600, 3000] }
                 ].map(({ label, range }) => (
                   <label key={label} className="flex items-center">
                     <input

@@ -20,6 +20,7 @@ const Header: React.FC = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery(''); // Clear search after submission
     }
   };
 

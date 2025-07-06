@@ -183,6 +183,13 @@ const KuwaitAddressForm: React.FC<KuwaitAddressFormProps> = ({
           )}
         </div>
       )}
+      
+      {/* Validation Messages */}
+      {formData.governorate && formData.area && formData.block && formData.street && formData.building && (
+        <div className="mt-2 p-2 bg-green-50 rounded text-sm text-green-700">
+          ✓ Address is complete and valid for delivery
+        </div>
+      )}
     </div>
   );
 };

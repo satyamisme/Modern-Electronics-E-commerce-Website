@@ -103,4 +103,5 @@ export interface SearchState {
   totalResults: number;
   currentPage: number;
   totalPages: number;
+  error?: string;
 }

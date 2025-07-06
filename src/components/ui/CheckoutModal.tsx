@@ -33,9 +33,6 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const subtotal = state.cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-  const deliveryFee = address.governorate ? getDeliveryFee(address.governorate) : 2.500;
-  const total = subtotal + deliveryFee;
-
   // Import delivery fee function
   const getDeliveryFee = (governorate: string): number => {
     const fees: Record<string, number> = {
@@ -48,6 +45,9 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose }) => {
     };
     return fees[governorate] || 2.500;
   };
+
+  const deliveryFee = address.governorate ? getDeliveryFee(address.governorate) : 2.500;
+  const total = subtotal + deliveryFee;
 
   const handleNextStep = () => {
     if (step === 'info') setStep('address');

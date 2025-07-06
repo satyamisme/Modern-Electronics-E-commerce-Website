@@ -49,7 +49,7 @@ export const KUWAIT_GOVERNORATES = {
 // Kuwait phone number validation
 export const validateKuwaitPhone = (phone: string): boolean => {
   // Kuwait mobile numbers: +965 XXXX XXXX or +965 9XXX XXXX
-  const kuwaitPhoneRegex = /^(\+965|965)?[569]\d{7}$/;
+  const kuwaitPhoneRegex = /^(\+965|965)?[2456789]\d{7}$/;
   const cleanPhone = phone.replace(/\s|-/g, '');
   return kuwaitPhoneRegex.test(cleanPhone);
 };

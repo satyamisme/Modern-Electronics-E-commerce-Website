@@ -60,6 +60,17 @@ const ProductsPage: React.FC = () => {
       filtered = filtered.filter(product => product.inStock);
     }
 
+    // Search query filter
+    const searchQuery = searchParams.get('q');
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(query) ||
+        product.brand.toLowerCase().includes(query) ||
+        product.description.toLowerCase().includes(query) ||
+        product.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
     // Sort products
     switch (sortBy) {
       case 'price-low':

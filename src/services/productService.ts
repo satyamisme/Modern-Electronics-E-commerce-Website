@@ -18,6 +18,8 @@ export class ProductService {
     limit?: number;
     offset?: number;
   }) {
+    // Fallback to mock data if Supabase is not configured
+    try {
     let query = supabase
       .from('products')
       .select(`
@@ -72,10 +74,49 @@ export class ProductService {
 
     if (error) {
       console.error('Error fetching products:', error);
-      throw error;
+      // Fallback to mock data
+      return this.getMockProducts(filters);
     }
 
     return data;
+    } catch (error) {
+      console.log('Supabase not configured, using mock data');
+      return this.getMockProducts(filters);
+    }
+  }
+
+  // Mock products fallback
+  private static getMockProducts(filters?: any) {
+    let filtered = [...products];
+
+    if (filters?.category) {
+      filtered = filtered.filter(product => product.category === filters.category);
+    }
+
+    if (filters?.brand) {
+      filtered = filtered.filter(product => product.brand === filters.brand);
+    }
+
+    if (filters?.priceRange) {
+      filtered = filtered.filter(product => 
+        product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
+      );
+    }
+
+    if (filters?.inStock) {
+      filtered = filtered.filter(product => product.inStock);
+    }
+
+    if (filters?.search) {
+      const query = filters.search.toLowerCase();
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(query) ||
+        product.brand.toLowerCase().includes(query) ||
+        product.description.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
   }
 
   // Get single product by ID

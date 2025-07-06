@@ -135,11 +135,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
+    const savedWishlist = localStorage.getItem('wishlist');
+    
     if (savedCart) {
-      const cartItems = JSON.parse(savedCart);
-      cartItems.forEach((item: CartItem) => {
-        dispatch({ type: 'ADD_TO_CART', payload: { product: item.product, quantity: item.quantity } });
-      });
+      try {
+        const cartItems = JSON.parse(savedCart);
+        cartItems.forEach((item: CartItem) => {
+          dispatch({ type: 'ADD_TO_CART', payload: { product: item.product, quantity: item.quantity } });
+        });
+      } catch (error) {
+        console.error('Error loading cart from localStorage:', error);
+        localStorage.removeItem('cart');
+      }
+    }
+    
+    if (savedWishlist) {
+      try {
+        const wishlistItems = JSON.parse(savedWishlist);
+        wishlistItems.forEach((productId: string) => {
+          dispatch({ type: 'ADD_TO_WISHLIST', payload: productId });
+        });
+      } catch (error) {
+        console.error('Error loading wishlist from localStorage:', error);
+        localStorage.removeItem('wishlist');
+      }
     }
   }, []);
 
@@ -148,6 +167,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cart', JSON.stringify(state.cart));
   }, [state.cart]);
 
+  // Save wishlist to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('wishlist', JSON.stringify(state.wishlist));
+  }, [state.wishlist]);
   return (
     <AppContext.Provider value={{ state, dispatch }}>
       {children}

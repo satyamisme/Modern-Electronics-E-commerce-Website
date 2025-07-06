@@ -213,10 +213,12 @@ const AdminProducts: React.FC = () => {
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <img
+                        <OptimizedImage
                           src={product.images[0]}
                           alt={product.name}
-                          className="h-12 w-12 rounded-lg object-cover"
+                          width={100}
+                          height={100}
+                          className="h-12 w-12 rounded-lg"
                         />
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{product.name}</div>
@@ -230,9 +232,9 @@ const AdminProducts: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">${product.price}</div>
+                      <div className="text-sm text-gray-900">{formatKWD(product.price)}</div>
                       {product.originalPrice && (
-                        <div className="text-sm text-gray-500 line-through">${product.originalPrice}</div>
+                        <div className="text-sm text-gray-500 line-through">{formatKWD(product.originalPrice)}</div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

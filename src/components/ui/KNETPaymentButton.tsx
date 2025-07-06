@@ -40,6 +40,15 @@ const KNETPaymentButton: React.FC<KNETPaymentButtonProps> = ({
         description: `LAKKI PHONES Order #${orderId}`
       };
 
+      // Validate amount before processing
+      if (amount <= 0) {
+        throw new Error('Invalid payment amount');
+      }
+      
+      if (!orderId) {
+        throw new Error('Order ID is required');
+      }
+
       const paymentUrl = knetService.generatePaymentUrl(paymentRequest);
       
       // Redirect to KNET payment gateway

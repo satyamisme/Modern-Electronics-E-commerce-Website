@@ -174,10 +174,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Price (KWD)</label>
               <input
                 type="number"
-                step="0.01"
+                step="0.001"
                 value={formData.price}
                 onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -185,10 +185,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Original Price ($)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Original Price (KWD)</label>
               <input
                 type="number"
-                step="0.01"
+                step="0.001"
                 value={formData.originalPrice || ''}
                 onChange={(e) => handleInputChange('originalPrice', e.target.value ? parseFloat(e.target.value) : undefined)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"

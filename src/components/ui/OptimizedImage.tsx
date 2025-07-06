@@ -26,15 +26,19 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   const [error, setError] = useState(false);
 
   // Generate optimized image URL
-  const optimizedSrc = imageOptimizer.optimizeImage(src, {
-    width,
-    height,
-    quality,
-    format
-  });
+  const optimizedSrc = src.includes('pexels.com') 
+    ? imageOptimizer.optimizePexelsImage(src, width, height)
+    : imageOptimizer.optimizeImage(src, {
+        width,
+        height,
+        quality,
+        format
+      });
 
   // Generate responsive URLs if needed
-  const responsiveUrls = responsive ? imageOptimizer.generateResponsiveUrls(src) : null;
+  const responsiveUrls = responsive && !src.includes('pexels.com') 
+    ? imageOptimizer.generateResponsiveUrls(src) 
+    : null;
 
   const handleLoad = () => {
     setLoading(false);

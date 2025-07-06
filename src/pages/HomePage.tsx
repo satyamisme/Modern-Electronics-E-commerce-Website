@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="relative">
               <OptimizedImage
-                src="https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=800"
+                src="https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg"
                 alt="Latest Electronics"
                 width={800}
                 height={600}
