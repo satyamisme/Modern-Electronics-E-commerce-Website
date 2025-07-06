@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { AdminUser, ProductFormData, OrderManagement, InventoryAlert, SalesAnalytics } from '../types/admin';
 import { Product } from '../types';
+import { ProductService } from '../services/productService';
 
 interface AdminState {
   currentUser: AdminUser | null;
@@ -103,6 +104,22 @@ function adminReducer(state: AdminState, action: AdminAction): AdminState {
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(adminReducer, initialState);
+  
+  // Load products from API on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const products = await ProductService.getProducts();
+        if (products) {
+          dispatch({ type: 'SET_PRODUCTS', payload: products });
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+      }
+    };
+    
+    loadProducts();
+  }, []);
 
   // Mock admin user login
   useEffect(() => {

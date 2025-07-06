@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { Product, CartItem, User, Filter, SearchState } from '../types';
+import { ProductService } from '../services/productService';
 
 interface AppState {
   user: User | null;
@@ -131,6 +132,25 @@ function appReducer(state: AppState, action: AppAction): AppState {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  
+  // Load products from API on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        const products = await ProductService.getProducts();
+        if (products) {
+          dispatch({ type: 'SET_SEARCH_STATE', payload: { results: products } });
+        }
+        dispatch({ type: 'SET_LOADING', payload: false });
+      } catch (error) {
+        console.error('Error loading products:', error);
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
+    };
+    
+    loadProducts();
+  }, []);
 
   // Load cart from localStorage on mount
   useEffect(() => {
