@@ -9,7 +9,7 @@ import {
   FileText,
   Printer,
   Mail,
-  BarChart2,
+  BarChart2 as BarChart2Icon,
   DollarSign,
   Package, 
   Truck, 
@@ -445,7 +445,7 @@ const AdminOrders: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Top Selling Products</h2>
-            <BarChart2 className="h-5 w-5 text-gray-400" />
+            <BarChart2Icon className="h-5 w-5 text-gray-400" />
           </div>
           <div className="space-y-3">
             {[
@@ -477,11 +477,11 @@ const AdminOrders: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Order Value Trends</h2>
-            <DollarSign className="h-5 w-5 text-gray-400" />
+            <DollarSign className="h-5 w-5 text-gray-400" /> 
           </div>
           <div className="h-64 flex items-center justify-center">
             <div className="text-center">
-              <BarChart2 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <BarChart2Icon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">Order value trend chart would appear here</p>
               <p className="text-xs text-gray-400 mt-1">Using Recharts library in the actual implementation</p>
             </div>
