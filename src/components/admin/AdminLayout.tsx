@@ -74,7 +74,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { 
       name: 'Phone Models', 
       href: '/admin/models', 
-      icon: Smartphone,
+      icon: Smartphone, 
       permission: 'settings.read' as const
     },
     { 

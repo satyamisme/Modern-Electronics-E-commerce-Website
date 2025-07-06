@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
-  Filter, 
+  Filter,
+  FileText,
   Smartphone, 
   Plus, 
   Edit, 
@@ -9,12 +10,16 @@ import {
   Eye, 
   Download,
   UploadCloud,
-  RefreshCw
+  RefreshCw,
+  Link,
+  AlertCircle
 } from 'lucide-react';
 import { phoneModelService, PhoneModel } from '../../services/phoneModelService';
+import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
 import { useAuth } from '../../context/AuthContext';
 import OptimizedImage from '../../components/ui/OptimizedImage';
 import { formatKWD } from '../../utils/currency';
+import PhoneImportModal from '../../components/admin/PhoneImportModal';
 
 const AdminModels: React.FC = () => {
   const { hasPermission } = useAuth();
@@ -28,6 +33,10 @@ const AdminModels: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPhone, setSelectedPhone] = useState<PhoneModel | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importUrl, setImportUrl] = useState('');
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importLoading, setImportLoading] = useState(false);
 
   useEffect(() => {
     loadInitialData();
@@ -105,6 +114,41 @@ const AdminModels: React.FC = () => {
     alert(`Added ${phone.name} to inventory. In a real implementation, this would create a product record.`);
   };
 
+  const handleImportComplete = (importedPhones: SmartprixPhone[]) => {
+    // In a real implementation, this would add the phones to your database
+    alert(`Successfully imported ${importedPhones.length} phone models. In a real implementation, these would be added to your database.`);
+    
+    // Refresh the phone list
+    handleRefresh();
+  };
+
+  const handleQuickImport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!importUrl.trim() || !importUrl.includes('smartprix.com')) {
+      setImportError('Please enter a valid Smartprix URL');
+      return;
+    }
+    
+    setImportLoading(true);
+    setImportError(null);
+    
+    try {
+      const result = await smartprixService.scrapePhoneFromUrl(importUrl);
+      
+      if (result.success && result.phones.length > 0) {
+        handleImportComplete(result.phones);
+        setImportUrl('');
+      } else {
+        setImportError(result.errors?.[0] || 'Failed to import phone data');
+      }
+    } catch (error) {
+      setImportError((error as Error).message);
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -123,44 +167,143 @@ const AdminModels: React.FC = () => {
             <span>{refreshing ? 'Refreshing...' : 'Refresh Data'}</span>
           </button>
           <button
-            onClick={() => alert('This would import all phone models to your inventory')}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 flex items-center space-x-2"
+            onClick={() => setShowImportModal(true)}
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 flex items-center space-x-2"
           >
-            <Download className="h-5 w-5" />
-            <span>Import All</span>
+            <UploadCloud className="h-5 w-5" />
+            <span>Bulk Import</span>
           </button>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Quick Import and Filters */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <form onSubmit={handleSearch} className="md:col-span-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search phone models..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-          </form>
-          <select
-            value={selectedBrand}
-            onChange={(e) => {
-              setSelectedBrand(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="">All Brands</option>
-            {brands.map(brand => (
-              <option key={brand} value={brand}>{brand}</option>
-            ))}
-          </select>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Quick Import */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Quick Import from Smartprix</h3>
+            <form onSubmit={handleQuickImport} className="flex space-x-2">
+              <div className="relative flex-1">
+                <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="url"
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                  placeholder="https://www.smartprix.com/mobiles/apple-iphone-15-pro-ppd1f9iuxeqn"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={importLoading}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 flex items-center space-x-2"
+              >
+                {importLoading ? (
+                  <RefreshCw className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Plus className="h-5 w-5" />
+                )}
+                <span>Import</span>
+              </button>
+            </form>
+            {importError && (
+              <div className="mt-2 p-2 bg-red-50 rounded text-sm text-red-700 flex items-center">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                {importError}
+              </div>
+            )}
+          </div>
+          
+          {/* Search and Filter */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form onSubmit={handleSearch} className="md:col-span-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search phone models..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </form>
+            <select
+              value={selectedBrand}
+              onChange={(e) => {
+                setSelectedBrand(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">All Brands</option>
+              {brands.map(brand => (
+                <option key={brand} value={brand}>{brand}</option>
+              ))}
+            </select>
+          </div>
         </div>
+      </div>
+
+      {/* Import Instructions */}
+      <div className="bg-blue-50 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-blue-900 mb-4">Phone Model Import Options</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Link className="h-5 w-5 text-blue-600" />
+              </div>
+              <h4 className="font-medium text-gray-900">Direct URL Import</h4>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              Import a single phone model by pasting its Smartprix URL in the quick import field above.
+            </p>
+            <p className="text-xs text-gray-500">
+              Best for: Adding individual models quickly
+            </p>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="relative">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <FileText className="h-5 w-5 text-green-600" />
+                </div>
+                <h4 className="font-medium text-gray-900">Bulk URL Import</h4>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Import multiple phone models at once by providing a list of Smartprix URLs.
+              </p>
+              <p className="text-xs text-gray-500">
+                Best for: Adding multiple specific models
+              </p>
+            </div>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Upload className="h-5 w-5 text-purple-600" />
+              </div>
+              <h4 className="font-medium text-gray-900">CSV/Excel Import</h4>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              Import phone models from a CSV or Excel file with predefined columns.
+            </p>
+            <p className="text-xs text-gray-500">
+              Best for: Bulk imports and data migration
+            </p>
+          </div>
+        </div>
+        
+        <button
+          onClick={() => setShowImportModal(true)}
+          className="mt-6 w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 flex items-center justify-center space-x-2"
+        >
+          <UploadCloud className="h-5 w-5" />
+          <span>Open Bulk Import Tool</span>
+        </button>
       </div>
 
       {/* Loading State */}
@@ -412,6 +555,13 @@ const AdminModels: React.FC = () => {
           </div>
         </div>
       )}
+      
+      {/* Import Modal */}
+      <PhoneImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={handleImportComplete}
+      />
     </div>
   );
 };

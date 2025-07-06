@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
-  Search, 
+  Search,
+  UploadCloud,
   Filter, 
   Edit, 
   Trash2, 
@@ -13,8 +14,11 @@ import {
 import { useAdmin } from '../../context/AdminContext';
 import ProductForm from '../../components/admin/ProductForm';
 import { products } from '../../data/products';
+import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
 import { Product } from '../../types';
 import { ProductFormData } from '../../types/admin';
+import PhoneImportModal from '../../components/admin/PhoneImportModal';
+import { formatKWD } from '../../utils/currency';
 
 const AdminProducts: React.FC = () => {
   const { state, dispatch } = useAdmin();
@@ -23,6 +27,7 @@ const AdminProducts: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStock, setFilterStock] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     // Load products from Supabase or fallback to mock data
@@ -69,6 +74,45 @@ const AdminProducts: React.FC = () => {
     dispatch({ type: 'SET_SELECTED_PRODUCT', payload: null });
     dispatch({ type: 'SET_EDIT_MODE', payload: false });
     setShowForm(true);
+  };
+
+  const handleImportPhones = () => {
+    setShowImportModal(true);
+  };
+
+  const handleImportComplete = (importedPhones: SmartprixPhone[]) => {
+    // Convert imported phones to products and add them
+    const newProducts = importedPhones.map(phone => {
+      const product: Product = {
+        id: `product-${Date.now()}-${phone.id}`,
+        name: phone.name,
+        brand: phone.brand,
+        category: 'smartphones',
+        price: phone.price || 0,
+        description: `${phone.name} - ${Object.values(phone.specifications).filter(Boolean).join(', ')}`,
+        images: [phone.image],
+        specifications: Object.entries(phone.specifications).reduce((acc, [key, value]) => {
+          if (value) acc[key] = value;
+          return acc;
+        }, {} as Record<string, string>),
+        inStock: phone.availability,
+        stockCount: 10, // Default stock
+        rating: 0,
+        reviewCount: 0,
+        features: phone.features,
+        tags: phone.colors || [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      return product;
+    });
+
+    // Add products to state
+    newProducts.forEach(product => {
+      dispatch({ type: 'ADD_PRODUCT', payload: product });
+    });
+
+    alert(`Successfully imported ${newProducts.length} products`);
   };
 
   const handleEditProduct = (product: Product) => {
@@ -133,6 +177,13 @@ const AdminProducts: React.FC = () => {
         >
           <Plus className="h-5 w-5" />
           <span>Add Product</span>
+        </button>
+        <button
+          onClick={handleImportPhones}
+          className="mt-4 sm:mt-0 ml-2 bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 flex items-center space-x-2"
+        >
+          <UploadCloud className="h-5 w-5" />
+          <span>Import Models</span>
         </button>
       </div>
 
@@ -278,6 +329,13 @@ const AdminProducts: React.FC = () => {
           onCancel={() => setShowForm(false)}
         />
       )}
+      
+      {/* Phone Import Modal */}
+      <PhoneImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={handleImportComplete}
+      />
     </div>
   );
 };
