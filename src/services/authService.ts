@@ -6,6 +6,13 @@ type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
 export class AuthService {
+  // Demo credentials for development
+  private static demoCredentials = [
+    { email: 'admin@lakkiphones.com', password: 'admin123', role: 'super_admin', name: 'Super Admin' },
+    { email: 'manager@lakkiphones.com', password: 'admin123', role: 'manager', name: 'Manager User' },
+    { email: 'editor@lakkiphones.com', password: 'admin123', role: 'editor', name: 'Editor User' }
+  ];
+
   // Sign up new user
   static async signUp(email: string, password: string, userData: {
     fullName?: string;
@@ -51,20 +58,23 @@ export class AuthService {
   // Sign in user
   static async signIn(email: string, password: string) {
     try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+      // First, try to create demo users if they don't exist
+      await this.ensureDemoUsersExist();
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    if (error) {
-      console.error('Error signing in:', error);
-      throw error;
-    }
+      if (error) {
+        console.error('Error signing in:', error);
+        throw error;
+      }
 
-    return data;
+      return data;
     } catch (error) {
-      console.log('Supabase not configured, using mock auth');
-      return { user: { id: 'admin-1', email }, session: null };
+      console.error('Authentication error:', error);
+      throw error;
     }
   }
 
