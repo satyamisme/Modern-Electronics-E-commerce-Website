@@ -23,6 +23,7 @@ import AdminModels from './pages/admin/AdminModels';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminSearchAnalytics from './pages/admin/AdminSearchAnalytics';
 import AdminChangelog from './pages/admin/AdminChangelog';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 import ModelsPage from './pages/models/ModelsPage';
 
 function App() {
