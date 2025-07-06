@@ -80,10 +80,13 @@ const LoginForm: React.FC = () => {
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
           <p className="text-sm text-gray-600 mb-2">Demo Credentials:</p>
           <div className="space-y-1 text-xs text-gray-500">
-            <p><strong>Super Admin:</strong> admin@techstore.com / admin123</p>
-            <p><strong>Manager:</strong> manager@techstore.com / admin123</p>
-            <p><strong>Editor:</strong> editor@techstore.com / admin123</p>
+            <p><strong>Super Admin:</strong> admin@lakkiphones.com / admin123</p>
+            <p><strong>Manager:</strong> manager@lakkiphones.com / admin123</p>
+            <p><strong>Editor:</strong> editor@lakkiphones.com / admin123</p>
           </div>
+          <p className="text-xs text-gray-400 mt-2">
+            Note: Demo users will be created automatically on first login attempt.
+          </p>
         </div>
       </div>
     </div>

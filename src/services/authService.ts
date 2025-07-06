@@ -118,6 +118,40 @@ export class AuthService {
     return true;
   }
 
+  // Ensure demo users exist in Supabase
+  private static async ensureDemoUsersExist() {
+    for (const demo of this.demoCredentials) {
+      try {
+        // Check if user already exists
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', demo.email)
+          .single();
+
+        if (!existingProfile) {
+          // Try to sign up the demo user
+          const { data, error } = await supabase.auth.admin.createUser({
+            email: demo.email,
+            password: demo.password,
+            email_confirm: true,
+            user_metadata: {
+              full_name: demo.name,
+              role: demo.role
+            }
+          });
+
+          if (error && !error.message.includes('already registered')) {
+            console.warn(`Could not create demo user ${demo.email}:`, error.message);
+          }
+        }
+      } catch (error) {
+        // Silently continue if we can't create demo users
+        console.warn(`Demo user setup failed for ${demo.email}:`, error);
+      }
+    }
+  }
+
   // Get current user profile
   static async getCurrentProfile() {
     const { data: { user } } = await supabase.auth.getUser();
