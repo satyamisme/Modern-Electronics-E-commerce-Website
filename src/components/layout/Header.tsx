@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Heart, User, Menu, X, Phone, MapPin } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, Menu, X, Phone, MapPin, Clock, Mail } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import lakkiLogo from '/src/assets/logo.webp';
 import CompareModal from '../ui/CompareModal';
@@ -28,57 +28,64 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* Top Bar */}
-      <div className="bg-gray-900 text-white py-2 hidden md:block">
+      {/* Top Info Bar - A1Store Style */}
+      <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white py-2 text-sm">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center text-sm">
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4" />
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <div className="flex flex-wrap items-center justify-center md:justify-start space-x-4 text-xs">
+              <div className="flex items-center space-x-1">
+                <Phone className="h-3 w-3" />
                 <span>50430606 / 55463597</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4" />
-                <span>Khaitan, Kuwait</span>
+              <div className="flex items-center space-x-1">
+                <Mail className="h-3 w-3" />
+                <span>support@lakkiphones.com</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Clock className="h-3 w-3" />
+                <span>Sun-Thu: 9AM-10PM</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/track-order" className="hover:text-gray-300">Track Order</Link>
-              <Link to="/support" className="hover:text-gray-300">Support</Link>
-              <Link to="/admin" className="hover:text-gray-300">Admin</Link>
+            <div className="flex items-center space-x-4 text-xs">
+              <Link to="/track-order" className="hover:text-yellow-300 transition-colors">Track Order</Link>
+              <Link to="/support" className="hover:text-yellow-300 transition-colors">Help</Link>
+              <Link to="/admin" className="hover:text-yellow-300 transition-colors">Admin</Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
-      <header className="bg-white shadow-lg sticky top-0 z-40">
+      {/* Main Header - Mobile2000 Style */}
+      <header className="bg-white shadow-xl sticky top-0 z-50 border-b-4 border-blue-600">
         <div className="container mx-auto px-4">
           {/* Desktop Header */}
-          <div className="hidden md:flex items-center justify-between py-4">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3">
-              <img src={lakkiLogo} alt="LAKKI PHONES" className="h-12 w-auto" />
+          <div className="hidden lg:flex items-center justify-between py-4">
+            {/* Logo Section */}
+            <Link to="/" className="flex items-center space-x-4 group">
+              <div className="relative">
+                <img src={lakkiLogo} alt="LAKKI PHONES" className="h-14 w-auto transition-transform group-hover:scale-105" />
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">NEW</div>
+              </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">LAKKI PHONES</h1>
-                <p className="text-xs text-gray-600">Premium Electronics Store</p>
+                <h1 className="text-2xl font-black text-gray-900 tracking-tight">LAKKI PHONES</h1>
+                <p className="text-xs text-blue-600 font-medium">Premium Mobile Store Kuwait</p>
               </div>
             </Link>
 
-            {/* Search Bar */}
+            {/* Search Bar - A1Store Style */}
             <form onSubmit={handleSearch} className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
+              <div className="relative group">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for phones, accessories..."
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-full focus:outline-none focus:border-primary transition-colors"
+                  placeholder="Search for iPhone, Samsung, accessories..."
+                  className="w-full pl-14 pr-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all group-hover:border-blue-300"
                 />
-                <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-5 top-4.5 h-6 w-6 text-gray-400 group-focus-within:text-blue-500" />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1.5 bg-primary text-white px-6 py-2 rounded-full hover:bg-primary/90 transition-colors"
+                  className="absolute right-2 top-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg"
                 >
                   Search
                 </button>
@@ -86,49 +93,61 @@ const Header: React.FC = () => {
             </form>
 
             {/* Action Buttons */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <button 
                 onClick={() => setShowWishlist(true)}
-                className="relative p-3 text-gray-700 hover:text-primary transition-colors"
+                className="relative p-3 text-gray-600 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all group"
               >
-                <Heart className="h-6 w-6" />
+                <Heart className="h-6 w-6 group-hover:scale-110 transition-transform" />
                 {state.wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
                     {state.wishlist.length}
                   </span>
                 )}
+                <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Wishlist
+                </span>
               </button>
 
               <button 
                 onClick={() => setShowCheckout(true)}
-                className="relative p-3 text-gray-700 hover:text-primary transition-colors"
+                className="relative p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all group"
               >
-                <ShoppingCart className="h-6 w-6" />
+                <ShoppingCart className="h-6 w-6 group-hover:scale-110 transition-transform" />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-bounce">
                     {cartItemCount}
                   </span>
                 )}
+                <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Cart
+                </span>
               </button>
 
-              <button className="p-3 text-gray-700 hover:text-primary transition-colors">
-                <User className="h-6 w-6" />
+              <button className="relative p-3 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all group">
+                <User className="h-6 w-6 group-hover:scale-110 transition-transform" />
+                <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Account
+                </span>
               </button>
             </div>
           </div>
 
           {/* Mobile Header */}
-          <div className="md:hidden flex items-center justify-between py-4">
+          <div className="lg:hidden flex items-center justify-between py-4">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-gray-700"
+              className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
 
             <Link to="/" className="flex items-center space-x-2">
-              <img src={lakkiLogo} alt="LAKKI PHONES" className="h-8 w-auto" />
-              <span className="text-lg font-bold text-gray-900">LAKKI</span>
+              <img src={lakkiLogo} alt="LAKKI PHONES" className="h-10 w-auto" />
+              <div>
+                <span className="text-lg font-bold text-gray-900">LAKKI</span>
+                <span className="block text-xs text-blue-600">PHONES</span>
+              </div>
             </Link>
 
             <div className="flex items-center space-x-2">
@@ -138,7 +157,7 @@ const Header: React.FC = () => {
               >
                 <ShoppingCart className="h-6 w-6" />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                     {cartItemCount}
                   </span>
                 )}
@@ -147,7 +166,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* Mobile Search */}
-          <div className="md:hidden pb-4">
+          <div className="lg:hidden pb-4">
             <form onSubmit={handleSearch}>
               <div className="relative">
                 <input
@@ -155,82 +174,63 @@ const Header: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
                 />
-                <Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
               </div>
             </form>
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <div className="bg-primary">
+        {/* Navigation Menu - Mobile2000 Style */}
+        <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 shadow-lg">
           <div className="container mx-auto px-4">
-            <nav className="hidden md:flex items-center space-x-8 py-3">
-              <Link to="/products" className="text-white hover:text-gray-200 transition-colors font-medium">
-                All Products
-              </Link>
-              <Link to="/categories/smartphones" className="text-white hover:text-gray-200 transition-colors">
-                Smartphones
-              </Link>
-              <Link to="/categories/accessories" className="text-white hover:text-gray-200 transition-colors">
-                Accessories
-              </Link>
-              <Link to="/categories/tablets" className="text-white hover:text-gray-200 transition-colors">
-                Tablets
-              </Link>
-              <Link to="/categories/laptops" className="text-white hover:text-gray-200 transition-colors">
-                Laptops
-              </Link>
-              <Link to="/deals" className="text-white hover:text-gray-200 transition-colors">
-                Special Offers
-              </Link>
-              <Link to="/support" className="text-white hover:text-gray-200 transition-colors">
-                Support
-              </Link>
+            <nav className="hidden lg:flex items-center justify-center space-x-8 py-4">
+              {[
+                { name: 'All Products', path: '/products', icon: '📱' },
+                { name: 'iPhone', path: '/categories/smartphones', icon: '🍎' },
+                { name: 'Samsung', path: '/categories/smartphones', icon: '📲' },
+                { name: 'Accessories', path: '/categories/accessories', icon: '🎧' },
+                { name: 'Tablets', path: '/categories/tablets', icon: '📱' },
+                { name: 'Laptops', path: '/categories/laptops', icon: '💻' },
+                { name: 'Special Offers', path: '/deals', icon: '🔥' },
+                { name: 'Support', path: '/support', icon: '💬' }
+              ].map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className="flex items-center space-x-2 text-white hover:text-yellow-300 transition-all font-medium px-4 py-2 rounded-lg hover:bg-white/10 group"
+                >
+                  <span className="group-hover:scale-110 transition-transform">{item.icon}</span>
+                  <span>{item.name}</span>
+                </Link>
+              ))}
             </nav>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-t">
-            <nav className="py-4 space-y-2">
-              <Link
-                to="/products"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                All Products
-              </Link>
-              <Link
-                to="/categories/smartphones"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Smartphones
-              </Link>
-              <Link
-                to="/categories/accessories"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Accessories
-              </Link>
-              <Link
-                to="/deals"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Special Offers
-              </Link>
-              <Link
-                to="/support"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Support
-              </Link>
+          <div className="lg:hidden bg-white border-t-2 border-blue-100 shadow-xl">
+            <nav className="py-4 space-y-1">
+              {[
+                { name: 'All Products', path: '/products' },
+                { name: 'Smartphones', path: '/categories/smartphones' },
+                { name: 'Accessories', path: '/categories/accessories' },
+                { name: 'Tablets', path: '/categories/tablets' },
+                { name: 'Laptops', path: '/categories/laptops' },
+                { name: 'Special Offers', path: '/deals' },
+                { name: 'Support', path: '/support' }
+              ].map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className="block px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium border-l-4 border-transparent hover:border-blue-500"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
             </nav>
           </div>
         )}
