@@ -25,7 +25,14 @@ import {
   Map,
   CreditCard,
   Search,
-  Filter
+  Filter,
+  Package,
+  CheckCircle,
+  AlertTriangle,
+  Star,
+  UserCheck,
+  UserMinus,
+  Activity
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { analyticsService, AnalyticsFilter, AnalyticsDashboard } from '../../services/analyticsService';
