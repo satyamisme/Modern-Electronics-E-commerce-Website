@@ -15,8 +15,8 @@ import {
   Mail,
   Phone,
   Calendar,
-  Lock,
-  Unlock,
+  Lock as LockIcon,
+  Unlock as UnlockIcon,
   MoreHorizontal,
   RefreshCw
 } from 'lucide-react';
@@ -656,7 +656,7 @@ const AdminUsers: React.FC = () => {
                             className="text-yellow-600 hover:text-yellow-900"
                             title="Deactivate User"
                           >
-                            <Lock className="h-4 w-4" />
+                            <LockIcon className="h-4 w-4" />
                           </button>
                         ) : (
                           <button
@@ -669,7 +669,7 @@ const AdminUsers: React.FC = () => {
                             className="text-green-600 hover:text-green-900"
                             title="Activate User"
                           >
-                            <Unlock className="h-4 w-4" />
+                            <UnlockIcon className="h-4 w-4" />
                           </button>
                         )}
                         <button
@@ -800,12 +800,12 @@ const AdminUsers: React.FC = () => {
                         </button>
                         {selectedUser.status === 'active' ? (
                           <button className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center justify-center">
-                            <Lock className="h-4 w-4 mr-2" />
+                            <LockIcon className="h-4 w-4 mr-2" />
                             Deactivate Account
                           </button>
                         ) : (
                           <button className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center justify-center">
-                            <Unlock className="h-4 w-4 mr-2" />
+                            <UnlockIcon className="h-4 w-4 mr-2" />
                             Activate Account
                           </button>
                         )}

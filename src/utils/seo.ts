@@ -1,4 +1,6 @@
 // SEO Utilities for LAKKI PHONES
+import React from 'react';
+
 export interface SEOConfig {
   title: string;
   description: string;
