@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import ProductForm from '../../components/admin/ProductForm';
+import OptimizedImage from '../../components/ui/OptimizedImage';
 import { products } from '../../data/products';
 import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
 import { Product } from '../../types';
