@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AuthUser, AuthState, LoginCredentials, Permission, ROLE_PERMISSIONS } from '../types/auth';
+import { AuthUser, AuthState, LoginCredentials, Permission } from '../types/auth';
+import { AuthService } from '../services/authService';
+import { useSupabase } from '../hooks/useSupabase';
 
 type AuthAction =
   | { type: 'LOGIN_START' }
   | { type: 'LOGIN_SUCCESS'; payload: AuthUser }
   | { type: 'LOGIN_FAILURE'; payload: string }
   | { type: 'LOGOUT' }
-  | { type: 'CLEAR_ERROR' };
+  | { type: 'CLEAR_ERROR' }
+  | { type: 'SET_PROFILE'; payload: any };
 
 const initialState: AuthState = {
   user: null,
@@ -21,12 +24,14 @@ const AuthContext = createContext<{
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   hasPermission: (permission: Permission) => boolean;
+  signUp: (email: string, password: string, userData: any) => Promise<void>;
 }>({
   state: initialState,
   dispatch: () => null,
   login: async () => {},
   logout: () => {},
-  hasPermission: () => false
+  hasPermission: () => false,
+  signUp: async () => {}
 });
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
@@ -62,106 +67,143 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
     
     case 'CLEAR_ERROR':
       return { ...state, error: null };
+
+    case 'SET_PROFILE':
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: !!action.payload,
+        isLoading: false
+      };
     
     default:
       return state;
   }
 }
 
-// Mock users database
-const MOCK_USERS: AuthUser[] = [
-  {
-    id: 'user-1',
-    email: 'admin@techstore.com',
-    name: 'Super Admin',
-    role: 'super_admin',
-    permissions: ROLE_PERMISSIONS.super_admin,
-    lastLogin: new Date(),
-    createdAt: new Date('2024-01-01'),
-    isActive: true,
-    department: 'IT'
-  },
-  {
-    id: 'user-2',
-    email: 'manager@techstore.com',
-    name: 'Store Manager',
-    role: 'manager',
-    permissions: ROLE_PERMISSIONS.manager,
-    lastLogin: new Date(),
-    createdAt: new Date('2024-01-01'),
-    isActive: true,
-    department: 'Operations'
-  },
-  {
-    id: 'user-3',
-    email: 'editor@techstore.com',
-    name: 'Content Editor',
-    role: 'editor',
-    permissions: ROLE_PERMISSIONS.editor,
-    lastLogin: new Date(),
-    createdAt: new Date('2024-01-01'),
-    isActive: true,
-    department: 'Marketing'
-  }
-];
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const { user: supabaseUser, loading } = useSupabase();
 
-  // Check for existing session on mount
+  // Load user profile when Supabase user changes
   useEffect(() => {
-    const savedUser = localStorage.getItem('admin_user');
-    if (savedUser) {
-      try {
-        const user = JSON.parse(savedUser);
-        dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-      } catch (error) {
-        localStorage.removeItem('admin_user');
+    const loadProfile = async () => {
+      if (supabaseUser) {
+        try {
+          const profile = await AuthService.getCurrentProfile();
+          if (profile) {
+            const authUser: AuthUser = {
+              id: profile.id,
+              email: profile.email,
+              name: profile.full_name || '',
+              role: profile.role as any,
+              permissions: [], // Will be set based on role
+              lastLogin: new Date(),
+              createdAt: new Date(profile.created_at),
+              isActive: true,
+              department: undefined
+            };
+            dispatch({ type: 'SET_PROFILE', payload: authUser });
+          }
+        } catch (error) {
+          console.error('Error loading profile:', error);
+          dispatch({ type: 'LOGIN_FAILURE', payload: 'Failed to load user profile' });
+        }
+      } else {
+        dispatch({ type: 'SET_PROFILE', payload: null });
       }
+    };
+
+    if (!loading) {
+      loadProfile();
     }
-  }, []);
+  }, [supabaseUser, loading]);
 
   const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const user = MOCK_USERS.find(u => u.email === credentials.email);
+      const { user } = await AuthService.signIn(credentials.email, credentials.password);
       
-      if (!user) {
-        throw new Error('Invalid email or password');
+      if (user) {
+        const profile = await AuthService.getCurrentProfile();
+        if (profile) {
+          const authUser: AuthUser = {
+            id: profile.id,
+            email: profile.email,
+            name: profile.full_name || '',
+            role: profile.role as any,
+            permissions: [], // Will be set based on role
+            lastLogin: new Date(),
+            createdAt: new Date(profile.created_at),
+            isActive: true,
+            department: undefined
+          };
+          dispatch({ type: 'LOGIN_SUCCESS', payload: authUser });
+        }
       }
-
-      if (!user.isActive) {
-        throw new Error('Account is deactivated');
-      }
-
-      // In real app, verify password hash
-      if (credentials.password !== 'admin123') {
-        throw new Error('Invalid email or password');
-      }
-
-      const updatedUser = { ...user, lastLogin: new Date() };
-      localStorage.setItem('admin_user', JSON.stringify(updatedUser));
-      dispatch({ type: 'LOGIN_SUCCESS', payload: updatedUser });
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE', payload: (error as Error).message });
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('admin_user');
-    dispatch({ type: 'LOGOUT' });
+  const signUp = async (email: string, password: string, userData: any) => {
+    dispatch({ type: 'LOGIN_START' });
+
+    try {
+      await AuthService.signUp(email, password, userData);
+      // User will be automatically logged in after email verification
+    } catch (error) {
+      dispatch({ type: 'LOGIN_FAILURE', payload: (error as Error).message });
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await AuthService.signOut();
+      dispatch({ type: 'LOGOUT' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const hasPermission = (permission: Permission): boolean => {
-    return state.user?.permissions.includes(permission) || false;
+    if (!state.user) return false;
+    
+    // Super admin has all permissions
+    if (state.user.role === 'super_admin') return true;
+
+    // Define role permissions (simplified)
+    const rolePermissions: Record<string, Permission[]> = {
+      admin: [
+        'products.create', 'products.read', 'products.update', 'products.delete',
+        'orders.read', 'orders.update', 'orders.delete',
+        'users.read', 'users.update',
+        'analytics.read', 'settings.read'
+      ],
+      manager: [
+        'products.read', 'products.update',
+        'orders.read', 'orders.update',
+        'users.read',
+        'analytics.read'
+      ],
+      editor: [
+        'products.create', 'products.read', 'products.update',
+        'orders.read'
+      ],
+      viewer: [
+        'products.read',
+        'orders.read',
+        'analytics.read'
+      ]
+    };
+
+    const userPermissions = rolePermissions[state.user.role] || [];
+    return userPermissions.includes(permission);
   };
 
   return (
-    <AuthContext.Provider value={{ state, dispatch, login, logout, hasPermission }}>
+    <AuthContext.Provider value={{ state, dispatch, login, logout, hasPermission, signUp }}>
       {children}
     </AuthContext.Provider>
   );
