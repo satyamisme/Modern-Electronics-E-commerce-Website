@@ -26,7 +26,6 @@ import {
   CreditCard,
   Search,
   Filter,
-  Package,
   CheckCircle,
   AlertTriangle,
   Star,
