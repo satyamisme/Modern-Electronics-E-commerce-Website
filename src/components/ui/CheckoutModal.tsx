@@ -33,8 +33,21 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const subtotal = state.cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-  const deliveryFee = 2.500; // Default delivery fee in KWD
+  const deliveryFee = address.governorate ? getDeliveryFee(address.governorate) : 2.500;
   const total = subtotal + deliveryFee;
+
+  // Import delivery fee function
+  const getDeliveryFee = (governorate: string): number => {
+    const fees: Record<string, number> = {
+      'kuwait-city': 2.000,
+      'hawalli': 2.500,
+      'ahmadi': 3.000,
+      'jahra': 3.500,
+      'mubarak-al-kabeer': 3.000,
+      'farwaniya': 2.500
+    };
+    return fees[governorate] || 2.500;
+  };
 
   const handleNextStep = () => {
     if (step === 'info') setStep('address');

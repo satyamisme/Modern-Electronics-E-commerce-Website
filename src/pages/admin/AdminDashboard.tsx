@@ -22,27 +22,27 @@ const AdminDashboard: React.FC = () => {
     
     // Mock analytics data
     const mockAnalytics = {
-      totalRevenue: 125430,
+      totalRevenue: 38430.500,
       totalOrders: 1247,
-      averageOrderValue: 100.58,
+      averageOrderValue: 308.250,
       topSellingProducts: [
-        { productId: '1', productName: 'iPhone 15 Pro', unitsSold: 156, revenue: 155844 },
-        { productId: '2', productName: 'MacBook Pro M3', unitsSold: 89, revenue: 142311 },
-        { productId: '3', productName: 'AirPods Pro', unitsSold: 234, revenue: 58266 },
+        { productId: '1', productName: 'iPhone 15 Pro', unitsSold: 156, revenue: 62322.000 },
+        { productId: '2', productName: 'MacBook Pro M3', unitsSold: 89, revenue: 57841.100 },
+        { productId: '3', productName: 'AirPods Pro', unitsSold: 234, revenue: 21037.600 },
       ],
       revenueByCategory: {
-        smartphones: 45000,
-        laptops: 38000,
-        headphones: 22000,
-        tablets: 15000,
-        accessories: 5430
+        smartphones: 13815.000,
+        laptops: 11674.000,
+        headphones: 6762.000,
+        tablets: 4605.000,
+        accessories: 1574.500
       },
       salesTrend: [
-        { date: '2024-01-01', revenue: 12000, orders: 120 },
-        { date: '2024-01-02', revenue: 15000, orders: 150 },
-        { date: '2024-01-03', revenue: 18000, orders: 180 },
-        { date: '2024-01-04', revenue: 14000, orders: 140 },
-        { date: '2024-01-05', revenue: 16000, orders: 160 },
+        { date: '2024-01-01', revenue: 3684.000, orders: 120 },
+        { date: '2024-01-02', revenue: 4605.000, orders: 150 },
+        { date: '2024-01-03', revenue: 5526.000, orders: 180 },
+        { date: '2024-01-04', revenue: 4294.000, orders: 140 },
+        { date: '2024-01-05', revenue: 4912.000, orders: 160 },
       ]
     };
     dispatch({ type: 'SET_ANALYTICS', payload: mockAnalytics });
@@ -74,7 +74,7 @@ const AdminDashboard: React.FC = () => {
   const stats = [
     {
       name: 'Total Revenue',
-      value: `$${state.analytics?.totalRevenue.toLocaleString() || '0'}`,
+      value: `KD ${state.analytics?.totalRevenue.toLocaleString() || '0'}`,
       change: '+12.5%',
       changeType: 'increase',
       icon: DollarSign,
@@ -95,7 +95,7 @@ const AdminDashboard: React.FC = () => {
     },
     {
       name: 'Average Order Value',
-      value: `$${state.analytics?.averageOrderValue.toFixed(2) || '0'}`,
+      value: `KD ${state.analytics?.averageOrderValue.toFixed(3) || '0'}`,
       change: '-2.4%',
       changeType: 'decrease',
       icon: TrendingUp,
@@ -197,7 +197,7 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <span className="font-semibold text-gray-900">
-                  ${product.revenue.toLocaleString()}
+                  KD {product.revenue.toLocaleString()}
                 </span>
               </div>
             ))}
@@ -215,7 +215,7 @@ const AdminDashboard: React.FC = () => {
                 {category.replace('-', ' ')}
               </p>
               <p className="text-xl font-bold text-gray-900">
-                ${revenue.toLocaleString()}
+                KD {revenue.toLocaleString()}
               </p>
             </div>
           ))}
@@ -227,7 +227,7 @@ const AdminDashboard: React.FC = () => {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
         <div className="space-y-3">
           {[
-            { action: 'New order received', details: 'Order #1247 - $299.99', time: '2 minutes ago' },
+            { action: 'New order received', details: 'Order #1247 - KD 299.500', time: '2 minutes ago' },
             { action: 'Product updated', details: 'iPhone 15 Pro - Price changed', time: '15 minutes ago' },
             { action: 'Low stock alert', details: 'MacBook Pro M3 - 3 units left', time: '1 hour ago' },
             { action: 'New customer registered', details: 'john.doe@email.com', time: '2 hours ago' },

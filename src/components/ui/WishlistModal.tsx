@@ -3,6 +3,7 @@ import { X, Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { products } from '../../data/products';
 import { formatKWD } from '../../utils/currency';
+import OptimizedImage from './OptimizedImage';
 
 interface WishlistModalProps {
   isOpen: boolean;
@@ -59,10 +60,12 @@ const WishlistModal: React.FC<WishlistModalProps> = ({ isOpen, onClose }) => {
             <div className="p-6 space-y-4">
               {wishlistProducts.map((product) => (
                 <div key={product.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                  <img
+                  <OptimizedImage
                     src={product.images[0]}
                     alt={product.name}
-                    className="w-20 h-20 object-cover rounded-lg"
+                    width={150}
+                    height={150}
+                    className="w-20 h-20 rounded-lg"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{product.name}</h3>

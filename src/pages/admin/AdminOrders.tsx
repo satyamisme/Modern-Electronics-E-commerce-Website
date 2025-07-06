@@ -23,43 +23,43 @@ const AdminOrders: React.FC = () => {
     // Mock orders data
     const mockOrders: OrderManagement[] = [
       {
-        id: 'ORD-001',
+        id: 'ORD-20250106-001',
         customerName: 'John Doe',
         customerEmail: 'john.doe@email.com',
         items: [
-          { productId: 'iphone-15-pro', productName: 'iPhone 15 Pro', quantity: 1, price: 999 }
+          { productId: 'iphone-15-pro', productName: 'iPhone 15 Pro', quantity: 1, price: 399.500 }
         ],
-        total: 999,
+        total: 399.500,
         status: 'pending',
         orderDate: new Date('2024-01-20'),
-        shippingAddress: '123 Main St, New York, NY 10001',
+        shippingAddress: 'Block 5, Street 15, Salmiya, Hawalli, Kuwait',
         trackingNumber: undefined
       },
       {
-        id: 'ORD-002',
+        id: 'ORD-20250106-002',
         customerName: 'Jane Smith',
         customerEmail: 'jane.smith@email.com',
         items: [
-          { productId: 'macbook-pro-m3', productName: 'MacBook Pro M3', quantity: 1, price: 1599 },
-          { productId: 'airpods-pro-2', productName: 'AirPods Pro', quantity: 1, price: 249 }
+          { productId: 'macbook-pro-m3', productName: 'MacBook Pro M3', quantity: 1, price: 649.900 },
+          { productId: 'airpods-pro-2', productName: 'AirPods Pro', quantity: 1, price: 89.900 }
         ],
-        total: 1848,
+        total: 739.800,
         status: 'processing',
         orderDate: new Date('2024-01-19'),
-        shippingAddress: '456 Oak Ave, Los Angeles, CA 90210',
+        shippingAddress: 'Block 12, Street 8, Jabriya, Hawalli, Kuwait',
         trackingNumber: undefined
       },
       {
-        id: 'ORD-003',
+        id: 'ORD-20250106-003',
         customerName: 'Mike Johnson',
         customerEmail: 'mike.johnson@email.com',
         items: [
-          { productId: 'sony-wh1000xm5', productName: 'Sony WH-1000XM5', quantity: 2, price: 399 }
+          { productId: 'sony-wh1000xm5', productName: 'Sony WH-1000XM5', quantity: 2, price: 149.900 }
         ],
-        total: 798,
+        total: 299.800,
         status: 'shipped',
         orderDate: new Date('2024-01-18'),
-        shippingAddress: '789 Pine St, Chicago, IL 60601',
+        shippingAddress: 'Block 3, Street 22, Ahmadi, Kuwait',
         trackingNumber: 'TRK123456789'
       },
       {
@@ -262,7 +262,7 @@ const AdminOrders: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">${order.total}</div>
+                    <div className="text-sm font-medium text-gray-900">KD {order.total.toFixed(3)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select

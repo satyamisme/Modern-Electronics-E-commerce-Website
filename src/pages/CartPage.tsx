@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { formatKWD } from '../utils/currency';
+import OptimizedImage from '../components/ui/OptimizedImage';
 
 const CartPage: React.FC = () => {
   const { state, dispatch } = useApp();
@@ -19,8 +21,8 @@ const CartPage: React.FC = () => {
   };
 
   const subtotal = state.cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-  const tax = subtotal * 0.08; // 8% tax
-  const shipping = subtotal > 50 ? 0 : 10; // Free shipping over $50
+  const tax = 0; // No tax in Kuwait
+  const shipping = subtotal > 15.000 ? 0 : 2.500; // Free shipping over KD 15
   const total = subtotal + tax + shipping;
 
   if (state.cart.length === 0) {
@@ -53,15 +55,17 @@ const CartPage: React.FC = () => {
             {state.cart.map((item) => (
               <div key={item.product.id} className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-center space-x-4">
-                  <img
+                  <OptimizedImage
                     src={item.product.images[0]}
                     alt={item.product.name}
-                    className="w-20 h-20 object-cover rounded-lg"
+                    width={150}
+                    height={150}
+                    className="w-20 h-20 rounded-lg"
                   />
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{item.product.name}</h3>
                     <p className="text-gray-600">{item.product.brand}</p>
-                    <p className="text-xl font-bold text-gray-900">${item.product.price}</p>
+                    <p className="text-xl font-bold text-gray-900">{formatKWD(item.product.price)}</p>
                   </div>
                   <div className="flex items-center space-x-3">
                     <button
@@ -96,22 +100,18 @@ const CartPage: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Tax:</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
+                  <span className="font-medium">{formatKWD(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping:</span>
                   <span className="font-medium">
-                    {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                    {shipping === 0 ? 'Free' : formatKWD(shipping)}
                   </span>
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total:</span>
-                    <span className="text-lg font-bold text-gray-900">${total.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-gray-900">{formatKWD(total)}</span>
                   </div>
                 </div>
               </div>
@@ -133,7 +133,7 @@ const CartPage: React.FC = () => {
               {shipping > 0 && (
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-700">
-                    Add ${(50 - subtotal).toFixed(2)} more to get free shipping!
+                    Add {formatKWD(15.000 - subtotal)} more to get free shipping!
                   </p>
                 </div>
               )}
