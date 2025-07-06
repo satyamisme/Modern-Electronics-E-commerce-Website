@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import { OrderManagement } from '../../types/admin';
+import { formatKWD } from '../../utils/currency';
 
 const AdminOrders: React.FC = () => {
   const { state, dispatch } = useAdmin();
