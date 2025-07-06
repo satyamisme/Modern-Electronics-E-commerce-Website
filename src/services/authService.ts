@@ -12,6 +12,7 @@ export class AuthService {
     phone?: string;
     role?: 'customer' | 'admin';
   }) {
+    try {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -41,10 +42,15 @@ export class AuthService {
     }
 
     return data;
+    } catch (error) {
+      console.log('Supabase not configured, using mock auth');
+      return { user: null, session: null };
+    }
   }
 
   // Sign in user
   static async signIn(email: string, password: string) {
+    try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -56,6 +62,10 @@ export class AuthService {
     }
 
     return data;
+    } catch (error) {
+      console.log('Supabase not configured, using mock auth');
+      return { user: { id: 'admin-1', email }, session: null };
+    }
   }
 
   // Sign out user

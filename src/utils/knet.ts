@@ -59,13 +59,13 @@ export class KNETPaymentService {
 
 // KNET configuration for Kuwait market
 export const knetConfig: KNETConfig = {
-  merchantId: import.meta.env.VITE_KNET_MERCHANT_ID || 'TEST_MERCHANT',
-  terminalId: import.meta.env.VITE_KNET_TERMINAL_ID || 'TEST_TERMINAL',
-  resourceKey: import.meta.env.VITE_KNET_RESOURCE_KEY || 'TEST_KEY',
+  merchantId: import.meta.env.VITE_KNET_MERCHANT_ID || 'LAKKI_MERCHANT',
+  terminalId: import.meta.env.VITE_KNET_TERMINAL_ID || 'LAKKI_TERMINAL',
+  resourceKey: import.meta.env.VITE_KNET_RESOURCE_KEY || 'LAKKI_KEY',
   currency: 'KWD',
   language: 'ar',
-  returnUrl: `${window.location.origin}/payment/success`,
-  errorUrl: `${window.location.origin}/payment/error`
+  returnUrl: import.meta.env.VITE_KNET_RETURN_URL || `${window.location.origin}/payment/success`,
+  errorUrl: import.meta.env.VITE_KNET_ERROR_URL || `${window.location.origin}/payment/error`
 };
 
 // Initialize KNET service

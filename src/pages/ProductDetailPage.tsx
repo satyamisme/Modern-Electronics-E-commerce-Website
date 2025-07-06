@@ -4,6 +4,7 @@ import { Star, Heart, ShoppingCart, Minus, Plus, Share2, GitCompare as Compare, 
 import { Product } from '../types';
 import { products } from '../data/products';
 import { useApp } from '../context/AppContext';
+import OptimizedImage from '../components/ui/OptimizedImage';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -85,10 +86,12 @@ const ProductDetailPage: React.FC = () => {
           {/* Product Images */}
           <div className="space-y-4">
             <div className="relative">
-              <img
+              <OptimizedImage
                 src={product.images[selectedImage]}
                 alt={product.name}
-                className="w-full h-96 object-cover rounded-lg"
+                width={800}
+                height={600}
+                className="w-full h-96 rounded-lg"
               />
               {product.originalPrice && (
                 <span className="absolute top-4 left-4 bg-secondary text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -105,10 +108,12 @@ const ProductDetailPage: React.FC = () => {
                     selectedImage === index ? 'ring-2 ring-primary' : ''
                   }`}
                 >
-                  <img
+                  <OptimizedImage
                     src={image}
                     alt={`${product.name} ${index + 1}`}
-                    className="w-full h-24 object-cover"
+                    width={200}
+                    height={150}
+                    className="w-full h-24"
                   />
                 </button>
               ))}

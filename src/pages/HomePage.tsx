@@ -4,6 +4,7 @@ import { ArrowRight, Truck, Shield, Headphones, CreditCard, Star } from 'lucide-
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
 import { featuredProducts, bestSellers, categories } from '../data/products';
+import OptimizedImage from '../components/ui/OptimizedImage';
 
 const HomePage: React.FC = () => {
   return (
@@ -37,10 +38,12 @@ const HomePage: React.FC = () => {
               </div>
             </div>
             <div className="relative">
-              <img
+              <OptimizedImage
                 src="https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=800"
                 alt="Latest Electronics"
-                className="w-full h-96 object-cover rounded-lg shadow-2xl"
+                width={800}
+                height={600}
+                className="w-full h-96 rounded-lg shadow-2xl"
               />
               <div className="absolute -bottom-6 -left-6 bg-secondary text-white p-4 rounded-lg shadow-lg">
                 <div className="flex items-center space-x-2">

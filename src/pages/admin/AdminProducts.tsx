@@ -25,7 +25,17 @@ const AdminProducts: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    dispatch({ type: 'SET_PRODUCTS', payload: products });
+    // Load products from Supabase or fallback to mock data
+    const loadProducts = async () => {
+      try {
+        const supabaseProducts = await ProductService.getProducts();
+        dispatch({ type: 'SET_PRODUCTS', payload: supabaseProducts || products });
+      } catch (error) {
+        console.log('Using mock data:', error);
+        dispatch({ type: 'SET_PRODUCTS', payload: products });
+      }
+    };
+    loadProducts();
   }, [dispatch]);
 
   useEffect(() => {

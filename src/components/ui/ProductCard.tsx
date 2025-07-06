@@ -4,6 +4,7 @@ import { Star, Heart, ShoppingCart, Eye, GitCompare as Compare } from 'lucide-re
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { formatKWD } from '../../utils/currency';
+import OptimizedImage from './OptimizedImage';
 
 interface ProductCardProps {
   product: Product;
@@ -58,10 +59,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <div className="flex">
           <div className="w-1/3 relative">
-            <img
+            <OptimizedImage
               src={product.images[0]}
               alt={product.name}
-              className="w-full h-48 object-cover"
+              width={300}
+              height={200}
+              className="w-full h-48"
             />
             {product.originalPrice && (
               <span className="absolute top-2 left-2 bg-secondary text-white px-2 py-1 rounded text-xs font-medium">
@@ -127,10 +130,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
     <Link to={`/products/${product.id}`} className="group">
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <div className="relative">
-          <img
+          <OptimizedImage
             src={product.images[0]}
             alt={product.name}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            width={400}
+            height={300}
+            className="w-full h-48 group-hover:scale-105 transition-transform duration-300"
           />
           {product.originalPrice && (
             <span className="absolute top-2 left-2 bg-secondary text-white px-2 py-1 rounded text-xs font-medium">

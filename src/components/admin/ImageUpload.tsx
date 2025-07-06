@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Link, AlertCircle } from 'lucide-react';
+import { imageOptimizer, imgbbUploader } from '../../utils/imageOptimization';
 
 interface ImageUploadProps {
   images: string[];
@@ -64,15 +65,31 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       return true;
     });
 
-    // Convert files to base64 URLs (in real app, upload to cloud storage)
+    // Upload to cloud storage
     validFiles.forEach(file => {
+      uploadImage(file);
+    });
+  };
+
+  const uploadImage = async (file: File) => {
+    try {
+      // Try Cloudinary first, fallback to ImgBB
+      let imageUrl;
+      try {
+        imageUrl = await imageOptimizer.uploadImage(file);
+      } catch {
+        imageUrl = await imgbbUploader.uploadImage(file);
+      }
+      onImagesChange([...images, imageUrl]);
+    } catch (error) {
+      // Fallback to base64 for demo
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
         onImagesChange([...images, result]);
       };
       reader.readAsDataURL(file);
-    });
+    }
   };
 
   const handleUrlAdd = () => {

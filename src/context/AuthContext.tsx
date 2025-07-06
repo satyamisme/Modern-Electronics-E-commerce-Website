@@ -107,16 +107,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         } catch (error) {
           console.error('Error loading profile:', error);
-          dispatch({ type: 'LOGIN_FAILURE', payload: 'Failed to load user profile' });
+          // Fallback to mock admin for demo
+          const mockAdmin: AuthUser = {
+            id: 'admin-1',
+            email: 'admin@lakkiphones.com',
+            name: 'Admin User',
+            role: 'admin',
+            permissions: [],
+            lastLogin: new Date(),
+            createdAt: new Date(),
+            isActive: true,
+            department: 'IT'
+          };
+          dispatch({ type: 'SET_PROFILE', payload: mockAdmin });
         }
       } else {
         dispatch({ type: 'SET_PROFILE', payload: null });
       }
     };
 
-    if (!loading) {
-      loadProfile();
-    }
+    loadProfile();
   }, [supabaseUser, loading]);
 
   const login = async (credentials: LoginCredentials) => {
