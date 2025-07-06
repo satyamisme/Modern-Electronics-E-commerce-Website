@@ -1,7 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { products } from '../data/products';
 import type { Database } from '../lib/supabase';
-import { Product } from '../types';
 
 type Product = Database['public']['Tables']['products']['Row'];
 type ProductInsert = Database['public']['Tables']['products']['Insert'];

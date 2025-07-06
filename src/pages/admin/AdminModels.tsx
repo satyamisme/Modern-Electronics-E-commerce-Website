@@ -13,7 +13,8 @@ import {
   RefreshCw,
   Link,
   AlertCircle,
-  Upload
+  Upload,
+  UploadCloud
 } from 'lucide-react';
 import { phoneModelService, PhoneModel } from '../../services/phoneModelService';
 import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
