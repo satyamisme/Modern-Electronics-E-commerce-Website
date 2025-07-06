@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Truck, Shield, Headphones, CreditCard, Star, Phone, Zap, Award, CheckCircle, Clock, MapPin } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
-import { featuredProducts, bestSellers, categories } from '../data/products';
+import { categories } from '../data/products';
 import OptimizedImage from '../components/ui/OptimizedImage';
+import { useApp } from '../context/AppContext';
+import { ProductService } from '../services/productService';
+import { Product } from '../types';
 
 const HomePage: React.FC = () => {
+  const { state } = useApp();
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [bestSellers, setBestSellers] = useState<Product[]>([]);
+  
+  useEffect(() => {
+    // Use products from context if available, otherwise fetch from API
+    if (state.searchState.results.length > 0) {
+      // Get featured products (first 4)
+      setFeaturedProducts(state.searchState.results.slice(0, 4));
+      
+      // Get best sellers (products 2-6)
+      setBestSellers(state.searchState.results.slice(2, 6));
+    } else {
+      // Fetch products from API
+      ProductService.getProducts()
+        .then(products => {
+          setFeaturedProducts(products.slice(0, 4));
+          setBestSellers(products.slice(2, 6));
+        })
+        .catch(error => {
+          console.error('Error fetching products for homepage:', error);
+        });
+    }
+  }, [state.searchState.results]);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section - A1Store + Mobile2000 Style */}

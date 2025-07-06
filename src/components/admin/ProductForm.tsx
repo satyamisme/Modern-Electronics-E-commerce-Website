@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, Save } from 'lucide-react';
 import { Product } from '../../types';
 import { ProductFormData } from '../../types/admin';
-import { useAdmin } from '../../context/AdminContext';
 import { imageOptimizer } from '../../utils/imageOptimization';
 import ImageUpload from './ImageUpload';
 
@@ -13,7 +12,6 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) => {
-  const { state } = useAdmin();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     brand: '',

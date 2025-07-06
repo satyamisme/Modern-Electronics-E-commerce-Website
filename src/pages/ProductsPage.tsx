@@ -3,12 +3,15 @@ import { useSearchParams } from 'react-router-dom';
 import { Grid, List, SlidersHorizontal, Filter as FilterIcon } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import SearchFilters from '../components/ui/SearchFilters';
-import { products } from '../data/products';
 import { Filter, Product } from '../types';
+import { useApp } from '../context/AppContext';
+import { ProductService } from '../services/productService';
 
 const ProductsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const { state } = useApp();
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<string>('popularity');
   const [filters, setFilters] = useState<Filter>({});
@@ -28,9 +31,33 @@ const ProductsPage: React.FC = () => {
     }
   }, [searchParams]);
 
+  // Load products on mount
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        // Use products from context if available, otherwise fetch from API
+        if (state.searchState.results.length > 0) {
+          setFilteredProducts(state.searchState.results);
+        } else {
+          const products = await ProductService.getProducts();
+          setFilteredProducts(products);
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadProducts();
+  }, [state.searchState.results]);
+
   // Filter products based on current filters
   useEffect(() => {
-    let filtered = [...products];
+    if (filteredProducts.length === 0) return;
+    
+    let filtered = [...filteredProducts];
 
     // Category filter
     if (filters.category) {
@@ -91,7 +118,7 @@ const ProductsPage: React.FC = () => {
     }
 
     setFilteredProducts(filtered);
-  }, [filters, sortBy, searchParams]);
+  }, [filters, sortBy, searchParams, state.searchState.results]);
 
   const handleFiltersChange = (newFilters: Filter) => {
     setFilters(newFilters);

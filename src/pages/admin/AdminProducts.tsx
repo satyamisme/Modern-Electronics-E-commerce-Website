@@ -124,30 +124,45 @@ const AdminProducts: React.FC = () => {
 
   const handleDeleteProduct = (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      dispatch({ type: 'DELETE_PRODUCT', payload: productId });
+      ProductService.deleteProduct(productId)
+        .then(success => {
+          if (success) {
+            dispatch({ type: 'DELETE_PRODUCT', payload: productId });
+            alert('Product deleted successfully!');
+          } else {
+            alert('Failed to delete product. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error deleting product:', error);
+          alert('Failed to delete product. Please try again.');
+        });
     }
   };
 
   const handleSaveProduct = (productData: ProductFormData) => {
     if (state.editMode && state.selectedProduct) {
       // Update existing product
-      const updatedProduct: Product = {
-        ...state.selectedProduct,
-        ...productData,
-        updatedAt: new Date()
-      };
-      dispatch({ type: 'UPDATE_PRODUCT', payload: updatedProduct });
+      ProductService.updateProduct(state.selectedProduct.id, productData)
+        .then(updatedProduct => {
+          dispatch({ type: 'UPDATE_PRODUCT', payload: updatedProduct });
+          alert('Product updated successfully!');
+        })
+        .catch(error => {
+          console.error('Error updating product:', error);
+          alert('Failed to update product. Please try again.');
+        });
     } else {
       // Add new product
-      const newProduct: Product = {
-        id: `product-${Date.now()}`,
-        ...productData,
-        rating: 0,
-        reviewCount: 0,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      dispatch({ type: 'ADD_PRODUCT', payload: newProduct });
+      ProductService.createProduct(productData, productData.images)
+        .then(newProduct => {
+          dispatch({ type: 'ADD_PRODUCT', payload: newProduct });
+          alert('Product created successfully!');
+        })
+        .catch(error => {
+          console.error('Error creating product:', error);
+          alert('Failed to create product. Please try again.');
+        });
     }
     setShowForm(false);
   };
