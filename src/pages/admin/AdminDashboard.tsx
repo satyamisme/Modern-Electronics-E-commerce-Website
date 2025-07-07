@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import { products } from '../../data/products';
-import { formatKWDEnglish } from '../../utils/currency';
+import { formatKWDEnglish, formatKWD } from '../../utils/currency';
 
 // Dashboard widget components
 const StatCard = ({ title, value, change, icon: Icon, color }) => (
