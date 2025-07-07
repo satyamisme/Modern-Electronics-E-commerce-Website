@@ -1,13 +1,31 @@
 // Currency utilities for Kuwait market
 export const KWD_CURRENCY = {
   code: 'KWD',
-  symbol: 'KD',
+  symbolEn: 'KD',
+  symbolAr: 'د.ك',
   name: 'Kuwaiti Dinar',
+  nameAr: 'دينار كويتي',
   decimals: 3,
   locale: 'ar-KW'
 };
 
-export const formatKWD = (amount: number): string => {
+export const formatKWD = (amount: number, locale: 'en' | 'ar' = 'en'): string => {
+  if (locale === 'ar') {
+    return formatKWDArabic(amount);
+  }
+  return formatKWDEnglish(amount);
+};
+
+export const formatKWDEnglish = (amount: number): string => {
+  return new Intl.NumberFormat('ar-KW', {
+    style: 'currency',
+    currency: 'KWD',
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  }).format(amount);
+};
+
+export const formatKWDArabic = (amount: number): string => {
   return new Intl.NumberFormat('ar-KW', {
     style: 'currency',
     currency: 'KWD',
@@ -18,6 +36,10 @@ export const formatKWD = (amount: number): string => {
 
 export const formatKWDSimple = (amount: number): string => {
   return `KD ${amount.toFixed(3)}`;
+};
+
+export const formatKWDSimpleArabic = (amount: number): string => {
+  return `د.ك ${amount.toFixed(3)}`;
 };
 
 export const convertUSDToKWD = (usdAmount: number): number => {
@@ -39,4 +61,15 @@ export const validateKWDPrice = (price: number): boolean => {
 export const displayPrice = (price: number, showCurrency = true): string => {
   const formatted = price.toFixed(3);
   return showCurrency ? `KD ${formatted}` : formatted;
+};
+
+// Format price for display in Kuwait market (Arabic)
+export const displayPriceArabic = (price: number, showCurrency = true): string => {
+  const formatted = price.toFixed(3);
+  return showCurrency ? `د.ك ${formatted}` : formatted;
+};
+
+// Get currency symbol based on locale
+export const getCurrencySymbol = (locale: 'en' | 'ar' = 'en'): string => {
+  return locale === 'ar' ? KWD_CURRENCY.symbolAr : KWD_CURRENCY.symbolEn;
 };
