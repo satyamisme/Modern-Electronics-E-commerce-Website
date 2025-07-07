@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { analyticsService, AnalyticsFilter, AnalyticsDashboard } from '../../services/analyticsService';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
 import AnalyticsWidget from '../../components/admin/AnalyticsWidget';
 import ChartWidget from '../../components/admin/ChartWidget';
 import DataTable from '../../components/admin/DataTable';
@@ -177,7 +177,7 @@ const AdminAnalytics: React.FC = () => {
             colors={['#1E40AF']}
             xAxisKey="date"
             isCurrency={true}
-            tooltipFormatter={(value) => formatKWD(value)}
+            tooltipFormatter={(value) => formatKWDEnglish(value)}
           />
           <ChartWidget
             title="Sales by Category"
@@ -187,7 +187,7 @@ const AdminAnalytics: React.FC = () => {
             dataKeys={['value']}
             colors={analytics.categorySales.map(cat => cat.color)}
             isCurrency={true}
-            tooltipFormatter={(value) => formatKWD(value)}
+            tooltipFormatter={(value) => formatKWDEnglish(value)}
           />
         </div>
 
@@ -225,7 +225,7 @@ const AdminAnalytics: React.FC = () => {
                       <div className="text-sm font-medium text-gray-900">{product.name}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{formatKWD(product.revenue)}</div>
+                      <div className="text-sm text-gray-900">{formatKWDEnglish(product.revenue)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{product.units}</div>
@@ -395,7 +395,7 @@ const AdminAnalytics: React.FC = () => {
           xAxisKey="date"
           isCurrency={false}
           tooltipFormatter={(value, name) => {
-            if (name === 'revenue') return formatKWD(value);
+            if (name === 'revenue') return formatKWDEnglish(value);
             return value;
           }}
         />
@@ -433,7 +433,7 @@ const AdminAnalytics: React.FC = () => {
           colors={['#1E40AF']}
           xAxisKey="name"
           isCurrency={true}
-          tooltipFormatter={(value) => formatKWD(value)}
+          tooltipFormatter={(value) => formatKWDEnglish(value)}
         />
 
         {/* Sales by Device */}
@@ -443,7 +443,7 @@ const AdminAnalytics: React.FC = () => {
               <h3 className="font-semibold text-gray-900">Mobile Sales</h3>
               <Smartphone className="h-5 w-5 text-blue-500" />
             </div>
-            <p className="text-3xl font-bold text-gray-900 mb-2">{formatKWD(analytics.salesOverview.totalRevenue * 0.65)}</p>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{formatKWDEnglish(analytics.salesOverview.totalRevenue * 0.65)}</p>
             <p className="text-sm text-gray-600">65% of total revenue</p>
             <div className="mt-4 flex items-center">
               <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
@@ -456,7 +456,7 @@ const AdminAnalytics: React.FC = () => {
               <h3 className="font-semibold text-gray-900">Desktop Sales</h3>
               <Laptop className="h-5 w-5 text-green-500" />
             </div>
-            <p className="text-3xl font-bold text-gray-900 mb-2">{formatKWD(analytics.salesOverview.totalRevenue * 0.28)}</p>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{formatKWDEnglish(analytics.salesOverview.totalRevenue * 0.28)}</p>
             <p className="text-sm text-gray-600">28% of total revenue</p>
             <div className="mt-4 flex items-center">
               <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
@@ -469,7 +469,7 @@ const AdminAnalytics: React.FC = () => {
               <h3 className="font-semibold text-gray-900">Tablet Sales</h3>
               <Tablet className="h-5 w-5 text-purple-500" />
             </div>
-            <p className="text-3xl font-bold text-gray-900 mb-2">{formatKWD(analytics.salesOverview.totalRevenue * 0.07)}</p>
+            <p className="text-3xl font-bold text-gray-900 mb-2">{formatKWDEnglish(analytics.salesOverview.totalRevenue * 0.07)}</p>
             <p className="text-sm text-gray-600">7% of total revenue</p>
             <div className="mt-4 flex items-center">
               <TrendingUp className="h-4 w-4 text-red-500 mr-1 transform rotate-180" />
@@ -493,7 +493,7 @@ const AdminAnalytics: React.FC = () => {
       {
         Header: 'Revenue',
         accessor: 'revenue',
-        Cell: ({ value }: { value: number }) => formatKWD(value)
+        Cell: ({ value }: { value: number }) => formatKWDEnglish(value)
       },
       {
         Header: 'Units Sold',
@@ -608,7 +608,7 @@ const AdminAnalytics: React.FC = () => {
           dataKeys={['value']}
           colors={analytics.categorySales.map(cat => cat.color)}
           isCurrency={true}
-          tooltipFormatter={(value) => formatKWD(value)}
+          tooltipFormatter={(value) => formatKWDEnglish(value)}
         />
       </div>
     );
@@ -709,7 +709,7 @@ const AdminAnalytics: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 bg-blue-50 rounded-lg text-center">
               <p className="text-sm text-gray-600 mb-2">Average CLV</p>
-              <p className="text-3xl font-bold text-gray-900">{formatKWD(1250.500)}</p>
+              <p className="text-3xl font-bold text-gray-900">{formatKWDEnglish(1250.500)}</p>
               <p className="text-xs text-gray-500 mt-2">Lifetime value per customer</p>
             </div>
             <div className="p-4 bg-green-50 rounded-lg text-center">

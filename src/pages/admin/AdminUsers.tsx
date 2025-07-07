@@ -21,7 +21,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
 
 // User types
 interface UserActivity {
@@ -826,11 +826,17 @@ const AdminUsers: React.FC = () => {
                       </div>
                       <div className="bg-green-50 p-4 rounded-lg">
                         <p className="text-sm text-gray-600">Total Spent</p>
-                        <p className="text-xl font-bold text-gray-900">{formatKWD(selectedUser.metrics?.totalSpent || 0)}</p>
+                        <div>
+                          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(selectedUser.metrics?.totalSpent || 0)}</p>
+                          <p className="text-xs text-gray-500">{formatKWDArabic(selectedUser.metrics?.totalSpent || 0)}</p>
+                        </div>
                       </div>
                       <div className="bg-purple-50 p-4 rounded-lg">
                         <p className="text-sm text-gray-600">Avg. Order Value</p>
-                        <p className="text-xl font-bold text-gray-900">{formatKWD(selectedUser.metrics?.averageOrderValue || 0)}</p>
+                        <div>
+                          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(selectedUser.metrics?.averageOrderValue || 0)}</p>
+                          <p className="text-xs text-gray-500">{formatKWDArabic(selectedUser.metrics?.averageOrderValue || 0)}</p>
+                        </div>
                       </div>
                       <div className="bg-yellow-50 p-4 rounded-lg">
                         <p className="text-sm text-gray-600">Login Count</p>
@@ -895,7 +901,7 @@ const AdminUsers: React.FC = () => {
                             </div>
                             <div className="text-right">
                               <p className="font-medium text-gray-900">
-                                {formatKWD(selectedUser.metrics?.averageOrderValue || 0)}
+                                {formatKWDEnglish(selectedUser.metrics?.averageOrderValue || 0)}
                               </p>
                               <p className="text-xs text-gray-500">
                                 {index === 0 ? 'Delivered' : index === 1 ? 'Shipped' : 'Processing'}
