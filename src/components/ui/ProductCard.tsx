@@ -3,15 +3,16 @@ import { Link } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Eye, GitCompare as Compare, Zap } from 'lucide-react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { formatKWD } from '../../utils/currency';
+import { formatKWD, formatKWDArabic } from '../../utils/currency';
 import OptimizedImage from './OptimizedImage';
 
 interface ProductCardProps {
   product: Product;
   variant?: 'grid' | 'list';
+  showDualCurrency?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid', showDualCurrency = true }) => {
   const { state, dispatch } = useApp();
   const isWishlisted = state.wishlist.includes(product.id);
   const isCompared = state.compareProducts.some(p => p.id === product.id);
@@ -122,7 +123,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
             </div>
             
             <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
-            
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-blue-600">{formatKWD(product.price)}</span>
+                {showDualCurrency && (
+                  <span className="text-sm text-gray-500">{formatKWDArabic(product.price)}</span>
+                )}
+              </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="text-2xl font-bold text-blue-600">{formatKWD(product.price)}</span>
@@ -232,7 +238,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
           
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <span className="text-xl font-bold text-blue-600">{formatKWD(product.price)}</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-blue-600">{formatKWD(product.price)}</span>
+                {showDualCurrency && (
+                  <span className="text-xs text-gray-500">{formatKWDArabic(product.price)}</span>
+                )}
+              </div>
               {product.originalPrice && (
                 <span className="text-sm text-gray-500 line-through">{formatKWD(product.originalPrice)}</span>
               )}

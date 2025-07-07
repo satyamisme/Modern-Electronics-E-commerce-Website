@@ -8,6 +8,7 @@ import OptimizedImage from '../components/ui/OptimizedImage';
 import { useApp } from '../context/AppContext';
 import { ProductService } from '../services/productService';
 import { Product } from '../types';
+import { products } from '../data/products';
 
 const HomePage: React.FC = () => {
   const { state } = useApp();
@@ -15,24 +16,9 @@ const HomePage: React.FC = () => {
   const [bestSellers, setBestSellers] = useState<Product[]>([]);
   
   useEffect(() => {
-    // Use products from context if available, otherwise fetch from API
-    if (state.searchState.results.length > 0) {
-      // Get featured products (first 4)
-      setFeaturedProducts(state.searchState.results.slice(0, 4));
-      
-      // Get best sellers (products 2-6)
-      setBestSellers(state.searchState.results.slice(2, 6));
-    } else {
-      // Fetch products from API
-      ProductService.getProducts()
-        .then(products => {
-          setFeaturedProducts(products.slice(0, 4));
-          setBestSellers(products.slice(2, 6));
-        })
-        .catch(error => {
-          console.error('Error fetching products for homepage:', error);
-        });
-    }
+    // Always use mock data for consistent display
+    setFeaturedProducts(products.slice(0, 4));
+    setBestSellers(products.slice(2, 6));
   }, [state.searchState.results]);
   return (
     <div className="min-h-screen bg-gray-50">

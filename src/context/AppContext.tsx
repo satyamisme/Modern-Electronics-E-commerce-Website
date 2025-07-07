@@ -133,15 +133,13 @@ function appReducer(state: AppState, action: AppAction): AppState {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
   
-  // Load products from API on mount
+  // Load products from mock data on mount
   useEffect(() => {
     const loadProducts = async () => {
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
-        const products = await ProductService.getProducts();
-        if (products) {
-          dispatch({ type: 'SET_SEARCH_STATE', payload: { results: products } });
-        }
+        // Use mock data directly instead of API call
+        dispatch({ type: 'SET_SEARCH_STATE', payload: { results: products } });
         dispatch({ type: 'SET_LOADING', payload: false });
       } catch (error) {
         console.error('Error loading products:', error);

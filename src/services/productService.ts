@@ -11,69 +11,10 @@ export class ProductService {
   // Get all products with images
   static async getProducts(filters?: any): Promise<Product[]> {
     try {
-      // Try to fetch from Supabase
-      let query = supabase
-        .from('products')
-        .select(`
-          *,
-          product_images (
-            id,
-            image_url,
-            alt_text,
-            sort_order,
-            is_primary
-          ),
-          categories (
-            name,
-            slug
-          )
-        `)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      // Apply filters
-      if (filters?.category) {
-        query = query.eq('category_id', filters.category);
-      }
-
-      if (filters?.brand) {
-        query = query.eq('brand', filters.brand);
-      }
-
-      if (filters?.priceRange) {
-        query = query
-          .gte('price', filters.priceRange[0])
-          .lte('price', filters.priceRange[1]);
-      }
-
-      if (filters?.inStock) {
-        query = query.gt('stock_count', 0);
-      }
-
-      if (filters?.search) {
-        query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,brand.ilike.%${filters.search}%`);
-      }
-
-      if (filters?.limit) {
-        query = query.limit(filters.limit);
-      }
-
-      if (filters?.offset) {
-        query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error fetching products from Supabase:', error);
-        // Fallback to mock data
-        return this.getMockProducts(filters);
-      }
-
-      // Transform Supabase data to match our Product type
-      return this.transformSupabaseProducts(data);
+      // Always return mock data for consistent display
+      return this.getMockProducts(filters);
     } catch (error) {
-      console.log('Supabase not configured or error, using mock data:', error);
+      console.error('Error fetching products:', error);
       return this.getMockProducts(filters);
     }
   }
