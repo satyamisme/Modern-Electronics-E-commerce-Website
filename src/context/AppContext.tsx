@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { Product, CartItem, User, Filter, SearchState } from '../types';
 import { ProductService } from '../services/productService';
+import { products } from '../data/products';
 
 interface AppState {
   user: User | null;
