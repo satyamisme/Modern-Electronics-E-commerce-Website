@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, Package, Truck, Calendar, Download, ArrowRight } from 'lucide-react';
 import { knetService } from '../utils/knet';
-import { formatKWD } from '../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../utils/currency';
 
 const PaymentSuccessPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -86,7 +86,10 @@ const PaymentSuccessPage: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Total Amount:</span>
-              <span className="font-bold text-lg">{formatKWD(orderDetails?.amount || 0)}</span>
+              <div className="flex flex-col items-end">
+                <span className="font-bold text-lg">{formatKWDEnglish(orderDetails?.amount || 0)}</span>
+                <span className="text-sm text-gray-600">{formatKWDArabic(orderDetails?.amount || 0)}</span>
+              </div>
             </div>
           </div>
 
@@ -97,7 +100,10 @@ const PaymentSuccessPage: React.FC = () => {
               {orderDetails?.items.map((item: any, index: number) => (
                 <div key={index} className="flex justify-between text-sm">
                   <span>{item.name} x{item.quantity}</span>
-                  <span>{formatKWD(item.price)}</span>
+                  <div className="flex flex-col items-end">
+                    <span>{formatKWDEnglish(item.price)}</span>
+                    <span className="text-xs text-gray-500">{formatKWDArabic(item.price)}</span>
+                  </div>
                 </div>
               ))}
             </div>

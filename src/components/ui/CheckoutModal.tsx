@@ -3,7 +3,7 @@ import { X, CreditCard, MapPin, User, Phone, Mail } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import KuwaitAddressForm from './KuwaitAddressForm';
 import KNETPaymentButton from './KNETPaymentButton';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
 import { KuwaitAddress } from '../../utils/kuwait';
 
 interface CheckoutModalProps {
@@ -194,23 +194,35 @@ const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose }) => {
               <div className="space-y-3 mb-4">
                 {state.cart.map((item) => (
                   <div key={item.product.id} className="flex justify-between text-sm">
-                    <span>{item.product.name} x{item.quantity}</span>
-                    <span>{formatKWD(item.product.price * item.quantity)}</span>
+                    <div>{item.product.name} x{item.quantity}</div>
+                    <div className="flex flex-col items-end">
+                      <span>{formatKWDEnglish(item.product.price * item.quantity)}</span>
+                      <span className="text-xs text-gray-500">{formatKWDArabic(item.product.price * item.quantity)}</span>
+                    </div>
                   </div>
                 ))}
               </div>
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>{formatKWD(subtotal)}</span>
+                  <div className="flex flex-col items-end">
+                    <span>{formatKWDEnglish(subtotal)}</span>
+                    <span className="text-xs text-gray-500">{formatKWDArabic(subtotal)}</span>
+                  </div>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery:</span>
-                  <span>{formatKWD(deliveryFee)}</span>
+                  <div className="flex flex-col items-end">
+                    <span>{formatKWDEnglish(deliveryFee)}</span>
+                    <span className="text-xs text-gray-500">{formatKWDArabic(deliveryFee)}</span>
+                  </div>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2">
                   <span>Total:</span>
-                  <span>{formatKWD(total)}</span>
+                  <div className="flex flex-col items-end">
+                    <span>{formatKWDEnglish(total)}</span>
+                    <span className="text-sm text-gray-600">{formatKWDArabic(total)}</span>
+                  </div>
                 </div>
               </div>
             </div>

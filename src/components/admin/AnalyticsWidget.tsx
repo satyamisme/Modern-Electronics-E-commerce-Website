@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish } from '../../utils/currency';
 
 interface AnalyticsWidgetProps {
   title: string;
@@ -26,7 +26,7 @@ const AnalyticsWidget: React.FC<AnalyticsWidgetProps> = ({
   isPercentage = false
 }) => {
   const formattedValue = isCurrency 
-    ? formatKWD(typeof value === 'string' ? parseFloat(value) : value)
+    ? formatKWDEnglish(typeof value === 'string' ? parseFloat(value) : value)
     : isPercentage
       ? `${value}%`
       : value;

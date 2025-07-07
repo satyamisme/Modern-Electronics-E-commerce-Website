@@ -14,7 +14,7 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish } from '../../utils/currency';
 
 interface ChartWidgetProps {
   title: string;
@@ -48,7 +48,7 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({
   labelFormatter
 }) => {
   const defaultTooltipFormatter = (value: any, name: string) => {
-    if (isCurrency) return formatKWD(value);
+    if (isCurrency) return formatKWDEnglish(value);
     return value;
   };
 

@@ -33,13 +33,8 @@ const AdminProducts: React.FC = () => {
   useEffect(() => {
     // Load products from Supabase or fallback to mock data
     const loadProducts = async () => {
-      try {
-        const supabaseProducts = await ProductService.getProducts();
-        dispatch({ type: 'SET_PRODUCTS', payload: supabaseProducts || products });
-      } catch (error) {
-        console.log('Using mock data:', error);
-        dispatch({ type: 'SET_PRODUCTS', payload: products });
-      }
+      // Always use mock data for consistent display
+      dispatch({ type: 'SET_PRODUCTS', payload: products });
     };
     loadProducts();
   }, [dispatch]);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CreditCard, Shield, CheckCircle, AlertCircle } from 'lucide-react';
 import { knetService, KNETPaymentRequest } from '../../utils/knet';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
 
 interface KNETPaymentButtonProps {
   amount: number;
@@ -89,7 +89,10 @@ const KNETPaymentButton: React.FC<KNETPaymentButtonProps> = ({
           <>
             <CreditCard className="h-5 w-5" />
             <span>Pay with KNET</span>
-            <span className="font-bold">{formatKWD(amount)}</span>
+            <div className="flex flex-col items-center">
+              <span className="font-bold">{formatKWDEnglish(amount)}</span>
+              <span className="text-xs">{formatKWDArabic(amount)}</span>
+            </div>
           </>
         );
     }

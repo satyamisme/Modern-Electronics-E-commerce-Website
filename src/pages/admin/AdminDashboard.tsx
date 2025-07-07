@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import { products } from '../../data/products';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish } from '../../utils/currency';
 
 // Dashboard widget components
 const StatCard = ({ title, value, change, icon: Icon, color }) => (
@@ -156,7 +156,7 @@ const SalesOverviewWidget = () => {
       <div className="grid grid-cols-3 gap-4 mt-6">
         <div className="text-center p-3 bg-blue-50 rounded-lg">
           <p className="text-sm text-gray-600">Total Sales</p>
-          <p className="text-xl font-bold text-gray-900">{formatKWD(38430.500)}</p>
+          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(38430.500)}</p>
         </div>
         <div className="text-center p-3 bg-green-50 rounded-lg">
           <p className="text-sm text-gray-600">Conversion</p>
@@ -164,7 +164,7 @@ const SalesOverviewWidget = () => {
         </div>
         <div className="text-center p-3 bg-purple-50 rounded-lg">
           <p className="text-sm text-gray-600">Avg. Order</p>
-          <p className="text-xl font-bold text-gray-900">{formatKWD(308.250)}</p>
+          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(308.250)}</p>
         </div>
       </div>
     </div>

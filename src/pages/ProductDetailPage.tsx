@@ -4,7 +4,7 @@ import { Star, Heart, ShoppingCart, Minus, Plus, Share2, GitCompare as Compare, 
 import { Product } from '../types';
 import { products } from '../data/products';
 import { useApp } from '../context/AppContext';
-import OptimizedImage from '../components/ui/OptimizedImage';
+import { formatKWDEnglish, formatKWDArabic } from '../utils/currency';
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -132,9 +132,12 @@ const ProductDetailPage: React.FC = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-gray-900">${product.price}</span>
+              <div className="flex flex-col">
+                <span className="text-3xl font-bold text-gray-900">{formatKWDEnglish(product.price)}</span>
+                <span className="text-sm text-gray-600">{formatKWDArabic(product.price)}</span>
+              </div>
               {product.originalPrice && (
-                <span className="text-xl text-gray-500 line-through">${product.originalPrice}</span>
+                <span className="text-xl text-gray-500 line-through">{formatKWDEnglish(product.originalPrice)}</span>
               )}
             </div>
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Star, Heart, ShoppingCart, Eye, GitCompare as Compare, Zap } from 'lucide-react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { formatKWD, formatKWDArabic } from '../../utils/currency';
+import { formatKWD, formatKWDArabic, formatKWDEnglish } from '../../utils/currency';
 import OptimizedImage from './OptimizedImage';
 
 interface ProductCardProps {
@@ -233,19 +233,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid', sh
           
           <div className="flex items-center mb-3">
             {renderStars(product.rating)}
-            <span className="text-sm text-gray-500 ml-2">({product.reviewCount})</span>
+            <span className="text-sm text-gray-500 ml-2">({product.reviewCount || 0})</span>
           </div>
           
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-blue-600">{formatKWD(product.price)}</span>
+                <span className="text-xl font-bold text-blue-600">{formatKWDEnglish(product.price)}</span>
+                {showDualCurrency && (
+                  <span className="text-xs text-gray-500">{formatKWDArabic(product.price)}</span>
+                )}
+              </div>
+                <span className="text-xl font-bold text-blue-600">{formatKWDEnglish(product.price)}</span>
                 {showDualCurrency && (
                   <span className="text-xs text-gray-500">{formatKWDArabic(product.price)}</span>
                 )}
               </div>
               {product.originalPrice && (
-                <span className="text-sm text-gray-500 line-through">{formatKWD(product.originalPrice)}</span>
+                <span className="text-sm text-gray-500 line-through">{formatKWDEnglish(product.originalPrice)}</span>
               )}
             </div>
             {product.inStock && (

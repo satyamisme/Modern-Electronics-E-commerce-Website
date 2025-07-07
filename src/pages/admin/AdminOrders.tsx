@@ -401,6 +401,7 @@ const AdminOrders: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">KD {order.total.toFixed(3)}</div>
+                    <div className="text-xs text-gray-500">د.ك {order.total.toFixed(3)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
@@ -457,9 +458,10 @@ const AdminOrders: React.FC = () => {
             ].map((product, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <span className="flex items-center justify-center w-6 h-6 bg-primary text-white rounded-full text-xs font-bold">
-                    {index + 1}
-                  </span>
+                  <div className="flex flex-col items-end">
+                    <span className="font-semibold text-gray-900">{formatKWDEnglish(product.revenue)}</span>
+                    <span className="text-xs text-gray-500">{formatKWDArabic(product.revenue)}</span>
+                  </div>
                   <div>
                     <p className="font-medium text-gray-900">{product.name}</p>
                     <p className="text-sm text-gray-600">{product.quantity} units sold</p>

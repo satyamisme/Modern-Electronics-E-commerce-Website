@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { formatKWD } from '../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../utils/currency';
 import OptimizedImage from '../components/ui/OptimizedImage';
 
 const CartPage: React.FC = () => {
@@ -65,7 +65,10 @@ const CartPage: React.FC = () => {
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900">{item.product.name}</h3>
                     <p className="text-gray-600">{item.product.brand}</p>
-                    <p className="text-xl font-bold text-gray-900">{formatKWD(item.product.price)}</p>
+                    <div>
+                      <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(item.product.price)}</p>
+                      <p className="text-sm text-gray-600">{formatKWDArabic(item.product.price)}</p>
+                    </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <button
@@ -100,18 +103,29 @@ const CartPage: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium">{formatKWD(subtotal)}</span>
+                  <div className="flex flex-col items-end">
+                    <span className="font-medium">{formatKWDEnglish(subtotal)}</span>
+                    <span className="text-sm text-gray-500">{formatKWDArabic(subtotal)}</span>
+                  </div>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping:</span>
-                  <span className="font-medium">
-                    {shipping === 0 ? 'Free' : formatKWD(shipping)}
-                  </span>
+                  <div className="flex flex-col items-end">
+                    <span className="font-medium">
+                      {shipping === 0 ? 'Free' : formatKWDEnglish(shipping)}
+                    </span>
+                    {shipping !== 0 && (
+                      <span className="text-sm text-gray-500">{formatKWDArabic(shipping)}</span>
+                    )}
+                  </div>
                 </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total:</span>
-                    <span className="text-lg font-bold text-gray-900">{formatKWD(total)}</span>
+                    <div className="flex flex-col items-end">
+                      <span className="text-lg font-bold text-gray-900">{formatKWDEnglish(total)}</span>
+                      <span className="text-sm text-gray-600">{formatKWDArabic(total)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -133,7 +147,7 @@ const CartPage: React.FC = () => {
               {shipping > 0 && (
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-700">
-                    Add {formatKWD(15.000 - subtotal)} more to get free shipping!
+                    Add {formatKWDEnglish(15.000 - subtotal)} more to get free shipping!
                   </p>
                 </div>
               )}

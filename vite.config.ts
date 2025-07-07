@@ -7,11 +7,6 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // Allow external connections
     port: 5173,
-    strictPort: true
-  },
-  preview: {
-    host: '0.0.0.0', // Allow external connections for preview
-    port: 4173,
     strictPort: true,
     proxy: {
       '/gsmarena-api': {
@@ -21,6 +16,11 @@ export default defineConfig({
         secure: true
       }
     }
+  },
+  preview: {
+    host: '0.0.0.0', // Allow external connections for preview
+    port: 4173,
+    strictPort: true
   },
   optimizeDeps: {
     exclude: ['lucide-react'],

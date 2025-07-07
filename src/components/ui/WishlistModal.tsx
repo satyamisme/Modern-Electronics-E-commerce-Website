@@ -2,7 +2,7 @@ import React from 'react';
 import { X, Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { products } from '../../data/products';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
 import OptimizedImage from './OptimizedImage';
 
 interface WishlistModalProps {
@@ -71,10 +71,13 @@ const WishlistModal: React.FC<WishlistModalProps> = ({ isOpen, onClose }) => {
                     <h3 className="font-semibold text-gray-900">{product.name}</h3>
                     <p className="text-gray-600">{product.brand}</p>
                     <div className="flex items-center space-x-2 mt-2">
-                      <span className="text-xl font-bold text-primary">{formatKWD(product.price)}</span>
+                      <div className="flex flex-col">
+                        <span className="text-xl font-bold text-primary">{formatKWDEnglish(product.price)}</span>
+                        <span className="text-xs text-gray-500">{formatKWDArabic(product.price)}</span>
+                      </div>
                       {product.originalPrice && (
                         <span className="text-sm text-gray-500 line-through">
-                          {formatKWD(product.originalPrice)}
+                          {formatKWDEnglish(product.originalPrice)}
                         </span>
                       )}
                     </div>

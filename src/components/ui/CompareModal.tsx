@@ -2,7 +2,7 @@ import React from 'react';
 import { X, Star, Check, Minus } from 'lucide-react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
-import { formatKWD } from '../../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
 
 interface CompareModalProps {
   isOpen: boolean;
@@ -76,7 +76,10 @@ const CompareModal: React.FC<CompareModalProps> = ({ isOpen, onClose }) => {
                   <div className="flex items-center justify-center mb-2">
                     {renderStars(product.rating)}
                   </div>
-                  <p className="text-xl font-bold text-primary mb-4">{formatKWD(product.price)}</p>
+                  <div className="mb-4">
+                    <p className="text-xl font-bold text-primary">{formatKWDEnglish(product.price)}</p>
+                    <p className="text-sm text-gray-600">{formatKWDArabic(product.price)}</p>
+                  </div>
                   <button
                     onClick={() => addToCart(product)}
                     className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition-colors"
@@ -95,10 +98,13 @@ const CompareModal: React.FC<CompareModalProps> = ({ isOpen, onClose }) => {
                   <div className="font-semibold text-gray-900">Price</div>
                   {state.compareProducts.map((product) => (
                     <div key={product.id} className="text-center">
-                      <span className="text-xl font-bold text-primary">{formatKWD(product.price)}</span>
+                      <div>
+                        <span className="text-xl font-bold text-primary">{formatKWDEnglish(product.price)}</span>
+                        <div className="text-sm text-gray-600">{formatKWDArabic(product.price)}</div>
+                      </div>
                       {product.originalPrice && (
                         <div className="text-sm text-gray-500 line-through">
-                          {formatKWD(product.originalPrice)}
+                          {formatKWDEnglish(product.originalPrice)}
                         </div>
                       )}
                     </div>

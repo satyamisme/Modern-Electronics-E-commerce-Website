@@ -3,7 +3,7 @@ import { Clock, Percent, Star, Filter } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import { products } from '../data/products';
 import OptimizedImage from '../components/ui/OptimizedImage';
-import { formatKWD } from '../utils/currency';
+import { formatKWDEnglish, formatKWDArabic } from '../utils/currency';
 
 const DealsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<'all' | 'flash' | 'clearance' | 'bundle'>('all');
@@ -127,14 +127,15 @@ const DealsPage: React.FC = () => {
                 <h3 className="text-xl font-bold mb-2">{dealsProducts[0].name}</h3>
                 <div className="flex items-center justify-center space-x-4 mb-4">
                   <span className="text-2xl font-bold text-primary">
-                    {formatKWD(dealsProducts[0].price)}
+                    {formatKWDEnglish(dealsProducts[0].price)}
                   </span>
                   <span className="text-lg text-gray-500 line-through">
-                    {formatKWD(dealsProducts[0].originalPrice!)}
+                    {formatKWDEnglish(dealsProducts[0].originalPrice!)}
                   </span>
                 </div>
                 <div className="text-red-600 font-bold text-lg mb-4">
-                  Save {formatKWD(dealsProducts[0].originalPrice! - dealsProducts[0].price)}
+                  Save {formatKWDEnglish(dealsProducts[0].originalPrice! - dealsProducts[0].price)}
+                  <div className="text-sm">{formatKWDArabic(dealsProducts[0].originalPrice! - dealsProducts[0].price)}</div>
                 </div>
                 
                 {/* Countdown Timer */}
