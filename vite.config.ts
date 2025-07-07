@@ -12,7 +12,7 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0', // Allow external connections for preview
     port: 4173,
-    strictPort: true
+    strictPort: true,
     proxy: {
       '/gsmarena-api': {
         target: 'https://gsmarena-api.vercel.app',
