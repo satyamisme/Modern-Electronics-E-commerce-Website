@@ -244,11 +244,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid', sh
                   <span className="text-xs text-gray-500">{formatKWDArabic(product.price)}</span>
                 )}
               </div>
-                <span className="text-xl font-bold text-blue-600">{formatKWDEnglish(product.price)}</span>
-                {showDualCurrency && (
-                  <span className="text-xs text-gray-500">{formatKWDArabic(product.price)}</span>
-                )}
-              </div>
               {product.originalPrice && (
                 <span className="text-sm text-gray-500 line-through">{formatKWDEnglish(product.originalPrice)}</span>
               )}
