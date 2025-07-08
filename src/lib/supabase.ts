@@ -1,19 +1,59 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key';
+// Use mock values for demo purposes
+const supabaseUrl = 'https://demo.supabase.co';
+const supabaseAnonKey = 'demo-key';
 
 // if (!supabaseUrl || !supabaseAnonKey) {
 //   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 // }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Create a mock client that won't actually connect to Supabase
+export const supabase = {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+    signUp: () => Promise.resolve({ data: { user: null }, error: null }),
+    signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
+    signOut: () => Promise.resolve({ error: null }),
+    resetPasswordForEmail: () => Promise.resolve({ error: null }),
+    updateUser: () => Promise.resolve({ error: null })
+  },
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        single: () => Promise.resolve({ data: null, error: null }),
+        limit: () => Promise.resolve({ data: [], error: null }),
+        range: () => Promise.resolve({ data: [], error: null }),
+        order: () => Promise.resolve({ data: [], error: null }),
+        or: () => Promise.resolve({ data: [], error: null })
+      }),
+      order: () => ({
+        eq: () => Promise.resolve({ data: [], error: null })
+      }),
+      limit: () => ({
+        eq: () => Promise.resolve({ data: [], error: null })
+      })
+    }),
+    insert: () => ({
+      select: () => ({
+        single: () => Promise.resolve({ data: null, error: null })
+      })
+    }),
+    update: () => ({
+      eq: () => ({
+        select: () => ({
+          single: () => Promise.resolve({ data: null, error: null })
+        })
+      })
+    }),
+    delete: () => ({
+      eq: () => Promise.resolve({ error: null })
+    })
+  }),
+  rpc: () => Promise.resolve({ data: null, error: null })
+};
 
 // Database types
 export interface Database {

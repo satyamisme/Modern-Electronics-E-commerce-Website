@@ -120,6 +120,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     dispatch({ type: 'LOGIN_START' });
 
+    // For demo purposes, allow direct login with hardcoded credentials
+    if (credentials.email === 'admin@lakkiphones.com' && credentials.password === 'admin123') {
+      const mockUser: AuthUser = {
+        id: 'admin-1',
+        email: 'admin@lakkiphones.com',
+        name: 'Super Admin',
+        role: 'super_admin',
+        permissions: [],
+        lastLogin: new Date(),
+        createdAt: new Date('2024-01-01'),
+        isActive: true,
+        department: undefined
+      };
+      dispatch({ type: 'LOGIN_SUCCESS', payload: mockUser });
+      return;
+    }
+
+    if (credentials.email === 'manager@lakkiphones.com' && credentials.password === 'admin123') {
+      const mockUser: AuthUser = {
+        id: 'manager-1',
+        email: 'manager@lakkiphones.com',
+        name: 'Manager User',
+        role: 'manager',
+        permissions: [],
+        lastLogin: new Date(),
+        createdAt: new Date('2024-01-01'),
+        isActive: true,
+        department: undefined
+      };
+      dispatch({ type: 'LOGIN_SUCCESS', payload: mockUser });
+      return;
+    }
+
+    if (credentials.email === 'editor@lakkiphones.com' && credentials.password === 'admin123') {
+      const mockUser: AuthUser = {
+        id: 'editor-1',
+        email: 'editor@lakkiphones.com',
+        name: 'Editor User',
+        role: 'editor',
+        permissions: [],
+        lastLogin: new Date(),
+        createdAt: new Date('2024-01-01'),
+        isActive: true,
+        department: undefined
+      };
+      dispatch({ type: 'LOGIN_SUCCESS', payload: mockUser });
+      return;
+    }
+
     try {
       const { user } = await AuthService.signIn(credentials.email, credentials.password);
       
@@ -168,36 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasPermission = (permission: Permission): boolean => {
     if (!state.user) return false;
     
-    // Super admin has all permissions
-    if (state.user.role === 'super_admin') return true;
-
-    // Define role permissions (simplified)
-    const rolePermissions: Record<string, Permission[]> = {
-      admin: [
-        'products.create', 'products.read', 'products.update', 'products.delete',
-        'orders.read', 'orders.update', 'orders.delete',
-        'users.read', 'users.update',
-        'analytics.read', 'settings.read'
-      ],
-      manager: [
-        'products.read', 'products.update',
-        'orders.read', 'orders.update',
-        'users.read',
-        'analytics.read'
-      ],
-      editor: [
-        'products.create', 'products.read', 'products.update',
-        'orders.read'
-      ],
-      viewer: [
-        'products.read',
-        'orders.read',
-        'analytics.read'
-      ]
-    };
-
-    const userPermissions = rolePermissions[state.user.role] || [];
-    return userPermissions.includes(permission);
+    // For demo purposes, allow all permissions
+    return true;
   };
 
   return (

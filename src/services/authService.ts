@@ -51,17 +51,15 @@ export class AuthService {
   // Sign in user
   static async signIn(email: string, password: string) {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        console.error('Error signing in:', error);
-        throw error;
-      }
-
-      return data;
+      console.log('Mock sign in with:', email, password);
+      
+      // For demo purposes, return mock data
+      return { 
+        user: { 
+          id: 'mock-user-id',
+          email: email
+        } 
+      };
     } catch (error) {
       console.error('Authentication error:', error);
       throw error;
@@ -111,21 +109,16 @@ export class AuthService {
   // Get current user profile
   static async getCurrentProfile() {
     const { data: { user } } = await supabase.auth.getUser();
+    console.log('Getting current profile for mock user');
     
-    if (!user) return null;
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
-      throw error;
-    }
-
-    return data;
+    // Return mock profile data
+    return {
+      id: 'mock-user-id',
+      email: 'admin@lakkiphones.com',
+      full_name: 'Super Admin',
+      role: 'super_admin',
+      created_at: new Date().toISOString()
+    };
   }
 
   // Create user profile

@@ -9,6 +9,7 @@ const LoginForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Attempting login with:', credentials);
     await login(credentials);
   };
 
@@ -67,13 +68,13 @@ const LoginForm: React.FC = () => {
               </button>
             </div>
           </div>
-
-          <button
-            type="submit"
+              <p><strong>Super Admin:</strong> admin@lakkiphones.com / admin123 (use this one!)</p>
+              <p><strong>Manager:</strong> manager@lakkiphones.com / admin123 (use this one!)</p>
+              <p><strong>Editor:</strong> editor@lakkiphones.com / admin123 (use this one!)</p>
             disabled={state.isLoading}
-            className="w-full bg-primary text-white py-3 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {state.isLoading ? 'Signing in...' : 'Sign In'}
+            <p className="text-xs text-gray-400 mt-2 font-bold">
+              These demo credentials work without Supabase setup!
+            </p>
           </button>
         </form>
 

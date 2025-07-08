@@ -124,11 +124,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   // Mock admin user login
   useEffect(() => {
     const mockAdmin: AdminUser = {
-      id: 'admin-1',
-      email: 'admin@techstore.com',
-      name: 'Admin User',
-      role: 'admin',
-      permissions: ['products', 'orders', 'analytics', 'users'],
+      id: 'admin-123',
+      email: 'admin@lakkiphones.com',
+      name: 'Super Admin',
+      role: 'super_admin',
+      permissions: ['products', 'orders', 'analytics', 'users', 'settings'],
       lastLogin: new Date(),
       createdAt: new Date('2024-01-01')
     };
