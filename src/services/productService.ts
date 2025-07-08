@@ -1,8 +1,9 @@
 import { supabase } from '../lib/supabase';
 import { products } from '../data/products';
 import type { Database } from '../lib/supabase';
+import { Product } from '../types';
 
-type Product = Database['public']['Tables']['products']['Row'];
+type ProductDB = Database['public']['Tables']['products']['Row'];
 type ProductInsert = Database['public']['Tables']['products']['Insert'];
 type ProductUpdate = Database['public']['Tables']['products']['Update'];
 type ProductImage = Database['public']['Tables']['product_images']['Row'];
@@ -11,6 +12,7 @@ export class ProductService {
   // Get all products with images
   static async getProducts(filters?: any): Promise<Product[]> {
     try {
+      console.log('Getting products with filters:', filters);
       // Always return mock data for consistent display
       return this.getMockProducts(filters);
     } catch (error) {
@@ -91,48 +93,12 @@ export class ProductService {
   // Get single product by ID
   static async getProduct(id: string): Promise<Product | null> {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          product_images (
-            id,
-            image_url,
-            alt_text,
-            sort_order,
-            is_primary
-          ),
-          categories (
-            name,
-            slug
-          ),
-          reviews (
-            id,
-            rating,
-            title,
-            comment,
-            created_at,
-            profiles (
-              full_name
-            )
-          )
-        `)
-        .eq('id', id)
-        .eq('is_active', true)
-        .single();
-
-      if (error) {
-        console.error('Error fetching product from Supabase:', error);
-        // Fallback to mock data
-        const mockProduct = products.find(p => p.id === id);
-        return mockProduct || null;
-      }
-
-      // Transform to our Product type
-      const transformedProduct = this.transformSupabaseProducts([data])[0];
-      return transformedProduct;
+      console.log('Getting product by ID:', id);
+      // Fallback to mock data
+      const mockProduct = products.find(p => p.id === id);
+      return mockProduct || null;
     } catch (error) {
-      console.log('Supabase not configured or error, using mock data:', error);
+      console.log('Error fetching product, using mock data:', error);
       const mockProduct = products.find(p => p.id === id);
       return mockProduct || null;
     }
@@ -141,61 +107,10 @@ export class ProductService {
   // Create new product (admin only)
   static async createProduct(productData: any, images: string[] = []): Promise<Product> {
     try {
-      // Try to create in Supabase
-      const productInsert: ProductInsert = {
-        name: productData.name,
-        slug: productData.name.toLowerCase().replace(/\s+/g, '-'),
-        brand: productData.brand,
-        category_id: productData.category,
-        price: productData.price,
-        original_price: productData.originalPrice,
-        description: productData.description,
-        stock_count: productData.stockCount,
-        is_active: productData.inStock,
-        specifications: productData.specifications,
-        features: productData.features,
-        tags: productData.tags
-      };
-
-      const { data, error } = await supabase
-        .from('products')
-        .insert(productInsert)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating product in Supabase:', error);
-        // Fallback to mock data
-        return this.createMockProduct(productData, images);
-      }
-
-      // Add images if provided
-      if (images.length > 0) {
-        await this.addProductImages(data.id, images);
-      }
-
-      // Return transformed product
-      return {
-        id: data.id,
-        name: data.name,
-        brand: data.brand,
-        category: productData.category,
-        price: data.price,
-        originalPrice: data.original_price,
-        description: data.description || '',
-        images: images.length > 0 ? images : ['/placeholder-product.jpg'],
-        specifications: data.specifications || {},
-        inStock: data.stock_count > 0,
-        stockCount: data.stock_count || 0,
-        rating: 0,
-        reviewCount: 0,
-        features: data.features || [],
-        tags: data.tags || [],
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at)
-      };
+      console.log('Creating product:', productData);
+      return this.createMockProduct(productData, images);
     } catch (error) {
-      console.log('Supabase not configured or error, using mock data:', error);
+      console.log('Error creating product, using mock data:', error);
       return this.createMockProduct(productData, images);
     }
   }
@@ -231,62 +146,10 @@ export class ProductService {
   // Update product (admin only)
   static async updateProduct(id: string, updates: any): Promise<Product> {
     try {
-      // Try to update in Supabase
-      const productUpdate: ProductUpdate = {
-        name: updates.name,
-        slug: updates.name.toLowerCase().replace(/\s+/g, '-'),
-        brand: updates.brand,
-        category_id: updates.category,
-        price: updates.price,
-        original_price: updates.originalPrice,
-        description: updates.description,
-        stock_count: updates.stockCount,
-        is_active: updates.inStock,
-        specifications: updates.specifications,
-        features: updates.features,
-        tags: updates.tags
-      };
-
-      const { data, error } = await supabase
-        .from('products')
-        .update(productUpdate)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating product in Supabase:', error);
-        // Fallback to mock data
-        return this.updateMockProduct(id, updates);
-      }
-
-      // Update images if provided
-      if (updates.images && updates.images.length > 0) {
-        await this.updateProductImages(id, updates.images);
-      }
-
-      // Return transformed product
-      return {
-        id: data.id,
-        name: data.name,
-        brand: data.brand,
-        category: updates.category,
-        price: data.price,
-        originalPrice: data.original_price,
-        description: data.description || '',
-        images: updates.images || ['/placeholder-product.jpg'],
-        specifications: data.specifications || {},
-        inStock: data.stock_count > 0,
-        stockCount: data.stock_count || 0,
-        rating: data.rating || 0,
-        reviewCount: data.review_count || 0,
-        features: data.features || [],
-        tags: data.tags || [],
-        createdAt: new Date(data.created_at),
-        updatedAt: new Date(data.updated_at)
-      };
+      console.log('Updating product:', id, updates);
+      return this.updateMockProduct(id, updates);
     } catch (error) {
-      console.log('Supabase not configured or error, using mock data:', error);
+      console.log('Error updating product, using mock data:', error);
       return this.updateMockProduct(id, updates);
     }
   }
@@ -314,21 +177,10 @@ export class ProductService {
   // Delete product (admin only)
   static async deleteProduct(id: string): Promise<boolean> {
     try {
-      // Try to delete from Supabase
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error deleting product from Supabase:', error);
-        // Fallback to mock data
-        return this.deleteMockProduct(id);
-      }
-
-      return true;
+      console.log('Deleting product:', id);
+      return this.deleteMockProduct(id);
     } catch (error) {
-      console.log('Supabase not configured or error, using mock data:', error);
+      console.log('Error deleting product, using mock data:', error);
       return this.deleteMockProduct(id);
     }
   }
@@ -347,155 +199,96 @@ export class ProductService {
 
   // Add product images
   static async addProductImages(productId: string, imageUrls: string[]) {
-    const imageInserts = imageUrls.map((url, index) => ({
+    console.log('Adding product images:', productId, imageUrls);
+    return imageUrls.map((url, index) => ({
+      id: `image-${Date.now()}-${index}`,
       product_id: productId,
       image_url: url,
       sort_order: index,
       is_primary: index === 0
     }));
-
-    const { data, error } = await supabase
-      .from('product_images')
-      .insert(imageInserts)
-      .select();
-
-    if (error) {
-      console.error('Error adding product images:', error);
-      throw error;
-    }
-
-    return data;
   }
 
   // Update product images
   static async updateProductImages(productId: string, imageUrls: string[]) {
-    // Delete existing images
-    await supabase
-      .from('product_images')
-      .delete()
-      .eq('product_id', productId);
-
-    // Add new images
+    console.log('Updating product images:', productId, imageUrls);
     return this.addProductImages(productId, imageUrls);
   }
 
   // Get categories
   static async getCategories() {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-
-    if (error) {
-      console.error('Error fetching categories:', error);
-      throw error;
-    }
-
-    return data;
+    console.log('Getting categories');
+    return [
+      {
+        id: 'smartphones',
+        name: 'Smartphones',
+        slug: 'smartphones',
+        description: 'Latest smartphones with cutting-edge technology',
+        image_url: 'https://images.pexels.com/photos/404280/pexels-photo-404280.jpeg?auto=compress&cs=tinysrgb&w=800',
+        sort_order: 1,
+        is_active: true
+      },
+      {
+        id: 'laptops',
+        name: 'Laptops',
+        slug: 'laptops',
+        description: 'High-performance laptops for work and gaming',
+        image_url: 'https://images.pexels.com/photos/812264/pexels-photo-812264.jpeg?auto=compress&cs=tinysrgb&w=800',
+        sort_order: 2,
+        is_active: true
+      }
+    ];
   }
 
   // Search products
   static async searchProducts(query: string, limit = 10) {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        id,
-        name,
-        price,
-        product_images!inner (
-          image_url,
-          is_primary
-        )
-      `)
-      .eq('is_active', true)
-      .eq('product_images.is_primary', true)
-      .or(`name.ilike.%${query}%,description.ilike.%${query}%,brand.ilike.%${query}%`)
-      .limit(limit);
-
-    if (error) {
-      console.error('Error searching products:', error);
-      throw error;
-    }
-
-    return data;
+    console.log('Searching products:', query, limit);
+    const filtered = products.filter(product =>
+      product.name.toLowerCase().includes(query.toLowerCase()) ||
+      product.description.toLowerCase().includes(query.toLowerCase()) ||
+      product.brand.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, limit);
+    
+    return filtered.map(product => ({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      product_images: [{ image_url: product.images[0], is_primary: true }]
+    }));
   }
 
   // Get featured products
   static async getFeaturedProducts(limit = 8) {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (
-          image_url,
-          is_primary
-        )
-      `)
-      .eq('is_active', true)
-      .gt('stock_count', 0)
-      .order('rating', { ascending: false })
-      .limit(limit);
-
-    if (error) {
-      console.error('Error fetching featured products:', error);
-      throw error;
-    }
-
-    return data;
+    console.log('Getting featured products:', limit);
+    return products.slice(0, limit).map(product => ({
+      ...product,
+      product_images: product.images.map((image, index) => ({
+        image_url: image,
+        is_primary: index === 0
+      }))
+    }));
   }
 
   // Get best sellers
   static async getBestSellers(limit = 8) {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        product_images (
-          image_url,
-          is_primary
-        )
-      `)
-      .eq('is_active', true)
-      .gt('stock_count', 0)
-      .order('review_count', { ascending: false })
-      .limit(limit);
-
-    if (error) {
-      console.error('Error fetching best sellers:', error);
-      throw error;
-    }
-
-    return data;
+    console.log('Getting best sellers:', limit);
+    return products.slice(2, 2 + limit).map(product => ({
+      ...product,
+      product_images: product.images.map((image, index) => ({
+        image_url: image,
+        is_primary: index === 0
+      }))
+    }));
   }
 
   // Update product rating (called after review submission)
   static async updateProductRating(productId: string) {
-    const { data: reviews, error: reviewError } = await supabase
-      .from('reviews')
-      .select('rating')
-      .eq('product_id', productId)
-      .eq('is_approved', true);
-
-    if (reviewError) {
-      console.error('Error fetching reviews for rating update:', reviewError);
-      return;
-    }
-
-    if (reviews.length === 0) return;
-
-    const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
-
-    const { error: updateError } = await supabase
-      .from('products')
-      .update({
-        rating: Math.round(averageRating * 100) / 100, // Round to 2 decimal places
-        review_count: reviews.length
-      })
-      .eq('id', productId);
-
-    if (updateError) {
-      console.error('Error updating product rating:', updateError);
+    console.log('Updating product rating:', productId);
+    const productIndex = products.findIndex(p => p.id === productId);
+    
+    if (productIndex !== -1) {
+      products[productIndex].rating = 4.5; // Mock rating
+      products[productIndex].reviewCount = 10; // Mock review count
     }
   }
 }

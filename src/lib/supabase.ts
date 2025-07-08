@@ -1,59 +1,77 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Use mock values for demo purposes
-const supabaseUrl = 'https://demo.supabase.co';
-const supabaseAnonKey = 'demo-key';
+// Get environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key';
 
-// if (!supabaseUrl || !supabaseAnonKey) {
-//   throw new Error('Missing Supabase environment variables. Please check your .env file.');
-// }
-
-// Create a mock client that won't actually connect to Supabase
-export const supabase = {
-  auth: {
-    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-    signUp: () => Promise.resolve({ data: { user: null }, error: null }),
-    signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
-    signOut: () => Promise.resolve({ error: null }),
-    resetPasswordForEmail: () => Promise.resolve({ error: null }),
-    updateUser: () => Promise.resolve({ error: null })
-  },
-  from: () => ({
-    select: () => ({
-      eq: () => ({
-        single: () => Promise.resolve({ data: null, error: null }),
-        limit: () => Promise.resolve({ data: [], error: null }),
-        range: () => Promise.resolve({ data: [], error: null }),
-        order: () => Promise.resolve({ data: [], error: null }),
-        or: () => Promise.resolve({ data: [], error: null })
+// Create a mock client for development without Supabase
+const createMockClient = () => {
+  return {
+    auth: {
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      signUp: () => Promise.resolve({ data: { user: null }, error: null }),
+      signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
+      signOut: () => Promise.resolve({ error: null }),
+      resetPasswordForEmail: () => Promise.resolve({ error: null }),
+      updateUser: () => Promise.resolve({ error: null })
+    },
+    from: (table: string) => ({
+      select: (columns: string = '*') => ({
+        eq: (column: string, value: any) => ({
+          single: () => Promise.resolve({ data: null, error: null }),
+          limit: (limit: number) => Promise.resolve({ data: [], error: null }),
+          range: (start: number, end: number) => Promise.resolve({ data: [], error: null }),
+          order: (column: string, options: any) => Promise.resolve({ data: [], error: null }),
+          or: (query: string) => Promise.resolve({ data: [], error: null })
+        }),
+        order: (column: string, options: any) => ({
+          eq: (column: string, value: any) => Promise.resolve({ data: [], error: null })
+        }),
+        limit: (limit: number) => ({
+          eq: (column: string, value: any) => Promise.resolve({ data: [], error: null })
+        })
       }),
-      order: () => ({
-        eq: () => Promise.resolve({ data: [], error: null })
-      }),
-      limit: () => ({
-        eq: () => Promise.resolve({ data: [], error: null })
-      })
-    }),
-    insert: () => ({
-      select: () => ({
-        single: () => Promise.resolve({ data: null, error: null })
-      })
-    }),
-    update: () => ({
-      eq: () => ({
-        select: () => ({
+      insert: (data: any) => ({
+        select: (columns: string = '*') => ({
           single: () => Promise.resolve({ data: null, error: null })
         })
+      }),
+      update: (data: any) => ({
+        eq: (column: string, value: any) => ({
+          select: (columns: string = '*') => ({
+            single: () => Promise.resolve({ data: null, error: null })
+          })
+        })
+      }),
+      delete: () => ({
+        eq: (column: string, value: any) => Promise.resolve({ error: null })
       })
     }),
-    delete: () => ({
-      eq: () => Promise.resolve({ error: null })
-    })
-  }),
-  rpc: () => Promise.resolve({ data: null, error: null })
+    rpc: (fn: string, params: any) => Promise.resolve({ data: null, error: null }),
+    storage: {
+      from: (bucket: string) => ({
+        upload: (path: string, file: any) => Promise.resolve({ data: { path: path }, error: null }),
+        getPublicUrl: (path: string) => ({ data: { publicUrl: `https://example.com/${path}` } })
+      })
+    }
+  };
 };
+
+// Determine if we should use a real or mock client
+const useMockClient = import.meta.env.VITE_DEBUG === 'true' || !supabaseUrl || !supabaseAnonKey;
+
+// Export the appropriate client
+export const supabase = useMockClient 
+  ? createMockClient() as any
+  : createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
 
 // Database types
 export interface Database {

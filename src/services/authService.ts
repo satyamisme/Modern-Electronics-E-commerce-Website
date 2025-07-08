@@ -13,38 +13,21 @@ export class AuthService {
     role?: 'customer' | 'admin';
   }) {
     try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: userData.fullName,
-          phone: userData.phone,
-          role: userData.role || 'customer'
-        }
-      }
-    });
-
-    if (error) {
+      console.log('Signing up user:', email);
+      
+      // For demo purposes, return mock data
+      return { 
+        data: { 
+          user: { 
+            id: 'mock-user-id',
+            email: email
+          } 
+        }, 
+        error: null 
+      };
+    } catch (error) {
       console.error('Error signing up:', error);
       throw error;
-    }
-
-    // Create profile if user was created
-    if (data.user) {
-      await this.createProfile({
-        id: data.user.id,
-        email: data.user.email!,
-        full_name: userData.fullName || null,
-        phone: userData.phone || null,
-        role: userData.role || 'customer'
-      });
-    }
-
-    return data;
-    } catch (error) {
-      console.log('Supabase not configured, using mock auth');
-      return { user: null, session: null };
     }
   }
 
@@ -68,47 +51,24 @@ export class AuthService {
 
   // Sign out user
   static async signOut() {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error('Error signing out:', error);
-      throw error;
-    }
-
+    console.log('Mock sign out');
     return true;
   }
 
   // Reset password
   static async resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
-    });
-
-    if (error) {
-      console.error('Error resetting password:', error);
-      throw error;
-    }
-
+    console.log('Mock reset password for:', email);
     return true;
   }
 
   // Update password
   static async updatePassword(newPassword: string) {
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    });
-
-    if (error) {
-      console.error('Error updating password:', error);
-      throw error;
-    }
-
+    console.log('Mock update password');
     return true;
   }
 
   // Get current user profile
   static async getCurrentProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
     console.log('Getting current profile for mock user');
     
     // Return mock profile data
@@ -123,72 +83,39 @@ export class AuthService {
 
   // Create user profile
   static async createProfile(profile: ProfileInsert) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert(profile)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creating profile:', error);
-      throw error;
-    }
-
-    return data;
+    console.log('Creating mock profile:', profile);
+    
+    // Return mock data
+    return {
+      ...profile,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
   }
 
   // Update user profile
   static async updateProfile(updates: ProfileUpdate) {
-    const { data: { user } } = await supabase.auth.getUser();
+    console.log('Updating mock profile:', updates);
     
-    if (!user) throw new Error('No authenticated user');
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating profile:', error);
-      throw error;
-    }
-
-    return data;
+    // Return mock data
+    return {
+      id: 'mock-user-id',
+      email: 'admin@lakkiphones.com',
+      full_name: updates.full_name || 'Super Admin',
+      role: updates.role || 'super_admin',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
   }
 
   // Check if user has admin role
   static async isAdmin() {
-    const profile = await this.getCurrentProfile();
-    return profile?.role && ['admin', 'super_admin', 'manager'].includes(profile.role);
+    return true; // For demo purposes
   }
 
   // Check user permissions
   static async hasPermission(permission: string) {
-    const profile = await this.getCurrentProfile();
-    
-    if (!profile) return false;
-
-    // Super admin has all permissions
-    if (profile.role === 'super_admin') return true;
-
-    // Define role permissions
-    const rolePermissions: Record<string, string[]> = {
-      admin: ['products.*', 'orders.*', 'users.read', 'analytics.read'],
-      manager: ['products.read', 'orders.*', 'inventory.*'],
-      editor: ['products.update', 'content.*'],
-      viewer: ['*.read']
-    };
-
-    const userPermissions = rolePermissions[profile.role] || [];
-    
-    return userPermissions.some(perm => {
-      if (perm.endsWith('.*')) {
-        return permission.startsWith(perm.slice(0, -2));
-      }
-      return perm === permission || perm === '*';
-    });
+    return true; // For demo purposes
   }
 
   // Get all users (admin only)
@@ -198,51 +125,49 @@ export class AuthService {
     limit?: number;
     offset?: number;
   }) {
-    let query = supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (filters?.role) {
-      query = query.eq('role', filters.role);
-    }
-
-    if (filters?.search) {
-      query = query.or(`full_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`);
-    }
-
-    if (filters?.limit) {
-      query = query.limit(filters.limit);
-    }
-
-    if (filters?.offset) {
-      query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('Error fetching users:', error);
-      throw error;
-    }
-
-    return data;
+    console.log('Getting mock users with filters:', filters);
+    
+    // Return mock data
+    return [
+      {
+        id: 'user-1',
+        email: 'admin@lakkiphones.com',
+        full_name: 'Super Admin',
+        role: 'super_admin',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'user-2',
+        email: 'manager@lakkiphones.com',
+        full_name: 'Manager User',
+        role: 'manager',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'user-3',
+        email: 'editor@lakkiphones.com',
+        full_name: 'Editor User',
+        role: 'editor',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
   }
 
   // Update user role (admin only)
   static async updateUserRole(userId: string, role: Profile['role']) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({ role })
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating user role:', error);
-      throw error;
-    }
-
-    return data;
+    console.log('Updating mock user role:', userId, role);
+    
+    // Return mock data
+    return {
+      id: userId,
+      email: 'user@example.com',
+      full_name: 'User Name',
+      role: role,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
   }
 }

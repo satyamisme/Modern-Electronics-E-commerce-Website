@@ -8,7 +8,6 @@ import OptimizedImage from '../components/ui/OptimizedImage';
 import { useApp } from '../context/AppContext';
 import { ProductService } from '../services/productService';
 import { Product } from '../types';
-import { products } from '../data/products';
 
 const HomePage: React.FC = () => {
   const { state } = useApp();
@@ -17,9 +16,21 @@ const HomePage: React.FC = () => {
   
   useEffect(() => {
     // Always use mock data for consistent display
-    setFeaturedProducts(products.slice(0, 4));
-    setBestSellers(products.slice(2, 6));
-  }, [state.searchState.results]);
+    const loadProducts = async () => {
+      try {
+        const featuredData = await ProductService.getFeaturedProducts(4);
+        const bestSellersData = await ProductService.getBestSellers(4);
+        
+        setFeaturedProducts(featuredData);
+        setBestSellers(bestSellersData);
+      } catch (error) {
+        console.error('Error loading products:', error);
+      }
+    };
+    
+    loadProducts();
+  }, []);
+  
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section - A1Store + Mobile2000 Style */}

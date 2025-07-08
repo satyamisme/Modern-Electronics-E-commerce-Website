@@ -6,7 +6,6 @@ import SearchFilters from '../components/ui/SearchFilters';
 import { Filter, Product } from '../types';
 import { useApp } from '../context/AppContext';
 import { ProductService } from '../services/productService';
-import { products as mockProducts } from '../data/products';
 
 const ProductsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -37,8 +36,9 @@ const ProductsPage: React.FC = () => {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        // Always use mock data for consistent display
-        setFilteredProducts(mockProducts);
+        // Load products from service
+        const products = await ProductService.getProducts();
+        setFilteredProducts(products);
       } catch (error) {
         console.error('Error loading products:', error);
       } finally {
