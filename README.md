@@ -2,6 +2,185 @@
 
 A modern, full-featured e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically optimized for the Kuwait market with KWD currency and KNET payment integration. This guide provides instructions for setting up and running the application on a VPS.
 
+## 🚀 VPS Deployment Guide
+
+### Quick Setup
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/lakki-phones.git
+cd lakki-phones
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Configure environment variables**
+```bash
+cp .env.example .env
+# Edit .env with your actual values
+```
+
+4. **Make server scripts executable**
+```bash
+chmod +x start_server.sh stop_server.sh
+```
+
+5. **Start the development server**
+```bash
+./start_server.sh
+```
+
+6. **Access the application**
+```
+http://your-vps-ip:5173
+```
+
+7. **Stop the server when needed**
+```bash
+./stop_server.sh
+```
+
+### Domain Configuration
+
+#### Option 1: Freenom (Free Domain)
+1. Register at [Freenom](https://www.freenom.com)
+2. Register a free domain (e.g., lakkiphones.work.gd)
+3. Set up DNS records:
+   - Type: A
+   - Name: @
+   - Value: Your VPS IP (62.171.128.156)
+   - TTL: 3600
+4. Add another record for www subdomain:
+   - Type: A
+   - Name: www
+   - Value: Your VPS IP (62.171.128.156)
+   - TTL: 3600
+
+#### Option 2: No-IP (Free Dynamic DNS)
+1. Register at [No-IP](https://www.noip.com)
+2. Create a free hostname (e.g., lakkiphones.ddns.net)
+3. Point it to your VPS IP (62.171.128.156)
+
+### VPS Server Setup
+
+1. **Update system packages**
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+2. **Install Node.js**
+```bash
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+3. **Install Nginx (for production)**
+```bash
+sudo apt install nginx -y
+```
+
+4. **Configure Nginx**
+```bash
+sudo nano /etc/nginx/sites-available/lakkiphones
+```
+
+Add this configuration:
+```nginx
+server {
+    listen 80;
+    server_name lakkiphones.work.gd www.lakkiphones.work.gd;
+    
+    location / {
+        proxy_pass http://localhost:5173;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+5. **Enable the site and restart Nginx**
+```bash
+sudo ln -s /etc/nginx/sites-available/lakkiphones /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+6. **Configure firewall**
+```bash
+sudo ufw allow 'Nginx Full'
+sudo ufw allow ssh
+sudo ufw allow 5173
+sudo ufw enable
+```
+
+### Running with Start/Stop Scripts
+
+To run the development server and make it accessible on your network (e.g., from your VPS's IP address), use the provided scripts:
+
+**Start the server:**
+```bash
+./start_server.sh
+```
+This will:
+- Start the Vite development server.
+- Make it listen on all available network interfaces (`0.0.0.0`).
+- Run it in the background using `nohup`.
+- Store the server's process ID (PID) in `server.pid`.
+- Redirect server output (stdout and stderr) to `server.log`.
+You should then be able to access the application at `http://<your-server-ip>:5173` (or the port configured in `vite.config.js`).
+
+**Stop the server:**
+```bash
+./stop_server.sh
+```
+This will:
+- Read the PID from `server.pid`.
+- Stop the server process.
+- Remove the `server.pid` file.
+
+### Production Deployment
+
+For production deployment:
+
+1. **Build the application**
+```bash
+npm run build
+```
+
+2. **Copy build files to Nginx**
+```bash
+sudo cp -r dist/* /var/www/html/
+```
+
+3. **Update Nginx configuration**
+```nginx
+server {
+    listen 80;
+    server_name lakkiphones.work.gd www.lakkiphones.work.gd;
+    
+    root /var/www/html;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+4. **Restart Nginx**
+```bash
+sudo systemctl restart nginx
+```
+
 ## 🚀 Quick Start for VPS Deployment
 
 ### 1. Clone the Repository
@@ -123,46 +302,6 @@ chmod +x scripts/start_server.sh scripts/stop_server.sh
 
 ## 🚀 Installation & Setup
 
-### VPS Prerequisites
-- Node.js 18+ and npm
-- Git
-- Modern web browser
-- Linux VPS (Ubuntu/Debian recommended)
-
-### Local Development Setup
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/satyamisme/Modern-Electronics-E-commerce-Website.git
-cd Modern-Electronics-E-commerce-Website
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Start development server**
-```bash
-npm run dev
-```
-
-4. **Access the application**
-- Frontend: http://localhost:5173
-- Admin Panel: http://localhost:5173/admin
-
-### Build for Production
-
-```bash
-# Build the application
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint code
-npm run lint
-```
 
 ### Running with Start/Stop Scripts (for VPS)
 
@@ -191,59 +330,111 @@ This will start the Vite development server in the background, making it accessi
    - Points to: Your VPS IP (`62.171.128.156`)
    - TTL: Default (or 3600)
 4. Add a CNAME record for www:
-   - Host: `www`
-   - Points to: `lakkiphones.work.gd`
-   - TTL: Default (or 3600)
+### Free Domain Options
 
-### Environment Variables
+#### 1. **Freenom** (Recommended)
+- **Free domains**: .tk, .ml, .ga, .cf, .gd
+- **Example**: lakkiphones.work.gd
+- **Setup**: Register at freenom.com
+- **DNS**: Free DNS management included
 
-Create a `.env` file in the root directory:
+#### 2. **No-IP** 
+- **Free subdomain**: yourname.ddns.net
+- **Example**: lakkiphones.ddns.net
+- **Dynamic DNS**: Perfect for VPS
+
+#### 3. **DuckDNS**
+- **Free subdomain**: yourname.duckdns.org
+- **Example**: lakkiphones.duckdns.org
+- **Simple setup**: Just email registration
+
+### VPS Configuration
+
+```nginx
+# Nginx configuration for VPS
+server {
+    listen 80;
+    server_name lakkiphones.work.gd www.lakkiphones.work.gd;
+    
+    # Large file uploads
+    client_max_body_size 100M;
+    
+    location / {
+        proxy_pass http://localhost:5173;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Large image handling
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+        proxy_send_timeout 300;
+    }
+    
+    # Static file caching
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+```
+
+### Environment Variables for VPS
 
 ```env
-# Application Settings
+# .env file
 VITE_APP_NAME=LAKKI PHONES
-VITE_APP_URL=https://www.lakkiphones.com
-VITE_API_URL=https://api.lakkiphones.com
+VITE_APP_URL=http://lakkiphones.work.gd
+VITE_API_URL=http://lakkiphones.work.gd/api
 
-# Payment Gateway (KNET)
-VITE_KNET_MERCHANT_ID=your_merchant_id
-VITE_KNET_TERMINAL_ID=your_terminal_id
-VITE_KNET_RESOURCE_KEY=your_resource_key
+# Free Domain Options:
+# Option 1: Freenom - lakkiphones.work.gd
+# Option 2: No-IP - lakkiphones.ddns.net  
+# Option 3: DuckDNS - lakkiphones.duckdns.org
 
-# Analytics
-VITE_GA_TRACKING_ID=your_ga_tracking_id
+# Image Hosting (Choose one)
 
-# Email Service
-VITE_EMAIL_SERVICE_ID=your_email_service_id
-```
+# Option 1: Cloudinary (Recommended - 25GB free)
+VITE_CLOUDINARY_CLOUD_NAME=your-cloud-name
+VITE_CLOUDINARY_API_KEY=your-api-key
+VITE_CLOUDINARY_UPLOAD_PRESET=unsigned
 
-## 🌐 Nginx Configuration (Optional)
+# Option 2: ImgBB (Simple, unlimited)
+VITE_IMGBB_API_KEY=your-imgbb-api-key
 
-If you want to use Nginx as a reverse proxy:
+# Option 3: GitHub Pages (For static images)
+VITE_GITHUB_IMAGES_URL=https://yourusername.github.io/lakki-images
 
-1. Install Nginx:
-```bash
-sudo apt update
-sudo apt install nginx
-```
+# KNET Payment Gateway (Kuwait)
+VITE_KNET_MERCHANT_ID=test_merchant_id
+VITE_KNET_TERMINAL_ID=test_terminal_id
+VITE_KNET_RESOURCE_KEY=test_resource_key
+VITE_KNET_RETURN_URL=http://lakkiphones.work.gd/payment/success
+VITE_KNET_ERROR_URL=http://lakkiphones.work.gd/payment/error
 
-2. Copy the provided configuration:
-```bash
-sudo cp nginx.conf /etc/nginx/sites-available/lakkiphones
-```
+# Supabase Database (Free tier)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 
-3. Enable the site:
-```bash
-sudo ln -s /etc/nginx/sites-available/lakkiphones /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
+# Analytics (Optional)
+VITE_GA_TRACKING_ID=your-google-analytics-id
 
-4. Configure firewall:
-```bash
-sudo ufw allow 'Nginx Full'
-sudo ufw allow ssh
-sudo ufw enable
+# Email Service (Optional)
+VITE_EMAIL_SERVICE_ID=your-email-service-id
+
+# Development Settings
+VITE_DEBUG=false
+VITE_LOG_LEVEL=error
+
+# VPS Configuration
+SERVER_IP=62.171.128.156
+DOMAIN=lakkiphones.work.gd
+SSL_ENABLED=false
 ```
 
 ## 👥 User Registration & Admin Setup

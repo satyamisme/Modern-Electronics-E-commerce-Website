@@ -49,56 +49,39 @@ print_status "NPM version: $npm_version"
 print_status "Installing Nginx..."
 sudo apt install nginx -y
 
-# Configure firewall
-print_status "Configuring firewall..."
-sudo ufw allow 22
-sudo ufw allow 80
-sudo ufw allow 443
-sudo ufw --force enable
+# Install PM2 for process management
+print_status "Installing PM2..."
+sudo npm install -g pm2
 
-# Clone repository
-print_status "Cloning repository..."
-git clone https://github.com/yourusername/Modern-Electronics-E-commerce-Website.git /tmp/lakkiphones
-cd /tmp/lakkiphones
-
-# Install dependencies
-print_status "Installing dependencies..."
-npm install
-
-# Copy configuration files
-print_status "Configuring application..."
-cp .env.example .env
-cp nginx.conf /tmp/lakkiphones.conf
-
-# Update .env file with server IP and domain
-SERVER_IP=$(curl -s ifconfig.me)
-DOMAIN="lakkiphones.work.gd"
-sed -i "s/VITE_APP_URL=.*/VITE_APP_URL=http:\/\/$DOMAIN/" .env
-sed -i "s/VITE_API_URL=.*/VITE_API_URL=http:\/\/$DOMAIN\/api/" .env
-sed -i "s/SERVER_IP=.*/SERVER_IP=$SERVER_IP/" .env
-sed -i "s/DOMAIN=.*/DOMAIN=$DOMAIN/" .env
-
-# Setup application directory
+# Create application directory
 APP_DIR="/var/www/lakkiphones"
-print_status "Setting up application directory: $APP_DIR"
+print_status "Creating application directory: $APP_DIR"
 sudo mkdir -p $APP_DIR
 sudo chown -R $USER:$USER $APP_DIR
 
-# Copy files to application directory
-print_status "Copying files to application directory..."
-cp -r * $APP_DIR/
-cp -r .env $APP_DIR/
-cp -r .gitignore $APP_DIR/ 2>/dev/null || :
+# Clone or copy application files
+print_status "Setting up application files..."
+cd $APP_DIR
 
-# Make scripts executable
-print_status "Making scripts executable..."
-chmod +x $APP_DIR/scripts/start_server.sh
-chmod +x $APP_DIR/scripts/stop_server.sh
+# If you have the files locally, copy them
+# Otherwise, you can clone from a repository
+# git clone https://github.com/yourusername/lakki-phones.git .
 
-# Configure Nginx
+# Install dependencies
+print_status "Installing application dependencies..."
+npm install
+
+# Build the application
+print_status "Building application for production..."
+npm run build
+
+# Copy built files to Nginx directory
+print_status "Copying built files to Nginx..."
+sudo cp -r dist/* /var/www/html/
+
+# Copy Nginx configuration
 print_status "Configuring Nginx..."
-sudo cp /tmp/lakkiphones.conf /etc/nginx/sites-available/lakkiphones
-sudo sed -i "s/lakkiphones.work.gd/$DOMAIN/g" /etc/nginx/sites-available/lakkiphones
+sudo cp nginx.conf /etc/nginx/sites-available/lakkiphones
 sudo ln -sf /etc/nginx/sites-available/lakkiphones /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 
@@ -108,37 +91,141 @@ sudo nginx -t
 
 if [ $? -eq 0 ]; then
     print_status "Nginx configuration is valid"
-    sudo systemctl restart nginx
 else
     print_error "Nginx configuration has errors"
+    exit 1
 fi
 
-# Start application
-print_status "Starting application..."
-cd $APP_DIR
-./scripts/start_server.sh
+# Configure firewall
+print_status "Configuring firewall..."
+sudo ufw allow 22
+sudo ufw allow 80
+sudo ufw allow 443
+sudo ufw --force enable
 
-# Display summary
+# Start and enable services
+print_status "Starting services..."
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo systemctl restart nginx
+
+# Create environment file
+print_status "Creating environment configuration..."
+cat > .env << EOF
+# LAKKI PHONES Environment Configuration
+VITE_APP_NAME=LAKKI PHONES
+VITE_APP_URL=http://lakkiphones.work.gd
+VITE_API_URL=http://lakkiphones.work.gd/api
+
+# Image hosting (Cloudinary)
+VITE_CLOUDINARY_CLOUD_NAME=your-cloud-name
+VITE_CLOUDINARY_API_KEY=your-api-key
+VITE_CLOUDINARY_UPLOAD_PRESET=unsigned
+
+# Alternative: ImgBB
+VITE_IMGBB_API_KEY=your-imgbb-key
+
+# KNET Payment (Test mode)
+VITE_KNET_MERCHANT_ID=test_merchant
+VITE_KNET_TERMINAL_ID=test_terminal
+VITE_KNET_RESOURCE_KEY=test_key
+VITE_KNET_RETURN_URL=http://lakkiphones.work.gd/payment/success
+VITE_KNET_ERROR_URL=http://lakkiphones.work.gd/payment/error
+
+# Supabase (if using)
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+EOF
+
+print_warning "Please update the .env file with your actual API keys and configuration"
+
+# Create PM2 ecosystem file for backend (if needed)
+cat > ecosystem.config.js << EOF
+module.exports = {
+  apps: [{
+    name: 'lakki-phones-api',
+    script: 'npm',
+    args: 'run start:api',
+    cwd: '$APP_DIR',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000
+    }
+  }]
+};
+EOF
+
+# Set up log rotation
+print_status "Setting up log rotation..."
+sudo tee /etc/logrotate.d/lakkiphones > /dev/null << EOF
+/var/log/nginx/*.log {
+    daily
+    missingok
+    rotate 52
+    compress
+    delaycompress
+    notifempty
+    create 644 nginx nginx
+    postrotate
+        systemctl reload nginx
+    endscript
+}
+EOF
+
+# Create deployment info
+print_status "Creating deployment information..."
+cat > deployment-info.txt << EOF
+LAKKI PHONES Deployment Information
+==================================
+
+Deployment Date: $(date)
+Server IP: $(curl -s ifconfig.me)
+Domain: lakkiphones.work.gd
+Application Directory: $APP_DIR
+Nginx Config: /etc/nginx/sites-available/lakkiphones
+
+Services Status:
+- Nginx: $(systemctl is-active nginx)
+- UFW Firewall: $(sudo ufw status | head -1)
+
+Next Steps:
+1. Configure your domain DNS to point to this server IP
+2. Update .env file with your API keys
+3. Test the application at http://your-domain
+4. Set up SSL certificate (optional)
+
+Useful Commands:
+- Check Nginx status: sudo systemctl status nginx
+- Restart Nginx: sudo systemctl restart nginx
+- View Nginx logs: sudo tail -f /var/log/nginx/error.log
+- Check firewall: sudo ufw status
+EOF
+
+# Display deployment summary
 print_status "Deployment completed successfully!"
 echo ""
 echo "📋 Deployment Summary:"
 echo "====================="
-echo "✅ Application deployed to: $APP_DIR"
-echo "✅ Server running at: http://$SERVER_IP:5173"
-echo "✅ Domain configured: http://$DOMAIN (after DNS propagation)"
+echo "✅ System updated"
+echo "✅ Node.js and NPM installed"
+echo "✅ Nginx installed and configured"
+echo "✅ Application built and deployed"
+echo "✅ Firewall configured"
+echo "✅ Services started"
 echo ""
-echo "🔐 Admin Login:"
-echo "  Email: admin@lakkiphones.com"
-echo "  Password: admin123"
+echo "🌐 Your application should be accessible at:"
+echo "   http://$(curl -s ifconfig.me)"
+echo "   http://lakkiphones.work.gd (after DNS configuration)"
 echo ""
 echo "📝 Next steps:"
-echo "  1. Configure your domain DNS to point to $SERVER_IP"
-echo "  2. Wait for DNS propagation (may take up to 48 hours)"
-echo "  3. Access your site at http://$DOMAIN"
+echo "   1. Configure your domain DNS"
+echo "   2. Update .env file with API keys"
+echo "   3. Test the application"
 echo ""
-echo "🛠️ Useful commands:"
-echo "  - Start server: cd $APP_DIR && ./scripts/start_server.sh"
-echo "  - Stop server: cd $APP_DIR && ./scripts/stop_server.sh"
-echo "  - View logs: tail -f $APP_DIR/server.log"
-echo ""
-echo "Thank you for using LAKKI PHONES!"
+echo "📄 Check deployment-info.txt for detailed information"
+
+print_status "Deployment script completed!"
