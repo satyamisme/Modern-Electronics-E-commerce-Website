@@ -1,10 +1,39 @@
 # LAKKI PHONES - Premium Electronics E-commerce Platform
 
-A modern, full-featured e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically optimized for the Kuwait market with KWD currency and KNET payment integration.
+A modern, full-featured e-commerce platform built with React, TypeScript, and Tailwind CSS, specifically optimized for the Kuwait market with KWD currency and KNET payment integration. This guide provides instructions for setting up and running the application on a VPS.
 
-## 🚀 Live Demo
+## 🚀 Quick Start for VPS Deployment
 
-**Production URL:** https://bejewelled-churros-f5d48b.netlify.app
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/Modern-Electronics-E-commerce-Website.git
+cd Modern-Electronics-E-commerce-Website
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Configure Environment
+```bash
+cp .env.example .env
+nano .env  # Edit with your settings
+```
+
+### 4. Start the Application
+```bash
+chmod +x scripts/start_server.sh scripts/stop_server.sh
+./scripts/start_server.sh
+```
+
+### 5. Access the Application
+- **Development**: http://your-vps-ip:5173
+- **Admin Panel**: http://your-vps-ip:5173/admin
+
+### 6. Admin Login Credentials
+- **Email**: admin@lakkiphones.com
+- **Password**: admin123
 
 ## 📋 Table of Contents
 
@@ -64,7 +93,7 @@ A modern, full-featured e-commerce platform built with React, TypeScript, and Ta
 
 ## ⏱ Development Timeline
 
-**Total Development Time: 13 weeks (3 months)**
+**Total Development Time: 13 weeks (3 months)** ✅
 
 ### Phase 1: Planning & Design (2 weeks)
 - Requirements analysis and system architecture
@@ -94,10 +123,11 @@ A modern, full-featured e-commerce platform built with React, TypeScript, and Ta
 
 ## 🚀 Installation & Setup
 
-### Prerequisites
+### VPS Prerequisites
 - Node.js 18+ and npm
 - Git
 - Modern web browser
+- Linux VPS (Ubuntu/Debian recommended)
 
 ### Local Development Setup
 
@@ -134,7 +164,7 @@ npm run preview
 npm run lint
 ```
 
-### Running with Start/Stop Scripts (for development on a server/VPS)
+### Running with Start/Stop Scripts (for VPS)
 
 To run the development server and make it accessible on your network (e.g., from your VPS's IP address), use the provided scripts:
 
@@ -142,27 +172,28 @@ To run the development server and make it accessible on your network (e.g., from
 ```bash
 ./start_server.sh
 ```
-This will:
-- Start the Vite development server.
-- Make it listen on all available network interfaces (`0.0.0.0`).
-- Run it in the background using `nohup`.
-- Store the server's process ID (PID) in `server.pid`.
-- Redirect server output (stdout and stderr) to `server.log`.
-You should then be able to access the application at `http://<your-server-ip>:5173` (or the port configured in `vite.config.js`).
+
+This will start the Vite development server in the background, making it accessible at:
+- `http://your-vps-ip:5173`
+- `http://your-domain.com` (if DNS is configured)
 
 **Stop the server:**
 ```bash
 ./stop_server.sh
 ```
-This will:
-- Read the PID from `server.pid`.
-- Stop the server process.
-- Remove the `server.pid` file.
 
-**Note:** Ensure the scripts are executable:
-```bash
-chmod +x start_server.sh stop_server.sh
-```
+### Domain Configuration
+
+1. Log in to your domain provider (work.gd)
+2. Navigate to DNS management
+3. Add an A record pointing to your VPS IP:
+   - Host: `@` (or subdomain)
+   - Points to: Your VPS IP (`62.171.128.156`)
+   - TTL: Default (or 3600)
+4. Add a CNAME record for www:
+   - Host: `www`
+   - Points to: `lakkiphones.work.gd`
+   - TTL: Default (or 3600)
 
 ### Environment Variables
 
@@ -186,61 +217,33 @@ VITE_GA_TRACKING_ID=your_ga_tracking_id
 VITE_EMAIL_SERVICE_ID=your_email_service_id
 ```
 
-## 🌐 Domain & IP Configuration
+## 🌐 Nginx Configuration (Optional)
 
-### Custom Domain Setup
+If you want to use Nginx as a reverse proxy:
 
-1. **Purchase Domain**
-   - Recommended: `.com.kw` or `.kw` for Kuwait market
-   - Alternative: `.com` with Kuwait-specific subdomain
+1. Install Nginx:
+```bash
+sudo apt update
+sudo apt install nginx
+```
 
-2. **DNS Configuration**
-   ```
-   Type: CNAME
-   Name: www
-   Value: bejewelled-churros-f5d48b.netlify.app
-   
-   Type: A
-   Name: @
-   Value: 75.2.60.5 (Netlify's load balancer)
-   ```
+2. Copy the provided configuration:
+```bash
+sudo cp nginx.conf /etc/nginx/sites-available/lakkiphones
+```
 
-3. **Netlify Domain Settings**
-   - Go to Netlify Dashboard → Domain Settings
-   - Add custom domain
-   - Enable HTTPS/SSL certificate
-   - Set up redirects if needed
+3. Enable the site:
+```bash
+sudo ln -s /etc/nginx/sites-available/lakkiphones /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
 
-### IP Address & CDN Setup
-
-```nginx
-# Nginx configuration for custom server
-server {
-    listen 80;
-    listen 443 ssl;
-    server_name www.lakkiphones.com lakkiphones.com;
-    
-    # SSL Configuration
-    ssl_certificate /path/to/certificate.crt;
-    ssl_certificate_key /path/to/private.key;
-    
-    # Redirect to HTTPS
-    if ($scheme != "https") {
-        return 301 https://$server_name$request_uri;
-    }
-    
-    # Serve static files
-    location / {
-        root /var/www/techstore/dist;
-        try_files $uri $uri/ /index.html;
-        
-        # Cache static assets
-        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-            expires 1y;
-            add_header Cache-Control "public, immutable";
-        }
-    }
-}
+4. Configure firewall:
+```bash
+sudo ufw allow 'Nginx Full'
+sudo ufw allow ssh
+sudo ufw enable
 ```
 
 ## 👥 User Registration & Admin Setup
@@ -334,59 +337,16 @@ const createSuperAdmin = {
 
 ## 🇰🇼 Kuwait Market Optimization
 
-### Currency & Pricing
+The application is fully optimized for the Kuwait market with:
 
-- **Primary Currency**: Kuwaiti Dinar (KWD)
-- **Price Display**: KD 299.500 (3 decimal places)
-- **Tax Integration**: Kuwait VAT (if applicable)
+- KWD currency with 3 decimal places
+- KNET payment gateway integration
+- Arabic language support
+- Kuwait address system with governorates
+- Local phone number validation
+- Kuwait-specific business features
 
-### Payment Integration
-
-#### KNET Payment Gateway
-
-```javascript
-// KNET integration configuration
-const knetConfig = {
-  merchantId: process.env.VITE_KNET_MERCHANT_ID,
-  terminalId: process.env.VITE_KNET_TERMINAL_ID,
-  resourceKey: process.env.VITE_KNET_RESOURCE_KEY,
-  currency: 'KWD',
-  language: 'ar', // Arabic support
-  returnUrl: 'https://www.lakkiphones.com/payment/success',
-  errorUrl: 'https://www.lakkiphones.com/payment/error'
-};
-```
-
-### Localization Features
-
-1. **Language Support**
-   - Arabic (primary)
-   - English (secondary)
-   - RTL layout support
-
-2. **Local Business Integration**
-   - Kuwait delivery zones
-   - Local phone number validation (+965)
-   - Kuwait address format
-   - Business hours (Kuwait timezone)
-
-3. **Cultural Considerations**
-   - Islamic calendar integration
-   - Ramadan/Eid special offers
-   - Local holidays and working days
-
-### Shipping & Delivery
-
-```javascript
-const kuwaitDeliveryZones = {
-  'Kuwait City': { fee: 2.000, time: '2-4 hours' },
-  'Hawalli': { fee: 2.500, time: '3-5 hours' },
-  'Ahmadi': { fee: 3.000, time: '4-6 hours' },
-  'Jahra': { fee: 3.500, time: '5-7 hours' },
-  'Mubarak Al-Kabeer': { fee: 3.000, time: '4-6 hours' },
-  'Farwaniya': { fee: 2.500, time: '3-5 hours' }
-};
-```
+See the [Kuwait Currency Display Guide](docs/CURRENCY_GUIDE.md) for more details.
 
 ## 🔮 Future Enhancements
 
@@ -626,11 +586,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Customer Service**: 50430606 / 55463597 (محل تلفون لكي,خيطان مجمع فهد الدبوس علي كل التلفونات والاكسسوارت عرض)
 - **Address**: muscat street, opp gulf bank, khaitan, Kuwait, Khaitan, Al 'Āşimah, Kuwait 83000
 - **Website**: www.lakkiphones.com
-- **Documentation**: (Consider if a separate docs site is needed for LAKKI PHONES or remove/update this line)
-
 
 ---
 
-**Built with ❤️ for the Kuwait market**
+**Built with ❤️ for the Kuwait market by LAKKI PHONES**
 
-*Last updated: January 2024*
+*Last updated: July 2024*

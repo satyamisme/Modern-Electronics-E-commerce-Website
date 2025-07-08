@@ -11,7 +11,5 @@ nohup npm run dev -- --host 0.0.0.0 > server.log 2>&1 &
 echo $! > server.pid
 
 echo "Server started. Output is in server.log. PID is in server.pid"
-echo "You can access it via http://<your-vps-ip>:5173 (or the port configured in vite.config.js)"
-
-# Make the script executable
-chmod +x start_server.sh
+echo "You can access it via http://$(curl -s ifconfig.me):5173"
+echo "Or via your domain if DNS is configured: http://lakkiphones.work.gd"
