@@ -1,12 +1,15 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import axios, { AxiosError } from 'axios'; // Added AxiosError for more specific error handling
+import * as cheerio from 'cheerio'; // HTML parsing
 
+/**
+ * Interface for phone data scraped from Smartprix.
+ */
 export interface SmartprixPhone {
-  id: string;
-  name: string;
-  brand: string;
-  image: string;
-  price?: number;
+  id: string; /** Generated unique ID for the phone. */
+  name: string; /** Name of the phone. */
+  brand: string; /** Brand of the phone. */
+  image: string; /** URL of the phone's image. */
+  price?: number; /** Price in KWD (converted from INR). */
   specifications: {
     display?: string;
     camera?: string;
@@ -15,94 +18,138 @@ export interface SmartprixPhone {
     ram?: string;
     processor?: string;
     os?: string;
-    [key: string]: string | undefined;
+    [key: string]: string | undefined; /** Allows for other dynamic specifications. */
   };
-  features: string[];
-  releaseDate?: string;
-  colors?: string[];
-  availability: boolean;
-  url: string;
+  features: string[]; /** Array of key features. */
+  releaseDate?: string; /** Release date (YYYY-MM-DD format). */
+  colors?: string[]; /** Available colors. */
+  availability: boolean; /** Availability status (typically true as it's listed). */
+  url: string; /** Original Smartprix URL of the phone. */
 }
 
+/**
+ * Result object for Smartprix import operations.
+ */
 export interface SmartprixImportResult {
-  success: boolean;
-  phones: SmartprixPhone[];
-  errors?: string[];
+  success: boolean; /** True if scraping/parsing was successful. */
+  phones: SmartprixPhone[]; /** Array of scraped/parsed phone data. */
+  errors?: string[]; /** Array of error messages if success is false. */
 }
 
+/**
+ * Service for scraping phone data from Smartprix.com and parsing uploaded files.
+ *
+ * IMPORTANT: Web scraping is inherently fragile and can break if the target website's
+ * HTML structure changes. Regular maintenance and testing of selectors are required.
+ * Consider using official APIs if available for more reliable data.
+ * This service also includes approximate INR to KWD price conversion.
+ */
 class SmartprixService {
   private baseUrl = 'https://www.smartprix.com';
-  private cache = new Map<string, any>();
-  private cacheTimeout = 1000 * 60 * 30; // 30 minutes
-  
-  // Scrape phone data from Smartprix URL
+  // TODO: Implement a robust caching strategy (e.g., server-side caching for scraped data with TTL)
+  // to reduce load on Smartprix and improve performance. Client-side caching for short periods could also be useful.
+
+  /**
+   * Scrapes phone data from a single Smartprix phone details URL.
+   * @param url - The Smartprix URL of the phone model.
+   * @returns A promise resolving to a SmartprixImportResult.
+   */
   async scrapePhoneFromUrl(url: string): Promise<SmartprixImportResult> {
+    // Standard headers to mimic a browser visit.
+    // TODO: For more robust scraping, consider rotating User-Agents and using proxies if running at scale or facing blocks.
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+      'Accept-Language': 'en-US,en;q=0.9,ar;q=0.8', // Added Arabic to accept language
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    };
+
     try {
-      // Check if URL is valid
-      if (!url.includes('smartprix.com') && !url.includes('smartprix.com/mobiles/')) {
+      // Validate URL structure more strictly for individual phone pages
+      if (!/^https?:\/\/(www\.)?smartprix\.com\/mobiles\/[a-zA-Z0-9_-]+-p\w+(\.php)?$/.test(url)) {
+        console.warn("SmartprixService.scrapePhoneFromUrl - Invalid URL format:", url);
         return {
           success: false,
           phones: [],
-          errors: ['Invalid Smartprix URL. Please provide a valid phone model URL from smartprix.com']
+          errors: ['Invalid Smartprix phone detail URL format. Expected format like ".../phone-name-pxxxxx".']
         };
       }
       
-      // Fetch the page content
-      const response = await axios.get(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      });
+      // TODO: Implement retries with exponential backoff for network errors or non-200 HTTP status codes.
+      // Libraries like 'axios-retry' can simplify this.
+      const response = await axios.get(url, { headers, timeout: 15000 });
+
+      if (response.status !== 200) {
+        console.error(`SmartprixService.scrapePhoneFromUrl - Failed to fetch URL '${url}': Status ${response.status}`);
+        return {
+          success: false,
+          phones: [],
+          errors: [`Failed to fetch URL: Status ${response.status}`]
+        };
+      }
       
       const html = response.data;
       const $ = cheerio.load(html);
       
-      // Extract phone data
-      const name = $('.product-title h1').text().trim();
+      // Extract phone data. Selectors are critical and prone to breaking if Smartprix updates their website.
+      // TODO: Add more specific error checks for each extracted field (e.g., if name is empty).
+      const name = $('h1[itemprop="name"]').text().trim() || $('.hdr-prod-right h1').text().trim(); // Try multiple selectors
+      if (!name) {
+        console.warn("SmartprixService.scrapePhoneFromUrl - Could not extract phone name from:", url);
+        return { success: false, phones: [], errors: ["Could not extract phone name. Page structure might have changed or URL is not a detail page."]};
+      }
+
       const brand = this.extractBrand(name);
-      const image = $('.product-image img').attr('src') || '';
+      const image = $('meta[property="og:image"]').attr('content') || // Try OpenGraph image first
+                    $('.img-main .img-holder img').attr('src') ||      // Main product image
+                    $('.img-box img').attr('src') || '';                // Another common image pattern
       
-      // Extract price
       let price: number | undefined;
-      const priceText = $('.price').text().trim();
+      const priceText = $('.price span[itemprop="price"]').text().trim() || // Schema.org price
+                        $('.price').first().text().trim();                   // General price class
       if (priceText) {
-        // Convert Indian Rupees to KWD (approximate conversion)
-        const priceInRupees = parseFloat(priceText.replace(/[₹,]/g, ''));
-        price = this.convertToKWD(priceInRupees);
+        const priceInRupees = parseFloat(priceText.replace(/[₹,]/g, '')); // Remove INR symbol and commas
+        if (!isNaN(priceInRupees)) {
+          price = this.convertToKWD(priceInRupees); // Convert to KWD
+        }
       }
       
-      // Extract specifications
-      const specifications: Record<string, string> = {};
-      $('.specs-table tr').each((i, el) => {
-        const key = $(el).find('td:first-child').text().trim();
-        const value = $(el).find('td:last-child').text().trim();
+      // Extract specifications using a broader set of selectors
+      const specifications: Record<string, string | undefined> = {};
+      $('# technischen-daten .table-row, .specifications-table .row, .specs-table tr, .spec_item').each((_i, el) => {
+        let key = $(el).find('.spec_ttle, .label, th, td:first-child').text().trim();
+        let value = $(el).find('.spec_des, .value, td:last-child').text().trim();
+
+        // Handle cases where key and value might be in the same element or need cleaning
+        if (!value && key.includes(':')) {
+            [key, value] = key.split(/:(.*)/s).map(s => s.trim());
+        }
         if (key && value) {
           specifications[this.normalizeSpecKey(key)] = value;
         }
       });
       
-      // Extract features
+      // Extract features from a common highlights section
       const features: string[] = [];
-      $('.highlights li').each((i, el) => {
+      $('.highlights ul li, .usp-list li, .hlts-list li').each((_i, el) => {
         const feature = $(el).text().trim();
         if (feature) {
           features.push(feature);
         }
       });
       
-      // Extract colors
+      // Extract colors - this selector is highly dependent on site structure
       const colors: string[] = [];
-      $('.variant-list.color-list li').each((i, el) => {
-        const color = $(el).attr('data-name');
+      $('.color-options .item > span, .variant-list.color-list li[data-name]').each((_i, el) => {
+        const color = $(el).attr('data-name') || $(el).text().trim();
         if (color) {
           colors.push(color);
         }
       });
       
-      // Extract release date
-      const releaseDate = specifications['releaseDate'] || specifications['launchDate'] || undefined;
+      const releaseDateText = specifications['releaseDate'] || specifications['launchDate'] || $('meta[itemprop="releaseDate"]').attr('content');
+      const releaseDate = releaseDateText ? new Date(releaseDateText).toISOString().split('T')[0] : undefined;
       
-      // Create phone object
+      // Create phone object - ensure all fields are handled gracefully if data is missing
       const phone: SmartprixPhone = {
         id: this.generateId(name),
         name,

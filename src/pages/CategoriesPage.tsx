@@ -2,9 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Package } from 'lucide-react';
 import CategoryCard from '../components/ui/CategoryCard';
-import { categories } from '../data/products';
+import { useApp } from '../context/AppContext';
+import { Category } from '../types'; // Ensure Category type is imported
 
 const CategoriesPage: React.FC = () => {
+  const { state: appState } = useApp();
+
+  // Calculate total products from categories if productCount is available
+  const totalProducts = appState.categories.reduce((total, cat) => total + (cat.productCount || 0), 0);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -18,7 +24,7 @@ const CategoriesPage: React.FC = () => {
 
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {categories.map((category) => (
+          {appState.categories.map((category: Category) => (
             <CategoryCard key={category.id} category={category} />
           ))}
         </div>
@@ -59,12 +65,12 @@ const CategoriesPage: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="text-center p-6 bg-white rounded-lg shadow-md">
             <div className="text-3xl font-bold text-primary mb-2">
-              {categories.reduce((total, cat) => total + cat.productCount, 0)}
+              {totalProducts}
             </div>
             <div className="text-gray-600">Total Products</div>
           </div>
           <div className="text-center p-6 bg-white rounded-lg shadow-md">
-            <div className="text-3xl font-bold text-primary mb-2">{categories.length}</div>
+            <div className="text-3xl font-bold text-primary mb-2">{appState.categories.length}</div>
             <div className="text-gray-600">Categories</div>
           </div>
           <div className="text-center p-6 bg-white rounded-lg shadow-md">

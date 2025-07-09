@@ -3,32 +3,33 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Truck, Shield, Headphones, CreditCard, Star, Phone, Zap, Award, CheckCircle, Clock, MapPin } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
-import { categories } from '../data/products';
+// import { categories as mockCategories } from '../data/products'; // Remove direct import
 import OptimizedImage from '../components/ui/OptimizedImage';
 import { useApp } from '../context/AppContext';
 import { ProductService } from '../services/productService';
-import { Product } from '../types';
+import { Product, Category } from '../types';
 
 const HomePage: React.FC = () => {
-  const { state } = useApp();
+  const { state: appState } = useApp(); // Use appState.categories
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [bestSellers, setBestSellers] = useState<Product[]>([]);
-  
+  // Categories will now come from appState.categories, fetched in AppContext
+
   useEffect(() => {
-    // Always use mock data for consistent display
-    const loadProducts = async () => {
+    const loadHomePageProducts = async () => {
       try {
+        // Featured Products and Best Sellers are still fetched here as they are specific to this page
         const featuredData = await ProductService.getFeaturedProducts(4);
         const bestSellersData = await ProductService.getBestSellers(4);
         
         setFeaturedProducts(featuredData);
         setBestSellers(bestSellersData);
       } catch (error) {
-        console.error('Error loading products:', error);
+        console.error('Error loading homepage products:', error);
       }
     };
     
-    loadProducts();
+    loadHomePageProducts();
   }, []);
   
   return (
@@ -228,7 +229,7 @@ const HomePage: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categories.slice(0, 6).map((category) => (
+            {appState.categories.slice(0, 6).map((category: Category) => (
               <CategoryCard key={category.id} category={category} />
             ))}
           </div>

@@ -411,63 +411,74 @@ VITE_IMGBB_API_KEY=your-imgbb-api-key
 VITE_GITHUB_IMAGES_URL=https://yourusername.github.io/lakki-images
 
 # KNET Payment Gateway (Kuwait)
-VITE_KNET_MERCHANT_ID=test_merchant_id
-VITE_KNET_TERMINAL_ID=test_terminal_id
-VITE_KNET_RESOURCE_KEY=test_resource_key
-VITE_KNET_RETURN_URL=http://lakkiphones.work.gd/payment/success
-VITE_KNET_ERROR_URL=http://lakkiphones.work.gd/payment/error
+VITE_KNET_GATEWAY_URL=https://knet-test-gateway.com.kw/kpg/paymentpage.htm # Replace with actual KNET Test or Production Gateway URL
+VITE_KNET_MERCHANT_ID=your_knet_merchant_id
+VITE_KNET_TERMINAL_ID=your_knet_terminal_id
+# VITE_KNET_RESOURCE_KEY=DO_NOT_STORE_SECRET_KEY_HERE_FOR_CLIENT_USE # CRITICAL: This is the KNET Secret Key for HMAC signature verification.
+# It MUST be stored securely on your backend server and NEVER exposed in client-side code or VITE_ env variables.
+# The client-side `knet.ts` uses a placeholder for this if it's read from env, emphasizing server-side verification.
+VITE_KNET_RETURN_URL=http://your-domain.com/payment/success # Replace with your actual domain
+VITE_KNET_ERROR_URL=http://your-domain.com/payment/error   # Replace with your actual domain
 
-# Supabase Database (Free tier)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
+# Supabase Database
+VITE_SUPABASE_URL=your_supabase_project_url # e.g., https://xyz.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Analytics (Optional)
-VITE_GA_TRACKING_ID=your-google-analytics-id
+# Analytics (Optional - Example: Google Analytics)
+VITE_GA_TRACKING_ID=your_ga_tracking_id
 
-# Email Service (Optional)
-VITE_EMAIL_SERVICE_ID=your-email-service-id
+# Email Service (Optional - Example: For contact forms or notifications if handled client-side)
+VITE_EMAIL_SERVICE_ID=your_email_service_id
 
 # Development Settings
-VITE_DEBUG=false
-VITE_LOG_LEVEL=error
+VITE_DEBUG=true # Set to true to enable mock Supabase client and other debug features during development
+VITE_FORCE_MOCK_CLIENT=false # Set to true to force mock Supabase client even if credentials are provided (for testing)
+VITE_LOG_LEVEL=info
 
-# VPS Configuration
-SERVER_IP=62.171.128.156
-DOMAIN=lakkiphones.work.gd
+# VPS Configuration (Informational - for server setup scripts, not directly used by Vite app)
+SERVER_IP=your_vps_ip
+DOMAIN=your-domain.com
 SSL_ENABLED=false
 ```
+
+**Important Notes on Environment Variables:**
+- Variables prefixed with `VITE_` are embedded into the client-side bundle. **Never put private secret keys here if they are used for sensitive operations that should only occur on a server.**
+- The `KNET_RESOURCE_KEY` (the actual KNET secret key) must be stored securely on your backend server that handles payment verification. It should NOT be set as `VITE_KNET_RESOURCE_KEY` for client-side access for verification purposes.
+- For production builds, set `VITE_DEBUG=false` and `VITE_FORCE_MOCK_CLIENT=false`.
+
+### Supabase Backend Setup
+This project uses Supabase for its backend database and authentication.
+1.  **Create a Supabase Project:** Go to [supabase.com](https://supabase.com) and create a new project.
+2.  **Database Migrations:** Apply the database schema by running the migrations located in the `supabase/migrations` directory of this repository. You can use the Supabase CLI:
+    ```bash
+    supabase link --project-ref your-project-id
+    supabase db push
+    ```
+    Alternatively, you can execute the SQL files manually in the Supabase SQL Editor.
+3.  **Obtain Credentials:** From your Supabase project settings, find the Project URL and the `anon` public key.
+4.  **Configure Environment:** Update your `.env` file (copied from `.env.example`) with:
+    *   `VITE_SUPABASE_URL`
+    *   `VITE_SUPABASE_ANON_KEY`
+5.  **Authentication Settings:** Configure authentication providers (e.g., email/password, social logins) in the Supabase Dashboard under Authentication. Ensure "Enable Email Confirmations" is set as desired.
+
+### KNET Payment Gateway Setup
+1.  Obtain test/production credentials from KNET for your merchant account: Merchant ID, Terminal ID, and the Secret Resource Key.
+2.  Configure `VITE_KNET_GATEWAY_URL`, `VITE_KNET_MERCHANT_ID`, `VITE_KNET_TERMINAL_ID`, `VITE_KNET_RETURN_URL`, and `VITE_KNET_ERROR_URL` in your `.env` file.
+3.  **Crucially, implement a server-side backend endpoint (e.g., a Supabase Edge Function) to securely verify KNET payment responses.** This endpoint will use your KNET Secret Resource Key (stored as a server-only environment variable) to validate the HMAC signature of the KNET response. The client-side application should call this backend endpoint after receiving the KNET callback. **Do not perform final signature verification on the client-side.**
 
 ## 👥 User Registration & Admin Setup
 
 ### Customer Registration Flow
-
-1. **Self Registration**
-   - Navigate to `/register`
-   - Fill required information (name, email, phone, address)
-   - Email verification required
-   - Account activated upon verification
-
-2. **Guest Checkout**
-   - No registration required for purchases
-   - Optional account creation during checkout
+Users can sign up for an account through the application. Email verification may be required based on your Supabase auth settings.
 
 ### Admin User Setup
+1.  **Initial Admin User:** After setting up Supabase, the first admin user (e.g., with `super_admin` role) needs to be created. This can be done by:
+    *   Signing up a new user through the application.
+    *   Manually updating their role to `super_admin` in the `profiles` table in your Supabase database.
+    *   Ensure the corresponding user exists in the `auth.users` table.
+2.  **Further Admin Management:** Once a super_admin can log in, other admin users with different roles can be managed via the "Users" section in the Admin Panel (role updates).
 
-#### Super Admin Registration (Initial Setup)
-
-```javascript
-// Initial super admin creation (run once)
-const createSuperAdmin = {
-  email: "superadmin@lakkiphones.com",
-  password: "SecurePassword123!",
-  name: "Super Administrator",
-  role: "super_admin",
-  department: "IT",
-  permissions: "all"
-};
-```
-
-#### Admin Role Hierarchy
+#### Admin Role Hierarchy (Example - can be configured in `AuthService` permission logic)
 
 1. **Super Admin** - Full system access
    - User management
@@ -497,34 +508,7 @@ const createSuperAdmin = {
    - Generate reports
    - No modification rights
 
-#### Admin Registration Process
-
-1. **Super Admin Creates Account**
-   ```bash
-   # Access admin panel
-   https://www.lakkiphones.com/admin
-   
-   # Login with super admin credentials
-   Email: superadmin@lakkiphones.com
-   Password: SecurePassword123!
-   ```
-
-2. **Add New Admin Users**
-   - Navigate to Admin Panel → Users
-   - Click "Add New User"
-   - Assign appropriate role and permissions
-   - Send invitation email
-
-3. **Role Assignment**
-   ```javascript
-   const adminRoles = {
-     super_admin: ['all_permissions'],
-     admin: ['products.*', 'orders.*', 'users.read', 'analytics.read'],
-     manager: ['products.read', 'orders.*', 'inventory.*'],
-     editor: ['products.update', 'content.*'],
-     viewer: ['*.read']
-   };
-   ```
+(Details of roles and their permissions are managed within the application logic, primarily in `src/services/authService.ts` and checked by `src/context/AuthContext.tsx` and `src/components/admin/ProtectedRoute.tsx`).
 
 ## 🇰🇼 Kuwait Market Optimization
 
@@ -645,84 +629,10 @@ See the [Kuwait Currency Display Guide](docs/CURRENCY_GUIDE.md) for more details
 4. **Marketing Tools**: Google Analytics, Facebook Pixel
 5. **Customer Support**: Zendesk, Intercom
 
-## 📚 API Documentation
+## 📚 Backend Interaction
 
-### Authentication Endpoints
-
-```javascript
-// Login
-POST /api/auth/login
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-
-// Register
-POST /api/auth/register
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "phone": "+96512345678"
-}
-
-// Logout
-POST /api/auth/logout
-```
-
-### Product Endpoints
-
-```javascript
-// Get all products
-GET /api/products?page=1&limit=20&category=smartphones
-
-// Get single product
-GET /api/products/:id
-
-// Create product (Admin only)
-POST /api/products
-{
-  "name": "iPhone 15 Pro",
-  "price": 399.500,
-  "currency": "KWD",
-  "category": "smartphones",
-  "brand": "Apple"
-}
-
-// Update product (Admin only)
-PUT /api/products/:id
-
-// Delete product (Admin only)
-DELETE /api/products/:id
-```
-
-### Order Endpoints
-
-```javascript
-// Create order
-POST /api/orders
-{
-  "items": [
-    {
-      "productId": "123",
-      "quantity": 1,
-      "price": 299.500
-    }
-  ],
-  "shippingAddress": {...},
-  "paymentMethod": "knet"
-}
-
-// Get user orders
-GET /api/orders/user/:userId
-
-// Update order status (Admin only)
-PUT /api/orders/:id/status
-{
-  "status": "shipped",
-  "trackingNumber": "TRK123456"
-}
-```
+The application interacts with a Supabase backend using the Supabase client library. Key data operations for entities like Products, Orders, Authentication, etc., are encapsulated within services found in `src/services/`.
+Refer to the Supabase table definitions (conceptually in `src/lib/supabase.ts` and physically in your Supabase project schema) and Supabase's own documentation for table structures and API details.
 
 ## 🤝 Contributing
 
@@ -753,18 +663,13 @@ PUT /api/orders/:id/status
 ### Testing Strategy
 
 ```bash
-# Unit tests
+# Run unit and component tests
 npm run test
 
-# Integration tests
-npm run test:integration
-
-# E2E tests
-npm run test:e2e
-
-# Performance tests
-npm run test:performance
+# Run tests with coverage report
+npm run coverage
 ```
+(Assumes Vitest setup. Further E2E/integration test scripts can be added as needed.)
 
 ## 📄 License
 

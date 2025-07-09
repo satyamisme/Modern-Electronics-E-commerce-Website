@@ -60,10 +60,37 @@ const createMockClient = () => {
 };
 
 // Determine if we should use a real or mock client
-const useMockClient = import.meta.env.VITE_DEBUG === 'true' || !supabaseUrl || !supabaseAnonKey;
+const isProduction = import.meta.env.PROD;
+const forceMock = import.meta.env.VITE_FORCE_MOCK_CLIENT === 'true';
+const debugMode = import.meta.env.VITE_DEBUG === 'true';
+
+// Consider demo credentials as unavailable for real client
+const demoUrl = 'https://demo.supabase.co';
+const demoKey = 'demo-key';
+const supabaseCredentialsAvailable = supabaseUrl && supabaseAnonKey && supabaseUrl !== demoUrl && supabaseAnonKey !== demoKey;
+
+let useMockClient;
+
+if (isProduction) {
+  // In production, only use mock if explicitly forced (e.g., for specific E2E tests against a mock server)
+  // and credentials are not available (which should ideally not happen for a production build aiming for real Supabase)
+  useMockClient = forceMock || !supabaseCredentialsAvailable;
+  if (!supabaseCredentialsAvailable && !forceMock) {
+    console.error("CRITICAL: Production build is missing valid Supabase credentials and not forced to use mock client. Application might not work as expected.");
+  }
+} else {
+  // In development, use mock if VITE_DEBUG is true or if valid Supabase credentials are not available.
+  useMockClient = debugMode || !supabaseCredentialsAvailable;
+}
+
+if (useMockClient) {
+  console.warn("Using MOCK Supabase client. VITE_DEBUG:", debugMode, "Credentials Available:", supabaseCredentialsAvailable, "Forced Mock:", forceMock);
+} else {
+  console.log("Using REAL Supabase client.");
+}
 
 // Export the appropriate client
-export const supabase = useMockClient 
+export const supabase = useMockClient
   ? createMockClient() as any
   : createClient(supabaseUrl, supabaseAnonKey, {
       auth: {

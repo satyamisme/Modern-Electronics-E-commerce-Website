@@ -1,13 +1,22 @@
 import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/supabase';
+import { SettingsService } from './settingsService';
 
-type Order = Database['public']['Tables']['orders']['Row'];
+// Define types for Order and OrderItem based on Supabase schema for clarity
+type OrderRow = Database['public']['Tables']['orders']['Row'];
 type OrderInsert = Database['public']['Tables']['orders']['Insert'];
 type OrderUpdate = Database['public']['Tables']['orders']['Update'];
-type OrderItem = Database['public']['Tables']['order_items']['Row'];
+// OrderItemRow is not explicitly used but good for reference if OrderItem type needed adjustments
+// type OrderItemRow = Database['public']['Tables']['order_items']['Row'];
 
 export class OrderService {
-  // Create new order
+  /**
+   * Creates a new order, associated order items, and decrements product stock.
+   * Fetches shipping cost and free shipping threshold from settings.
+   * @param orderData - Object containing items, shipping details, payment method, etc.
+   * @returns The created order object from the database.
+   * @throws Will throw an error if order creation, item creation, or stock update fails.
+   */
   static async createOrder(orderData: {
     items: Array<{
       productId: string;
@@ -16,32 +25,72 @@ export class OrderService {
       quantity: number;
       unitPrice: number;
     }>;
-    shippingAddress: any;
-    billingAddress?: any;
+    shippingAddress: any; // Consider defining a strong type for Address (e.g., from src/types)
+    billingAddress?: any;  // Same as above
     paymentMethod: string;
     customerNotes?: string;
-    userId?: string;
-  }) {
+    userId?: string; // Optional: if orders can be created for guests or associated later
+    customerEmail?: string; // Added for guest checkouts or when userId is not available
+  }): Promise<OrderRow> {
     const { data: { user } } = await supabase.auth.getUser();
-    
-    // Calculate totals
-    const subtotal = orderData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-    const shippingCost = 2.500; // Default shipping cost in KWD
-    const taxAmount = 0; // No tax in Kuwait for most items
-    const totalAmount = subtotal + shippingCost + taxAmount;
+    const currentUserId = orderData.userId || user?.id;
 
-    // Create order
+    // It's good practice to ensure either a user is logged in or guest details are provided if applicable.
+    if (!currentUserId && !orderData.customerEmail) {
+        console.error('OrderService.createOrder - User ID or customer email is required.');
+        throw new Error("User ID or customer email is required to create an order.");
+    }
+    
+    const subtotal = orderData.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+
+    let shippingCost = 2.500; // Default fallback shipping cost
+    try {
+      const shippingCostSetting = await SettingsService.getSetting('default_shipping_cost');
+      if (shippingCostSetting && typeof shippingCostSetting.value === 'number') {
+        shippingCost = shippingCostSetting.value;
+      } else {
+        console.warn("OrderService.createOrder: Default shipping cost not found/invalid in settings, using fallback:", shippingCost);
+      }
+    } catch (error) {
+      console.error("OrderService.createOrder: Error fetching shipping cost from settings, using fallback:", error);
+    }
+
+    let finalShippingCost = shippingCost;
+    try {
+        const freeShippingThresholdSetting = await SettingsService.getSetting('free_shipping_threshold');
+        if (freeShippingThresholdSetting && typeof freeShippingThresholdSetting.value === 'number') {
+            if (subtotal >= freeShippingThresholdSetting.value) {
+                finalShippingCost = 0;
+            }
+        } else {
+             // Fallback if threshold not set, e.g., use a common default like 15 KWD
+            if (subtotal >= 15.000) {
+                 finalShippingCost = 0;
+            }
+        }
+    } catch (error) {
+        console.error("OrderService.createOrder: Error fetching free shipping threshold, applying standard fallback logic:", error);
+         if (subtotal >= 15.000) {
+             finalShippingCost = 0;
+         }
+    }
+
+    const taxAmount = 0; // Assuming no tax as per Kuwait context
+    const totalAmount = subtotal + finalShippingCost + taxAmount;
+
     const orderInsert: OrderInsert = {
-      user_id: orderData.userId || user?.id,
+      user_id: currentUserId,
       subtotal,
-      shipping_cost: shippingCost,
+      shipping_cost: finalShippingCost,
       tax_amount: taxAmount,
       total_amount: totalAmount,
       currency: 'KWD',
       payment_method: orderData.paymentMethod,
       shipping_address: orderData.shippingAddress,
       billing_address: orderData.billingAddress || orderData.shippingAddress,
-      customer_notes: orderData.customerNotes
+      customer_notes: orderData.customerNotes,
+      // order_number can be auto-generated by DB (e.g. using a sequence or trigger) or a pre-save hook.
+      // status and payment_status will default as per DB schema or can be set explicitly if needed (e.g. 'pending').
     };
 
     const { data: order, error: orderError } = await supabase
@@ -50,66 +99,78 @@ export class OrderService {
       .select()
       .single();
 
-    if (orderError) {
-      console.error('Error creating order:', orderError);
-      throw orderError;
+    if (orderError || !order) {
+      console.error('OrderService.createOrder - Order Insert Error:', orderError);
+      throw orderError || new Error("Order creation failed to return data.");
     }
 
     // Create order items
-    const orderItems = orderData.items.map(item => ({
+    const orderItemsInsert = orderData.items.map(item => ({
       order_id: order.id,
       product_id: item.productId,
-      product_name: item.productName,
-      product_sku: item.productSku,
+      product_name: item.productName, // Denormalized for easier display in order summaries
+      product_sku: item.productSku,   // Denormalized
       quantity: item.quantity,
-      unit_price: item.unitPrice,
+      unit_price: item.unitPrice,     // Price at the time of order to handle price changes
       total_price: item.unitPrice * item.quantity
     }));
 
     const { error: itemsError } = await supabase
       .from('order_items')
-      .insert(orderItems);
+      .insert(orderItemsInsert);
 
     if (itemsError) {
-      console.error('Error creating order items:', itemsError);
+      console.error('OrderService.createOrder - Order Items Insert Error:', itemsError);
+      // CRITICAL: Consider rolling back order creation or marking order as 'failed_items_creation'.
+      // This might involve deleting the 'order' record or having a more complex transaction/cleanup process.
       throw itemsError;
     }
 
-    // Update product stock
+    // Update product stock for each item using Supabase RPC function.
+    // This should ideally be part of a transaction with order creation for atomicity.
     for (const item of orderData.items) {
-      await supabase.rpc('decrement_stock', {
-        product_id: item.productId,
-        quantity: item.quantity
+      // Ensure RPC parameter names match the function definition in Supabase.
+      // Example: p_product_id, p_quantity
+      const { error: stockError } = await supabase.rpc('decrement_stock', {
+        p_product_id: item.productId,
+        p_quantity: item.quantity
       });
+      if (stockError) {
+        console.error(`OrderService.createOrder - Stock Decrement Error for product ${item.productId}:`, stockError);
+        // CRITICAL: Stock update failure. Order is created but stock count might be incorrect.
+        // This requires robust error handling: flag order, notify admin, potentially try to reverse.
+        // For now, we log and continue, but this is a point of attention for production.
+      }
     }
-
     return order;
   }
 
-  // Get orders for user
+  /**
+   * Fetches orders for a specific user, or the currently authenticated user if no userId is provided.
+   * Includes related order items.
+   * @param userId - Optional ID of the user whose orders to fetch.
+   * @param filters - Optional filters for status, limit, offset.
+   * @returns A promise that resolves to an array of order objects (OrderRow type).
+   * @throws Will throw an error if fetching fails or no user ID can be determined.
+   */
   static async getUserOrders(userId?: string, filters?: {
-    status?: string;
+    status?: OrderRow['status'];
     limit?: number;
     offset?: number;
-  }) {
-    const { data: { user } } = await supabase.auth.getUser();
-    const targetUserId = userId || user?.id;
+  }): Promise<OrderRow[]> {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    const targetUserId = userId || authUser?.id;
 
-    if (!targetUserId) throw new Error('No user ID provided');
+    if (!targetUserId) {
+      console.error('OrderService.getUserOrders - No user ID provided or available from session.');
+      throw new Error('User ID is required to fetch user orders.');
+    }
 
     let query = supabase
       .from('orders')
       .select(`
         *,
-        order_items (
-          id,
-          product_id,
-          product_name,
-          product_sku,
-          quantity,
-          unit_price,
-          total_price
-        )
+        order_items (*)
       `)
       .eq('user_id', targetUserId)
       .order('created_at', { ascending: false });
@@ -117,139 +178,136 @@ export class OrderService {
     if (filters?.status) {
       query = query.eq('status', filters.status);
     }
-
-    if (filters?.limit) {
+    if (filters?.limit !== undefined) {
       query = query.limit(filters.limit);
     }
-
-    if (filters?.offset) {
-      query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
+    // Apply range only if both offset and limit are defined for proper pagination
+    if (filters?.offset !== undefined && filters?.limit !== undefined) {
+      query = query.range(filters.offset, filters.offset + filters.limit - 1);
+    } else if (filters?.offset !== undefined) {
+       query = query.range(filters.offset, filters.offset + 9); // Default limit for range if only offset
     }
+
 
     const { data, error } = await query;
-
     if (error) {
-      console.error('Error fetching user orders:', error);
+      console.error('OrderService.getUserOrders - Error:', error);
       throw error;
     }
-
-    return data;
+    return data || [];
   }
 
-  // Get all orders (admin only)
+  /**
+   * Fetches all orders, typically for an admin panel. Includes related order items and customer profile info.
+   * Supports filtering by status, search term (order number, customer name/email), date range, and pagination.
+   * @param filters - Optional filters for querying orders.
+   * @returns A promise that resolves to an array of order objects (OrderRow type).
+   * @throws Will throw an error if fetching fails.
+   */
   static async getAllOrders(filters?: {
-    status?: string;
+    status?: OrderRow['status'];
     search?: string;
     dateRange?: [string, string];
     limit?: number;
     offset?: number;
-  }) {
+    sortBy?: string;
+    ascending?: boolean;
+  }): Promise<OrderRow[]> {
+    // TODO: Add permission check for admin roles before proceeding.
+    // Example: if (!await AuthService.isAdmin()) throw new Error("Permission Denied");
     let query = supabase
       .from('orders')
       .select(`
         *,
-        order_items (
-          id,
-          product_id,
-          product_name,
-          product_sku,
-          quantity,
-          unit_price,
-          total_price
-        ),
-        profiles (
-          full_name,
-          email,
-          phone
-        )
+        order_items (*),
+        profiles (full_name, email, phone)
       `)
-      .order('created_at', { ascending: false });
+      .order(filters?.sortBy || 'created_at', { ascending: filters?.ascending === undefined ? false : filters.ascending });
 
     if (filters?.status) {
       query = query.eq('status', filters.status);
     }
-
     if (filters?.search) {
+      // Search across order_number, customer's full_name, or email
       query = query.or(`order_number.ilike.%${filters.search}%,profiles.full_name.ilike.%${filters.search}%,profiles.email.ilike.%${filters.search}%`);
     }
-
     if (filters?.dateRange) {
-      query = query
-        .gte('created_at', filters.dateRange[0])
-        .lte('created_at', filters.dateRange[1]);
+      query = query.gte('created_at', filters.dateRange[0]);
+      query = query.lte('created_at', filters.dateRange[1]);
     }
-
-    if (filters?.limit) {
+    // Apply range only if both offset and limit are defined for proper pagination
+    if (filters?.limit !== undefined && filters?.offset !== undefined) {
+      query = query.range(filters.offset, filters.offset + filters.limit - 1);
+    } else if (filters?.limit !== undefined) { // If only limit is provided, apply it
       query = query.limit(filters.limit);
     }
 
-    if (filters?.offset) {
-      query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
-    }
 
     const { data, error } = await query;
-
     if (error) {
-      console.error('Error fetching all orders:', error);
+      console.error('OrderService.getAllOrders - Error:', error);
       throw error;
     }
-
-    return data;
+    return data || [];
   }
 
-  // Get single order
-  static async getOrder(orderId: string) {
+  /**
+   * Fetches a single order by its ID.
+   * Includes related order items, product details (id, name, primary image), and customer profile info.
+   * @param orderId - The ID of the order to fetch.
+   * @returns A promise that resolves to a single order object (OrderRow type) or null if not found.
+   * @throws Will throw an error if fetching fails (other than not found).
+   */
+  static async getOrder(orderId: string): Promise<OrderRow | null> {
     const { data, error } = await supabase
       .from('orders')
       .select(`
         *,
         order_items (
-          id,
-          product_id,
-          product_name,
-          product_sku,
-          quantity,
-          unit_price,
-          total_price,
-          products (
-            id,
-            name,
-            product_images (
-              image_url,
-              is_primary
-            )
-          )
+          *,
+          products (id, name, product_images (url, is_primary))
         ),
-        profiles (
-          full_name,
-          email,
-          phone
-        )
+        profiles (full_name, email, phone)
       `)
       .eq('id', orderId)
       .single();
 
     if (error) {
-      console.error('Error fetching order:', error);
+      if (error.code === 'PGRST116') return null; // Standard Supabase code for "Row not found"
+      console.error(`OrderService.getOrder - Error fetching order ${orderId}:`, error);
       throw error;
     }
-
     return data;
   }
 
-  // Update order status
-  static async updateOrderStatus(orderId: string, status: Order['status'], adminNotes?: string) {
+  /**
+   * Updates the status of an order. (Admin operation)
+   * Sets `shipped_at` or `delivered_at` timestamps based on the new status.
+   * @param orderId - The ID of the order to update.
+   * @param status - The new status for the order.
+   * @param adminNotes - Optional notes to add by the admin.
+   * @returns The updated order object.
+   * @throws Will throw an error if update fails.
+   */
+  static async updateOrderStatus(orderId: string, status: OrderRow['status'], adminNotes?: string): Promise<OrderRow> {
+    // TODO: Add permission check for admin roles.
     const updates: OrderUpdate = { status };
     
     if (adminNotes) {
       updates.admin_notes = adminNotes;
     }
 
-    // Set timestamps based on status
+    const now = new Date().toISOString();
     if (status === 'shipped') {
-      updates.shipped_at = new Date().toISOString();
+      updates.shipped_at = now;
     } else if (status === 'delivered') {
-      updates.delivered_at = new Date().toISOString();
+      // If already shipped, don't overwrite shipped_at unless it's null
+      // This logic might need refinement based on exact business rules
+      const { data: currentOrder } = await supabase.from('orders').select('shipped_at').eq('id', orderId).single();
+      if (currentOrder && !currentOrder.shipped_at) {
+        updates.shipped_at = now;
+      }
+      updates.delivered_at = now;
     }
 
     const { data, error } = await supabase
@@ -259,16 +317,24 @@ export class OrderService {
       .select()
       .single();
 
-    if (error) {
-      console.error('Error updating order status:', error);
-      throw error;
+    if (error || !data) {
+      console.error(`OrderService.updateOrderStatus - Error updating status for order ${orderId}:`, error);
+      throw error || new Error("Order status update failed to return data.");
     }
-
     return data;
   }
 
-  // Update payment status
-  static async updatePaymentStatus(orderId: string, paymentStatus: Order['payment_status'], transactionId?: string) {
+  /**
+   * Updates the payment status of an order.
+   * Typically called after payment gateway confirmation (ideally by a server-side webhook or callback handler).
+   * @param orderId - The ID of the order.
+   * @param paymentStatus - The new payment status.
+   * @param transactionId - Optional payment transaction ID from the gateway.
+   * @returns The updated order object.
+   * @throws Will throw an error if update fails.
+   */
+  static async updatePaymentStatus(orderId: string, paymentStatus: OrderRow['payment_status'], transactionId?: string): Promise<OrderRow> {
+    // TODO: Add permission check, especially if this can be called from contexts other than a secure payment callback.
     const updates: OrderUpdate = { payment_status: paymentStatus };
     
     if (transactionId) {
@@ -282,16 +348,22 @@ export class OrderService {
       .select()
       .single();
 
-    if (error) {
-      console.error('Error updating payment status:', error);
-      throw error;
+    if (error || !data) {
+      console.error(`OrderService.updatePaymentStatus - Error updating payment status for order ${orderId}:`, error);
+      throw error || new Error("Order payment status update failed to return data.");
     }
-
     return data;
   }
 
-  // Add tracking number
-  static async addTrackingNumber(orderId: string, trackingNumber: string) {
+  /**
+   * Adds or updates the tracking number for an order. (Admin operation)
+   * @param orderId - The ID of the order.
+   * @param trackingNumber - The tracking number.
+   * @returns The updated order object.
+   * @throws Will throw an error if update fails.
+   */
+  static async addTrackingNumber(orderId: string, trackingNumber: string): Promise<OrderRow> {
+    // TODO: Add permission check for admin roles.
     const { data, error } = await supabase
       .from('orders')
       .update({ tracking_number: trackingNumber })
@@ -299,89 +371,118 @@ export class OrderService {
       .select()
       .single();
 
-    if (error) {
-      console.error('Error adding tracking number:', error);
-      throw error;
+    if (error || !data) {
+      console.error(`OrderService.addTrackingNumber - Error adding tracking for order ${orderId}:`, error);
+      throw error || new Error("Adding tracking number failed to return data.");
     }
-
     return data;
   }
 
-  // Get order statistics
-  static async getOrderStats(dateRange?: [string, string]) {
+  /**
+   * Fetches order statistics, optionally filtered by a date range. (Admin operation)
+   * Calculates total orders, total revenue, average order value, and a breakdown by status.
+   * Note: For performance on large datasets, this should ideally be an RPC call or use materialized views.
+   * @param dateRange - Optional array of [startDateISO, endDateISO].
+   * @returns An object containing order statistics.
+   * @throws Will throw an error if fetching fails.
+   */
+  static async getOrderStats(dateRange?: [string, string]): Promise<{
+    totalOrders: number;
+    totalRevenue: number;
+    averageOrderValue: number;
+    statusBreakdown: Record<string, number>;
+  }> {
+    // TODO: Add permission check for admin roles.
     let query = supabase
       .from('orders')
       .select('status, total_amount, created_at');
 
     if (dateRange) {
-      query = query
-        .gte('created_at', dateRange[0])
-        .lte('created_at', dateRange[1]);
+      query = query.gte('created_at', dateRange[0]);
+      query = query.lte('created_at', dateRange[1]);
     }
+    // Example: query = query.in('payment_status', ['paid']);
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching order stats:', error);
+      console.error('OrderService.getOrderStats - Error:', error);
       throw error;
     }
 
-    // Calculate statistics
-    const stats = {
-      totalOrders: data.length,
-      totalRevenue: data.reduce((sum, order) => sum + order.total_amount, 0),
-      averageOrderValue: data.length > 0 ? data.reduce((sum, order) => sum + order.total_amount, 0) / data.length : 0,
-      statusBreakdown: data.reduce((acc, order) => {
+    const ordersData = data || [];
+    const totalOrders = ordersData.length;
+    const totalRevenue = ordersData.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const statusBreakdown = ordersData.reduce((acc, order) => {
+      if (order.status) {
         acc[order.status] = (acc[order.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>)
-    };
+      }
+      return acc;
+    }, {} as Record<string, number>);
 
-    return stats;
+    return {
+      totalOrders,
+      totalRevenue,
+      averageOrderValue,
+      statusBreakdown
+    };
   }
 
-  // Cancel order
-  static async cancelOrder(orderId: string, reason?: string) {
+  /**
+   * Cancels an order if it's in a cancellable state (e.g., 'pending', 'processing').
+   * Restores product stock for the cancelled items by calling the 'increment_stock' RPC.
+   * @param orderId - The ID of the order to cancel.
+   * @param reason - Optional reason for cancellation, stored in admin_notes.
+   * @returns The updated (cancelled) order object.
+   * @throws Will throw an error if order cannot be cancelled or update fails.
+   */
+  static async cancelOrder(orderId: string, reason?: string): Promise<OrderRow> {
+    // TODO: Add permission check (e.g., admin or user for their own pending order).
+
     const { data: order, error: fetchError } = await supabase
       .from('orders')
-      .select('*, order_items(*)')
+      .select('status, order_items(product_id, quantity)')
       .eq('id', orderId)
       .single();
 
-    if (fetchError) {
-      console.error('Error fetching order for cancellation:', fetchError);
-      throw fetchError;
+    if (fetchError || !order) {
+      console.error(`OrderService.cancelOrder - Error fetching order ${orderId} for cancellation:`, fetchError);
+      throw fetchError || new Error("Order not found for cancellation.");
     }
 
-    // Check if order can be cancelled
     if (!['pending', 'processing'].includes(order.status)) {
-      throw new Error('Order cannot be cancelled in current status');
+      throw new Error(`Order ${orderId} cannot be cancelled in its current status: ${order.status}`);
     }
 
-    // Update order status
-    const { data, error } = await supabase
+    const { data: updatedOrder, error: updateError } = await supabase
       .from('orders')
       .update({
         status: 'cancelled',
-        admin_notes: reason ? `Cancelled: ${reason}` : 'Order cancelled'
+        admin_notes: reason ? `Cancelled by admin: ${reason}` : 'Order cancelled by system/admin' // Clarified note
       })
       .eq('id', orderId)
       .select()
       .single();
 
-    if (error) {
-      console.error('Error cancelling order:', error);
-      throw error;
+    if (updateError || !updatedOrder) {
+      console.error(`OrderService.cancelOrder - Error updating order ${orderId} to cancelled:`, updateError);
+      throw updateError || new Error("Order cancellation failed to return data.");
     }
 
-    // Restore product stock
-    for (const item of order.order_items) {
-      await supabase.rpc('increment_stock', {
-        product_id: item.product_id,
-        quantity: item.quantity
-      });
+    if (order.order_items && Array.isArray(order.order_items)) {
+      for (const item of order.order_items) {
+        if (item.product_id && item.quantity) {
+          const { error: stockError } = await supabase.rpc('increment_stock', {
+            p_product_id: item.product_id,
+            p_quantity: item.quantity
+          });
+          if (stockError) {
+            console.error(`OrderService.cancelOrder - Stock Increment Error for product ${item.product_id} in order ${orderId}:`, stockError);
+          }
+        }
+      }
     }
-
-    return data;
+    return updatedOrder;
   }
 }
