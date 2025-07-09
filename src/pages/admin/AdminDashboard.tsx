@@ -1,193 +1,211 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react'; // Added useState, useCallback
 import { 
   Package, 
   ShoppingCart, 
   Users,
   DollarSign, 
-  TrendingUp, 
+  TrendingUp,
   AlertTriangle,
-  Eye,
   ArrowUpRight,
   ArrowDownRight,
-  Search,
+  Search as SearchIcon,
   Calendar,
   Download,
   BarChart2,
   PieChart,
-  TrendingDown
+  TrendingDown,
+  Loader2,
+  LineChart as LineChartIcon,
+  RefreshCw
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
-import { products } from '../../data/products';
 import { formatKWDEnglish, formatKWD } from '../../utils/currency';
+import { analyticsService, AnalyticsDashboard, AnalyticsFilter, SalesData, ProductPerformance, UserMetrics } from '../../services/analyticsService'; // Removed unused CategoryData import
+import { Link } from 'react-router-dom';
 
 // Dashboard widget components
-const StatCard = ({ title, value, change, icon: Icon, color }) => (
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  change?: { type: 'increase' | 'decrease'; value: string; period?: string };
+  icon: React.ElementType;
+  color: string;
+  isCurrency?: boolean;
+  isPercentage?: boolean;
+}
+
+const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon: Icon, color, isCurrency, isPercentage }) => (
   <div className="bg-white rounded-lg shadow-md p-6">
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        <p className="text-2xl font-bold text-gray-900">
+          {isCurrency ? formatKWDEnglish(Number(value)) : value}
+          {isPercentage ? '%' : ''}
+        </p>
       </div>
       <div className={`p-3 rounded-full ${color}`}>
         <Icon className="h-6 w-6 text-white" />
       </div>
     </div>
-    <div className="mt-4 flex items-center">
-      {change.type === 'increase' ? (
-        <ArrowUpRight className="h-4 w-4 text-green-500" />
-      ) : (
-        <ArrowDownRight className="h-4 w-4 text-red-500" />
-      )}
-      <span className={`text-sm font-medium ml-1 ${
-        change.type === 'increase' ? 'text-green-600' : 'text-red-600'
-      }`}>
-        {change.value}
-      </span>
-      <span className="text-sm text-gray-500 ml-1">{change.period}</span>
-    </div>
+    {change && (
+      <div className="mt-4 flex items-center">
+        {change.type === 'increase' ? (
+          <ArrowUpRight className="h-4 w-4 text-green-500" />
+        ) : (
+          <ArrowDownRight className="h-4 w-4 text-red-500" />
+        )}
+        <span className={`text-sm font-medium ml-1 ${
+          change.type === 'increase' ? 'text-green-600' : 'text-red-600'
+        }`}>
+          {change.value}
+        </span>
+        {change.period && <span className="text-sm text-gray-500 ml-1">{change.period}</span>}
+      </div>
+    )}
   </div>
 );
 
-const SearchAnalyticsWidget = () => {
-  const searchData = [
-    { term: 'iPhone 15', count: 245, change: '+12%' },
-    { term: 'Samsung S24', count: 189, change: '+28%' },
-    { term: 'AirPods Pro', count: 156, change: '-5%' },
-    { term: 'MacBook Pro', count: 132, change: '+8%' },
-    { term: 'Xiaomi', count: 98, change: '+15%' }
-  ];
-  
+
+// Simplified Widgets - these could be further enhanced with ChartWidget from AdminAnalytics
+const SearchAnalyticsWidget: React.FC<{topQueriesData: ProductPerformance[] | undefined}> = ({topQueriesData = []}) => { // Renamed prop
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Top Search Queries</h2>
-        <Search className="h-5 w-5 text-gray-400" />
+        <h2 className="text-lg font-semibold text-gray-900">Top Products (by Revenue/Units)</h2>
+        <SearchIcon className="h-5 w-5 text-gray-400" />
       </div>
       <div className="space-y-4">
-        {searchData.map((item, index) => (
-          <div key={index} className="flex items-center justify-between">
+        {topQueriesData.slice(0,5).map((item, index) => (
+          <div key={item.id || index} className="flex items-center justify-between">
             <div className="flex items-center">
               <span className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">
                 {index + 1}
               </span>
-              <span className="text-gray-900 font-medium">{item.term}</span>
+              <span className="text-gray-900 font-medium">{item.name}</span>
             </div>
             <div className="flex items-center">
-              <span className="text-gray-900 font-medium mr-3">{item.count}</span>
-              <span className={item.change.startsWith('+') ? 'text-green-600' : 'text-red-600'}>
-                {item.change}
-              </span>
+              <span className="text-gray-900 font-medium mr-3">{formatKWDEnglish(item.revenue)} ({item.units} units)</span>
+              {item.changePercentage !== undefined && item.trend && (
+                <span className={(item.trend === 'up' ? 'text-green-600' : item.trend === 'down' ? 'text-red-600' : 'text-gray-600')}>
+                  {item.trend === 'up' ? '+' : item.trend === 'down' ? '-' : ''}{item.changePercentage}%
+                </span>
+              )}
             </div>
           </div>
         ))}
       </div>
       <div className="mt-6 pt-4 border-t border-gray-200">
-        <button className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
+        <Link to="/admin/search-analytics" className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
           View all search analytics
           <ArrowUpRight className="h-4 w-4 ml-1" />
-        </button>
+        </Link>
       </div>
     </div>
   );
 };
 
-const RecentUsersWidget = () => {
-  const users = [
-    { name: 'Ahmed Al-Sayed', email: 'ahmed@example.com', status: 'active', joined: '2 hours ago' },
-    { name: 'Fatima Hassan', email: 'fatima@example.com', status: 'active', joined: '5 hours ago' },
-    { name: 'Mohammed Ali', email: 'mohammed@example.com', status: 'pending', joined: '1 day ago' },
-    { name: 'Sara Ahmed', email: 'sara@example.com', status: 'active', joined: '2 days ago' }
+const RecentUsersWidget: React.FC<{userMetricsData: UserMetrics | undefined}> = ({userMetricsData}) => { // Renamed prop
+  // This would ideally fetch a few recent user profiles from AuthService for a more dynamic list
+  const mockRecentUsers = [
+    { name: 'User Alpha (Mock)', email: 'alpha@example.com', status: 'active', joined: '1 hour ago' },
+    { name: 'User Beta (Mock)', email: 'beta@example.com', status: 'pending', joined: '3 hours ago' },
   ];
-  
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Recent Users</h2>
+        <h2 className="text-lg font-semibold text-gray-900">User Activity Summary</h2>
         <Users className="h-5 w-5 text-gray-400" />
       </div>
-      <div className="space-y-4">
-        {users.map((user, index) => (
-          <div key={index} className="flex items-center justify-between">
+      <div className="space-y-2 mb-4">
+        <p>New Users: <span className="font-bold">{userMetricsData?.newUsers || 0}</span></p>
+        <p>Active Users: <span className="font-bold">{userMetricsData?.activeUsers || 0}</span></p>
+        <p>Returning Users: <span className="font-bold">{userMetricsData?.returningUsers || 0}</span></p>
+      </div>
+      <div className="space-y-3">
+        <h4 className="text-sm font-medium text-gray-700">Recent Signups (Mock):</h4>
+        {mockRecentUsers.map((user, index) => (
+          <div key={index} className="flex items-center justify-between text-xs">
             <div>
               <p className="font-medium text-gray-900">{user.name}</p>
-              <p className="text-sm text-gray-500">{user.email}</p>
+              <p className="text-gray-500">{user.email}</p>
             </div>
-            <div className="flex items-center">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                 user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
               }`}>
                 {user.status}
-              </span>
-              <span className="text-xs text-gray-500 ml-3">{user.joined}</span>
-            </div>
+            </span>
           </div>
         ))}
       </div>
       <div className="mt-6 pt-4 border-t border-gray-200">
-        <button className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
+         <Link to="/admin/users" className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
           View all users
           <ArrowUpRight className="h-4 w-4 ml-1" />
-        </button>
+        </Link>
       </div>
     </div>
   );
 };
 
-const SalesOverviewWidget = () => {
+const SalesOverviewWidget: React.FC<{salesTrendData: SalesData[] | undefined, salesOverviewData: AnalyticsDashboard['salesOverview'] | undefined}> = ({salesTrendData, salesOverviewData}) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-gray-900">Sales Overview</h2>
-        <div className="flex space-x-2">
-          <button className="px-3 py-1 text-xs font-medium bg-primary text-white rounded-lg">Weekly</button>
-          <button className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg">Monthly</button>
-          <button className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg">Yearly</button>
-        </div>
       </div>
       
-      <div className="h-64 flex items-center justify-center">
-        <div className="text-center">
-          <BarChart2 className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">Sales chart visualization would appear here</p>
-          <p className="text-xs text-gray-400 mt-1">Using Recharts library in the actual implementation</p>
-        </div>
+      <div className="h-64 flex items-center justify-center bg-gray-50 rounded-md">
+        {salesTrendData && salesTrendData.length > 0 ? (
+          <div className="text-sm text-gray-700 p-2">
+            <LineChartIcon className="h-10 w-10 mx-auto text-blue-500 mb-2" />
+            Sales Trend: {salesTrendData.length} data points.
+            Max Revenue: {formatKWDEnglish(Math.max(...salesTrendData.map(s=>s.revenue), 0))}
+            {/* Actual chart rendering with Recharts would go here */}
+          </div>
+        ) : (
+          <p className="text-gray-500">Sales chart data not available.</p>
+        )}
       </div>
       
       <div className="grid grid-cols-3 gap-4 mt-6">
         <div className="text-center p-3 bg-blue-50 rounded-lg">
           <p className="text-sm text-gray-600">Total Sales</p>
-          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(38430.500)}</p>
+          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(salesOverviewData?.totalRevenue || 0)}</p>
         </div>
         <div className="text-center p-3 bg-green-50 rounded-lg">
           <p className="text-sm text-gray-600">Conversion</p>
-          <p className="text-xl font-bold text-gray-900">3.6%</p>
+          <p className="text-xl font-bold text-gray-900">{salesOverviewData?.conversionRate?.toFixed(1) || 0}%</p>
         </div>
         <div className="text-center p-3 bg-purple-50 rounded-lg">
           <p className="text-sm text-gray-600">Avg. Order</p>
-          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(308.250)}</p>
+          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(salesOverviewData?.averageOrderValue || 0)}</p>
         </div>
       </div>
     </div>
   );
 };
 
-const OrderStatusWidget = () => {
-  const statuses = [
-    { name: 'Pending', count: 24, color: 'bg-yellow-500' },
-    { name: 'Processing', count: 13, color: 'bg-blue-500' },
-    { name: 'Shipped', count: 8, color: 'bg-purple-500' },
-    { name: 'Delivered', count: 42, color: 'bg-green-500' },
-    { name: 'Cancelled', count: 3, color: 'bg-red-500' }
+const OrderStatusWidget: React.FC<{ salesOverviewData: AnalyticsDashboard['salesOverview'] | undefined }> = ({ salesOverviewData }) => {
+  // This widget needs actual order counts by status.
+  // This is a simplified placeholder based on total orders.
+  const totalOrders = salesOverviewData?.totalOrders || 0;
+  const statuses = [ // Example distribution, should come from actual data
+    { name: 'Pending', count: Math.floor(totalOrders * 0.1), color: 'bg-yellow-500' },
+    { name: 'Processing', count: Math.floor(totalOrders * 0.15), color: 'bg-blue-500' },
+    { name: 'Shipped', count: Math.floor(totalOrders * 0.2), color: 'bg-purple-500' },
+    { name: 'Delivered', count: Math.floor(totalOrders * 0.5), color: 'bg-green-500' },
+    { name: 'Cancelled', count: Math.floor(totalOrders * 0.05), color: 'bg-red-500' }
   ];
   
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Order Status</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Order Status Summary</h2>
         <PieChart className="h-5 w-5 text-gray-400" />
       </div>
       
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {statuses.map((status) => (
           <div key={status.name} className="text-center">
             <div className={`w-12 h-12 ${status.color} rounded-full flex items-center justify-center text-white font-bold mx-auto mb-2`}>
@@ -199,21 +217,21 @@ const OrderStatusWidget = () => {
       </div>
       
       <div className="mt-6 pt-4 border-t border-gray-200">
-        <button className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
+        <Link to="/admin/orders" className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
           View all orders
           <ArrowUpRight className="h-4 w-4 ml-1" />
-        </button>
+        </Link>
       </div>
     </div>
   );
 };
 
-const QuickActionsWidget = () => {
+const QuickActionsWidget: React.FC = () => {
   const actions = [
     { name: 'Add Product', icon: Package, color: 'bg-blue-500', link: '/admin/products' },
-    { name: 'Process Orders', icon: ShoppingCart, color: 'bg-green-500', link: '/admin/orders' },
+    { name: 'View Orders', icon: ShoppingCart, color: 'bg-green-500', link: '/admin/orders' },
     { name: 'Manage Users', icon: Users, color: 'bg-purple-500', link: '/admin/users' },
-    { name: 'Export Reports', icon: Download, color: 'bg-amber-500', link: '#' }
+    { name: 'Full Analytics', icon: BarChart2, color: 'bg-amber-500', link: '/admin/analytics' }
   ];
   
   return (
@@ -221,16 +239,16 @@ const QuickActionsWidget = () => {
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {actions.map((action) => (
-          <a 
+          <Link
             key={action.name}
-            href={action.link}
+            to={action.link}
             className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className={`p-3 ${action.color} rounded-full text-white mb-3`}>
               <action.icon className="h-6 w-6" />
             </div>
-            <span className="text-sm font-medium text-gray-900">{action.name}</span>
-          </a>
+            <span className="text-sm font-medium text-gray-900 text-center">{action.name}</span>
+          </Link>
         ))}
       </div>
     </div>
@@ -238,121 +256,103 @@ const QuickActionsWidget = () => {
 };
 
 const AdminDashboard: React.FC = () => {
-  const { state, dispatch } = useAdmin();
+  const { state: adminState, dispatch: adminDispatch } = useAdmin();
+  const [dashboardData, setDashboardData] = useState<AnalyticsDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [dateFilter, setDateFilter] = useState<AnalyticsFilter>({ dateRange: 'week' }); // Default to 'week'
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Callback to fetch dashboard data
+  const fetchDashboardData = useCallback(async () => {
+    if (!refreshing) setLoading(true); // Show main loader only on initial load or filter change, not manual refresh
+    try {
+      const data = await analyticsService.getDashboardAnalytics(dateFilter);
+      setDashboardData(data);
+      // Update AdminContext's analytics part if still needed by some components, though ideally props are passed.
+      if (data.salesOverview) {
+        adminDispatch({ type: 'SET_ANALYTICS', payload: {
+            totalRevenue: data.salesOverview.totalRevenue,
+            totalOrders: data.salesOverview.totalOrders,
+            averageOrderValue: data.salesOverview.averageOrderValue,
+            // Ensure SalesAnalytics type in AdminContext matches or is compatible
+        } });
+      }
+      // Note: adminState.products for "Total Products" card is populated by AdminContext's own useEffect.
+      // Inventory alerts would need a separate fetching mechanism if they are to be dynamic.
+    } catch (error) {
+      console.error("AdminDashboard: Error fetching dashboard analytics:", error);
+      // Optionally set an error state to display to the user
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [dateFilter, adminDispatch, refreshing]); // Added refreshing to dependencies
 
   useEffect(() => {
-    // Load initial data
-    dispatch({ type: 'SET_PRODUCTS', payload: products });
-    
-    // Mock analytics data
-    const mockAnalytics = {
-      totalRevenue: 38430.500,
-      totalOrders: 1247,
-      averageOrderValue: 308.250,
-      topSellingProducts: [
-        { productId: '1', productName: 'iPhone 15 Pro', unitsSold: 156, revenue: 62322.000 },
-        { productId: '2', productName: 'MacBook Pro M3', unitsSold: 89, revenue: 57841.100 },
-        { productId: '3', productName: 'AirPods Pro', unitsSold: 234, revenue: 21037.600 },
-      ],
-      revenueByCategory: {
-        smartphones: 13815.000,
-        laptops: 11674.000,
-        headphones: 6762.000,
-        tablets: 4605.000,
-        accessories: 1574.500
-      },
-      salesTrend: [
-        { date: '2024-01-01', revenue: 3684.000, orders: 120 },
-        { date: '2024-01-02', revenue: 4605.000, orders: 150 },
-        { date: '2024-01-03', revenue: 5526.000, orders: 180 },
-        { date: '2024-01-04', revenue: 4294.000, orders: 140 },
-        { date: '2024-01-05', revenue: 4912.000, orders: 160 },
-      ]
-    };
-    dispatch({ type: 'SET_ANALYTICS', payload: mockAnalytics });
+    fetchDashboardData();
+  }, [fetchDashboardData]); // fetchDashboardData is memoized by useCallback
 
-    // Mock inventory alerts
-    const mockAlerts = [
-      {
-        id: '1',
-        productId: 'macbook-pro-m3',
-        productName: 'MacBook Pro 14-inch M3',
-        currentStock: 3,
-        threshold: 5,
-        severity: 'low' as const,
-        createdAt: new Date()
-      },
-      {
-        id: '2',
-        productId: 'dell-xps-13',
-        productName: 'Dell XPS 13',
-        currentStock: 1,
-        threshold: 5,
-        severity: 'critical' as const,
-        createdAt: new Date()
-      }
-    ];
-    dispatch({ type: 'SET_INVENTORY_ALERTS', payload: mockAlerts });
-  }, [dispatch]);
+  const handleRefresh = () => {
+    setRefreshing(true); // This will trigger the fetchDashboardData effect if it's in its deps.
+                         // Or call fetchDashboardData directly if preferred.
+    fetchDashboardData();
+  };
 
-  // Dashboard stats with enhanced data
-  const dashboardStats = [
+  const handleDateFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setDateFilter({ dateRange: event.target.value as AnalyticsFilter['dateRange'] });
+    // fetchDashboardData will be called by useEffect due to dateFilter change
+  };
+
+
+  // Construct dashboardStats once dashboardData is available
+  const dashboardStats: StatCardProps[] = dashboardData ? [
     { 
       title: 'Total Revenue', 
-      value: formatKWD(state.analytics?.totalRevenue || 0), 
-      change: { type: 'increase', value: '+12.5%', period: 'from last month' },
+      value: dashboardData.salesOverview.totalRevenue,
+      change: {
+        type: (dashboardData.salesOverview.revenueChange ?? 0) >= 0 ? 'increase' : 'decrease',
+        value: `${dashboardData.salesOverview.revenueChange?.toFixed(1) || 0}%`
+      },
       icon: DollarSign,
-      color: 'bg-blue-600'
+      color: 'bg-blue-600',
+      isCurrency: true,
     },
     { 
       title: 'Total Orders', 
-      value: state.analytics?.totalOrders.toLocaleString() || '0', 
-      change: { type: 'increase', value: '+8.2%', period: 'from last month' },
+      value: dashboardData.salesOverview.totalOrders,
+      change: {
+        type: (dashboardData.salesOverview.ordersChange ?? 0) >= 0 ? 'increase' : 'decrease',
+        value: `${dashboardData.salesOverview.ordersChange?.toFixed(1) || 0}%`
+      },
       icon: ShoppingCart,
       color: 'bg-green-600'
     },
     { 
       title: 'Total Products', 
-      value: state.products.length.toString(), 
-      change: { type: 'increase', value: '+3.1%', period: 'from last month' },
+      value: adminState.products.length, // Sourced from AdminContext, which should load products
       icon: Package,
       color: 'bg-purple-600'
     },
     { 
-      title: 'Average Order Value', 
-      value: formatKWD(state.analytics?.averageOrderValue || 0), 
-      change: { type: 'decrease', value: '-2.4%', period: 'from last month' },
-      icon: TrendingDown,
-      color: 'bg-amber-600'
+      title: 'Avg. Order Value',
+      value: dashboardData.salesOverview.averageOrderValue,
+      icon: TrendingUp,
+      color: 'bg-amber-600',
+      isCurrency: true,
     }
-  ];
+  ] : [];
+
+  if (loading && !dashboardData && !refreshing) { // Show full page loader only on initial load
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="ml-3 text-lg">Loading Dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {state.currentUser?.name}</p>
-        </div>
-        <div className="mt-4 md:mt-0 flex items-center space-x-4">
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <select className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-              <option>Last 7 days</option>
-              <option>Last 30 days</option>
-              <option>Last 90 days</option>
-              <option>This year</option>
-            </select>
-          </div>
-          <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 flex items-center space-x-2">
-            <Download className="h-4 w-4" />
-            <span>Export</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {dashboardStats.map((stat) => (
           <StatCard 
