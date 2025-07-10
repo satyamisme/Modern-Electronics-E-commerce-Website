@@ -174,30 +174,85 @@ export class AuthService {
     return profile?.role === 'admin' || profile?.role === 'super_admin';
   }
 
-  // Placeholder for a more complex permission system if needed
-  // This would likely involve a separate 'permissions' or 'role_permissions' table
+  /**
+   * Defines the permissions associated with each user role.
+   * In a real application, this mapping might come from a database or a more dynamic configuration.
+   * '*' means all permissions. 'resource.*' means all permissions for that resource.
+   */
+  private static readonly permissionsByRole: Readonly<Record<Profile['role'], string[]>> = {
+    customer: ['orders.read_own', 'profile.update_own', 'reviews.create'],
+    editor: [
+      'products.read',
+      'products.update',
+      'categories.read',
+      'categories.update',
+      'orders.read_own',
+      'profile.update_own',
+      'changelog.read',
+    ],
+    manager: [
+      'products.read',
+      'products.update',
+      'products.create',
+      'categories.*',
+      'orders.read',
+      'orders.update',
+      'users.read', // Can view users but perhaps not edit roles
+      'profile.update_own',
+      'analytics.read_basic', // Example of more granular permission
+      'changelog.read',
+    ],
+    admin: [
+      'products.*',
+      'orders.*',
+      'users.read',
+      'users.update_role', // Admins can change roles
+      'settings.read',
+      'settings.update',
+      'analytics.read',
+      'changelog.*',
+      'profile.update_own',
+    ],
+    super_admin: ['*'], // Wildcard for all permissions
+    viewer: [ // Example role that can only read things
+      'products.read',
+      'categories.read',
+      'orders.read',
+      'users.read',
+      'analytics.read',
+      'changelog.read',
+      'profile.update_own', // Can still update their own profile
+    ],
+  };
+
+  /**
+   * Retrieves the list of permission strings for a given user role.
+   * @param role - The user's role.
+   * @returns An array of permission strings.
+   */
+  static getUserPermissions(role: Profile['role']): string[] {
+    return this.permissionsByRole[role] || [];
+  }
+
+  /**
+   * Checks if the current user has a specific permission based on their role.
+   * This method is suitable for server-side checks or one-off client checks.
+   * For frequent UI checks, permissions should be loaded into AuthContext state.
+   * @param permissionKey - The permission string to check (e.g., 'products.create').
+   * @returns A promise that resolves to true if the user has the permission, false otherwise.
+   */
   static async hasPermission(permissionKey: string): Promise<boolean> {
     const profile = await this.getCurrentProfile();
     if (!profile) return false;
 
-    // Simple role-based permission mapping (example)
-    const permissionsByRole: Record<Profile['role'], string[]> = {
-      customer: ['orders.read_own', 'profile.update_own'],
-      editor: ['products.read', 'products.update', 'orders.read_own', 'profile.update_own'],
-      manager: ['products.read', 'products.update', 'orders.read', 'orders.update', 'users.read', 'profile.update_own'],
-      admin: ['products.*', 'orders.*', 'users.*', 'settings.read', 'analytics.read', 'profile.update_own'],
-      super_admin: ['*'], // Wildcard for all permissions
-      viewer: ['*.read', 'profile.update_own'],
-    };
-
-    const userPermissions = permissionsByRole[profile.role] || [];
+    const userPermissions = this.getUserPermissions(profile.role);
 
     if (userPermissions.includes('*')) return true; // Super admin has all permissions
     if (userPermissions.includes(permissionKey)) return true;
 
     // Handle wildcard permissions like 'products.*'
-    const mainPermission = permissionKey.split('.')[0];
-    if (userPermissions.includes(`${mainPermission}.*`)) return true;
+    const mainPermissionArea = permissionKey.split('.')[0];
+    if (userPermissions.includes(`${mainPermissionArea}.*`)) return true;
 
     return false;
   }
@@ -212,7 +267,7 @@ export class AuthService {
     ascending?: boolean;
   }): Promise<Profile[]> {
     // Add permission check here: e.g. if (!await this.hasPermission('users.read')) throw new Error('Permission Denied');
-    
+
     let query = supabase.from('profiles').select('*');
 
     if (filters?.role) {

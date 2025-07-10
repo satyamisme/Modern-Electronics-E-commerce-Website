@@ -8,16 +8,16 @@ import { ChangelogEntry, ChangeItem } from '../types/changelog'; // Using existi
 
 // For now, we'll use the existing ChangelogEntry type and simulate DB interaction.
 // If 'changelog_entries' table was in supabase.ts, we'd use its generated types:
-// type ChangelogEntryDB = Database['public']['Tables']['changelog_entries']['Row'];
-// type ChangelogEntryInsert = Database['public']['Tables']['changelog_entries']['Insert'];
-// type ChangelogEntryUpdate = Database['public']['Tables']['changelog_entries']['Update'];
+type ChangelogEntryDBRow = Database['public']['Tables'] extends { changelog_entries: infer T } ? T['Row'] : never;
+type ChangelogEntryDBInsert = Database['public']['Tables'] extends { changelog_entries: infer T } ? T['Insert'] : never;
+type ChangelogEntryDBUpdate = Database['public']['Tables'] extends { changelog_entries: infer T } ? T['Update'] : never;
 
 
 // Mock data store (simulates a database table).
-// In a real implementation, this would be replaced by Supabase calls.
+// This will be removed when Supabase integration is complete.
 let mockChangelogEntries: ChangelogEntry[] = [
   {
-    id: 'cl-entry-1', // Ensure IDs are unique if not using version
+    id: 'cl-entry-1',
     version: '1.2.0',
     date: new Date('2024-01-20T10:00:00Z'),
     author: 'Admin User',
@@ -48,173 +48,166 @@ let mockChangelogEntries: ChangelogEntry[] = [
 
 /**
  * Service class for managing changelog entries.
- * Assumes a Supabase table named 'changelog_entries' with columns similar to the ChangelogEntry type.
- *
- * Note: This service is currently mocked. Full implementation requires creating the
- * 'changelog_entries' table in Supabase and replacing mock logic with Supabase client calls.
+ * Assumes a Supabase table named 'changelog_entries' with columns corresponding to the ChangelogEntry type.
+ * The 'changes' property is expected to be stored as JSONB in Supabase.
  */
 export class ChangelogService {
+  private static tableName = 'changelog_entries';
+
   /**
-   * Fetches changelog entries, with optional filtering and pagination.
+   * Transforms a database row into an application-level ChangelogEntry object.
+   * Specifically converts the date string to a Date object.
+   * @param dbEntry - The changelog entry object from the database.
+   * @returns A ChangelogEntry object.
+   */
+  private static_transformDBRowToEntry(dbEntry: ChangelogEntryDBRow): ChangelogEntry {
+    return {
+      ...dbEntry,
+      date: new Date(dbEntry.date), // Ensure date is a Date object
+      // `changes` (JSONB) and `tags` (TEXT[]) should be correctly cast by Supabase client.
+      // If `changes` items need their `id`s to be strings, ensure they are stored or cast as such.
+      changes: (dbEntry.changes as unknown as ChangeItem[]) || [], // Cast if Supabase returns JSON
+      tags: dbEntry.tags || [],
+    };
+  }
+
+  /**
+   * Fetches changelog entries from Supabase, with optional filtering and pagination.
    * Entries are sorted by date in descending order by default.
    * @param filters - Optional filters for type, searchTerm, limit, and offset.
    * @returns A promise that resolves to an array of ChangelogEntry objects.
+   * @throws Will throw an error if fetching fails.
    */
   static async getEntries(filters?: {
-    type?: ChangelogEntryType | ''; // Allow empty string for 'all types'
+    type?: ChangelogEntryType | '';
     searchTerm?: string;
     limit?: number;
     offset?: number;
   }): Promise<ChangelogEntry[]> {
-    console.warn("ChangelogService.getEntries: Using mocked data. Implement database interaction.", filters);
-    // TODO: Replace mock with actual Supabase call.
-    // Example:
-    // let query = supabase.from('changelog_entries').select('*').order('date', { ascending: false });
-    // if (filters?.type) query = query.eq('type', filters.type);
-    // if (filters?.searchTerm) {
-    //   const search = filters.searchTerm;
-    //   query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,version.ilike.%${search}%,author.ilike.%${search}%`);
-    // }
-    // if (filters?.limit) query = query.limit(filters.limit);
-    // if (filters?.offset) query = query.range(filters.offset, filters.offset + filters.limit - 1);
-    // const { data, error } = await query;
-    // if (error) {
-    //   console.error('ChangelogService.getEntries - Error:', error);
-    //   throw error;
-    // }
-    // return (data || []).map(entry => ({...entry, date: new Date(entry.date)})); // Ensure date is a Date object
+    let query = supabase.from(this.tableName).select('*').order('date', { ascending: false });
 
-    let results = [...mockChangelogEntries].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     if (filters?.type) {
-        results = results.filter(e => e.type === filters.type);
+      query = query.eq('type', filters.type);
     }
     if (filters?.searchTerm) {
-        const term = filters.searchTerm.toLowerCase();
-        results = results.filter(e =>
-            e.title.toLowerCase().includes(term) ||
-            e.description.toLowerCase().includes(term) ||
-            e.version.toLowerCase().includes(term) ||
-            e.author.toLowerCase().includes(term) ||
-            (e.tags && e.tags.some(tag => tag.toLowerCase().includes(term)))
-        );
+      const term = filters.searchTerm.toLowerCase();
+      // Example of searching multiple text fields. For JSONB 'changes', FTS or specific JSON operators would be needed.
+      query = query.or(`title.ilike.%${term}%,description.ilike.%${term}%,version.ilike.%${term}%,author.ilike.%${term}%,tags.cs.{${term}}`);
     }
-    // Skipping limit/offset for current mock implementation for simplicity
-    return Promise.resolve(results);
+    if (filters?.limit !== undefined && filters?.offset !== undefined) {
+      query = query.range(filters.offset, filters.offset + filters.limit - 1);
+    } else if (filters?.limit !== undefined) {
+      query = query.limit(filters.limit);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('ChangelogService.getEntries - Error:', error);
+      throw error;
+    }
+    return (data || []).map(this.static_transformDBRowToEntry);
   }
 
   /**
-   * Fetches a single changelog entry by its ID or version.
-   * @param idOrVersion - The ID or version string of the entry.
+   * Fetches a single changelog entry by its ID from Supabase.
+   * @param id - The ID of the entry.
    * @returns A promise that resolves to a ChangelogEntry object or null if not found.
+   * @throws Will throw an error if fetching fails (other than not found).
    */
-  static async getEntry(idOrVersion: string): Promise<ChangelogEntry | null> {
-    console.warn(`ChangelogService.getEntry for '${idOrVersion}': Using mocked data.`);
-    // TODO: Replace mock with actual Supabase call.
-    // Example:
-    // const { data, error } = await supabase.from('changelog_entries').select('*')
-    //   .or(`id.eq.${idOrVersion},version.eq.${idOrVersion}`) // If ID is not version
-    //   .maybeSingle();
-    // if (error) {
-    //   console.error(`ChangelogService.getEntry - Error for ${idOrVersion}:`, error);
-    //   if (error.code === 'PGRST116') return null;
-    //   throw error;
-    // }
-    // return data ? {...data, date: new Date(data.date)} : null;
-    const entry = mockChangelogEntries.find(e => e.id === idOrVersion || e.version === idOrVersion);
-    return Promise.resolve(entry ? {...entry, date: new Date(entry.date)} : null);
+  static async getEntry(id: string): Promise<ChangelogEntry | null> {
+    const { data, error } = await supabase
+      .from(this.tableName)
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error(`ChangelogService.getEntry - Error for ID ${id}:`, error);
+      // PGRST116 is " بالضبط صف واحد ينتهك سياسة أمان على مستوى الصف للعلاقة" (Row not found for .single())
+      // For maybeSingle, error is null if not found, data is null.
+      throw error; // Re-throw other errors
+    }
+    return data ? this.static_transformDBRowToEntry(data) : null;
   }
 
   /**
-   * Creates a new changelog entry.
-   * @param entryData - Data for the new entry. 'id' will be auto-generated or based on version. 'date' should be a string in YYYY-MM-DD format.
+   * Creates a new changelog entry in Supabase.
+   * @param entryData - Data for the new entry. `id` is typically generated by the DB. `date` should be a string (YYYY-MM-DD).
    * @returns A promise that resolves to the created ChangelogEntry object.
+   * @throws Will throw an error if creation fails.
    */
-  static async createEntry(entryData: Omit<ChangelogEntry, 'id' | 'date'> & { date: string }): Promise<ChangelogEntry> {
-    console.warn("ChangelogService.createEntry: Using mocked data. No actual database insert.", entryData);
-    // TODO: Replace mock with actual Supabase call.
-    // Example:
-    // const entryToInsert = {
-    //   ...entryData,
-    //   date: new Date(entryData.date).toISOString().split('T')[0], // Ensure date is YYYY-MM-DD for DB
-    //   tags: entryData.tags || [],
-    //   changes: entryData.changes.map(c => ({...c, id: c.id || crypto.randomUUID() })) // Ensure change items have IDs
-    // };
-    // delete (entryToInsert as any).id; // Remove id if DB generates it
-    // const { data, error } = await supabase.from('changelog_entries').insert(entryToInsert).select().single();
-    // if (error || !data) {
-    //   console.error('ChangelogService.createEntry - Error:', error);
-    //   throw error || new Error("Failed to create changelog entry");
-    // }
-    // return {...data, date: new Date(data.date)};
-
-    const newEntry: ChangelogEntry = {
-        ...entryData,
-        id: entryData.version || `custom-${Date.now()}`, // Mock ID generation
-        date: new Date(entryData.date), // Convert string date to Date object
-        changes: entryData.changes.map((c, i) => ({
-            ...c,
-            id: c.id || `change-${Date.now()}-${i}` // Ensure each change has an ID
-        })),
-        tags: entryData.tags || []
+  static async createEntry(entryData: Omit<ChangelogEntryDBInsert, 'id' | 'created_at' | 'updated_at' | 'date'> & { date: string }): Promise<ChangelogEntry> {
+    const entryToInsert: ChangelogEntryDBInsert = {
+      ...entryData,
+      date: new Date(entryData.date).toISOString().split('T')[0], // Store date as YYYY-MM-DD string
+      tags: entryData.tags || [],
+      // Ensure 'changes' items have IDs if your DB schema for the JSONB doesn't auto-generate them or if you need them client-side.
+      // If 'changes.id' is not part of your DB schema for the JSONB, remove it here.
+      changes: entryData.changes.map(c => ({ ...c, id: c.id || crypto.randomUUID() })),
     };
-    mockChangelogEntries.unshift(newEntry); // Add to top for visibility in mock
-    return Promise.resolve(newEntry);
+
+    const { data, error } = await supabase
+      .from(this.tableName)
+      .insert(entryToInsert)
+      .select()
+      .single();
+
+    if (error || !data) {
+      console.error('ChangelogService.createEntry - Error:', error);
+      throw error || new Error("Failed to create changelog entry or no data returned.");
+    }
+    return this.static_transformDBRowToEntry(data);
   }
 
   /**
-   * Updates an existing changelog entry.
+   * Updates an existing changelog entry in Supabase.
    * @param id - The ID of the entry to update.
-   * @param updates - Partial data to update the entry with. 'date' can be a string in YYYY-MM-DD format.
+   * @param updates - Partial data to update the entry with. `date` can be a string (YYYY-MM-DD).
    * @returns A promise that resolves to the updated ChangelogEntry object or null if not found.
+   * @throws Will throw an error if update fails.
    */
-  static async updateEntry(id: string, updates: Partial<Omit<ChangelogEntry, 'id' | 'date'> & { date?: string }>): Promise<ChangelogEntry | null> {
-    console.warn(`ChangelogService.updateEntry for ID '${id}': Using mocked data.`, updates);
-    // TODO: Replace mock with actual Supabase call.
-    // Example:
-    // const updateData = {...updates};
-    // if (updates.date) updateData.date = new Date(updates.date).toISOString().split('T')[0];
-    // if (updates.tags) updateData.tags = updates.tags || [];
-    // if (updates.changes) updateData.changes = updates.changes.map(c => ({...c, id: c.id || crypto.randomUUID()}));
+  static async updateEntry(id: string, updates: Partial<Omit<ChangelogEntryDBUpdate, 'id' | 'date' | 'created_at' | 'updated_at'> & { date?: string }>): Promise<ChangelogEntry | null> {
+    const updateData: Partial<ChangelogEntryDBUpdate> = {...updates};
+    if (updates.date) {
+      updateData.date = new Date(updates.date).toISOString().split('T')[0];
+    }
+    if (updates.changes) {
+        // Ensure changes items have IDs if necessary for your schema/application logic
+        updateData.changes = updates.changes.map(c => ({...c, id: c.id || crypto.randomUUID() })) as any; // Cast to any if type mismatch
+    }
+    updateData.updated_at = new Date().toISOString();
 
-    // const { data, error } = await supabase.from('changelog_entries').update(updateData).eq('id', id).select().single();
-    // if (error || !data) {
-    //    if (error && error.code === 'PGRST116') return null; // Not found
-    //   console.error(`ChangelogService.updateEntry - Error for ID ${id}:`, error);
-    //   throw error || new Error("Failed to update changelog entry");
-    // }
-    // return {...data, date: new Date(data.date)};
 
-    const index = mockChangelogEntries.findIndex(e => e.id === id);
-    if (index === -1) return Promise.resolve(null);
+    const { data, error } = await supabase
+      .from(this.tableName)
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
 
-    const updatedEntry = {
-        ...mockChangelogEntries[index],
-        ...updates,
-        date: updates.date ? new Date(updates.date) : new Date(mockChangelogEntries[index].date),
-        tags: updates.tags || mockChangelogEntries[index].tags,
-        changes: updates.changes ? updates.changes.map((c,i) => ({...c, id: c.id || `chg-upd-${Date.now()}-${i}`})) as ChangeItem[] : mockChangelogEntries[index].changes,
-    };
-    mockChangelogEntries[index] = updatedEntry;
-    return Promise.resolve(updatedEntry);
+    if (error || !data) {
+       if (error && error.code === 'PGRST116') { // Row not found during update.
+         console.warn(`ChangelogService.updateEntry - Entry with ID ${id} not found.`);
+         return null;
+       }
+      console.error(`ChangelogService.updateEntry - Error for ID ${id}:`, error);
+      throw error || new Error("Failed to update changelog entry or no data returned.");
+    }
+    return this.static_transformDBRowToEntry(data);
   }
 
   /**
-   * Deletes a changelog entry.
+   * Deletes a changelog entry from Supabase.
    * @param id - The ID of the entry to delete.
-   * @returns A promise that resolves to true if deletion was successful, false otherwise.
+   * @returns A promise that resolves to true if deletion was successful.
+   * @throws Will throw an error if deletion fails.
    */
   static async deleteEntry(id: string): Promise<boolean> {
-    console.warn(`ChangelogService.deleteEntry for ID '${id}': Using mocked data.`);
-    // TODO: Replace mock with actual Supabase call.
-    // Example:
-    // const { error } = await supabase.from('changelog_entries').delete().eq('id', id);
-    // if (error) {
-    //   console.error(`ChangelogService.deleteEntry - Error for ID ${id}:`, error);
-    //   throw error;
-    // }
-    // return !error;
-    const initialLength = mockChangelogEntries.length;
-    mockChangelogEntries = mockChangelogEntries.filter(e => e.id !== id);
-    return Promise.resolve(mockChangelogEntries.length < initialLength);
+    const { error } = await supabase.from(this.tableName).delete().eq('id', id);
+    if (error) {
+      console.error(`ChangelogService.deleteEntry - Error for ID ${id}:`, error);
+      throw error;
+    }
+    return true; // If no error, deletion was successful (or row didn't exist, which is fine for delete)
   }
 }

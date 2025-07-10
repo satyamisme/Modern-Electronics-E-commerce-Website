@@ -79,49 +79,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (supabaseUser && session) {
       dispatch({ type: 'SET_LOADING', payload: true });
       try {
-        const profile = await AuthService.getCurrentProfile(); // This uses supabase.auth.getUser() internally
+        const profile = await AuthService.getCurrentProfile();
         if (profile) {
-          // TODO: Fetch actual permissions based on role from AuthService or a dedicated PermissionService
-          // For now, permissions array will be empty or use a default set based on role.
-          const permissions = await AuthService.hasPermission(`${profile.role}.*`) ? [`${profile.role}.*`] : [];
+          // Fetch permissions for the user's role
+          const userPermissions = AuthService.getUserPermissions(profile.role as AuthUser['role']);
 
           const authUser: AuthUser = {
             id: profile.id,
-            email: profile.email, // email from profile table
+            email: profile.email,
             name: profile.full_name || '',
-            role: profile.role as AuthUser['role'], // Cast to ensure type alignment
-            permissions, // This should be populated based on the role
+            role: profile.role as AuthUser['role'],
+            permissions: userPermissions, // Populate with permissions from AuthService
             lastLogin: supabaseUser.last_sign_in_at ? new Date(supabaseUser.last_sign_in_at) : new Date(),
             createdAt: new Date(profile.created_at),
-            isActive: true, // Assuming active, or fetch this from profile if available
-            // department: profile.department, // If department is part of your Profile type
+            isActive: true, // TODO: This should ideally come from the profile or auth user status
+            // department: profile.department,
           };
           dispatch({ type: 'SET_USER_PROFILE', payload: authUser });
         } else {
-          // This case might happen if a user exists in Supabase auth but not in profiles table (e.g., incomplete signup)
-          console.warn(`Profile not found for authenticated user ${supabaseUser.id}. Logging out.`);
-          await AuthService.signOut(); // This will trigger onAuthStateChange, leading to LOGOUT_SUCCESS
-          dispatch({ type: 'SET_USER_PROFILE', payload: null });
+          console.warn(`AuthContext: Profile not found for authenticated Supabase user ${supabaseUser.id}. User will be logged out.`);
+          // Ensure signOut is called through the hook or service to clear Supabase session too
+          await supabaseSignOut(); // Use the signOut from useSupabase hook
+          dispatch({ type: 'SET_USER_PROFILE', payload: null }); // This will be handled by onAuthStateChange too
         }
       } catch (error) {
-        console.error('Error loading user profile:', error);
+        console.error('AuthContext: Error loading user profile:', error);
         dispatch({ type: 'AUTH_ERROR', payload: (error as Error).message });
-        // Potentially sign out the user if profile load fails critically
-        await AuthService.signOut();
+        await supabaseSignOut(); // Log out from Supabase session on critical profile error
       }
     } else {
-      dispatch({ type: 'SET_USER_PROFILE', payload: null });
+      // No Supabase user or session, ensure local state is cleared
+      if (state.isAuthenticated) { // Only dispatch if local state is out of sync
+        dispatch({ type: 'SET_USER_PROFILE', payload: null });
+      } else {
+        // If already not authenticated and no supabase user, just ensure loading is false
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
     }
-  }, [supabaseUser, session]);
+  }, [supabaseUser, session, supabaseSignOut, state.isAuthenticated]); // Added supabaseSignOut and state.isAuthenticated
 
 
   useEffect(() => {
-    if (!supabaseLoading) { // Only act once Supabase hook has initialized
+    // This effect now primarily reacts to supabaseLoading and then calls fetchAndSetUserProfile.
+    // fetchAndSetUserProfile itself depends on supabaseUser and session.
+    if (!supabaseLoading) {
       fetchAndSetUserProfile();
     } else {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_LOADING', payload: true }); // Keep app loading while Supabase initializes
     }
-  }, [supabaseUser, session, supabaseLoading, fetchAndSetUserProfile]);
+  }, [supabaseLoading, fetchAndSetUserProfile]);
 
 
   const login = async (credentials: LoginCredentials) => {

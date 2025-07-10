@@ -80,75 +80,88 @@ export class ProductService {
     offset?: number;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
-  }): Promise<Product[]> {
-    let query = supabase
+  }): Promise<{ products: Product[]; total: number }> { // Updated return type
+
+    // Base query for filtering (used for both data and count)
+    let countQuery = supabase.from('products').select('id', { count: 'exact', head: true });
+    let dataQuery = supabase
       .from('products')
       .select(`
         *,
         categories!inner (id, name, slug),
         product_images!left (id, url, alt_text, is_primary, sort_order)
-      `)
-      // Default to fetching active products for public views. Admin views might need different logic.
-      .eq('is_active', true);
+      `);
 
-    if (filters?.categorySlug) {
-      // Querying products by category slug requires a join or subquery if category_id is not directly available.
-      // The current select `categories!inner` will filter by joined category if `category_id` is used.
-      // If filtering directly on categories.slug, the join needs to be effective.
-      query = query.eq('categories.slug', filters.categorySlug);
-    }
+    // Apply common filters to both queries
+    const applyFilters = (q: any) => {
+      let currentQuery = q.eq('is_active', true); // Default to active products
 
-    if (filters?.brand && filters.brand.length > 0) {
-      query = query.in('brand', filters.brand);
-    }
+      if (filters?.categorySlug) {
+        currentQuery = currentQuery.eq('categories.slug', filters.categorySlug);
+      }
+      if (filters?.brand && filters.brand.length > 0) {
+        currentQuery = currentQuery.in('brand', filters.brand);
+      }
+      if (filters?.priceRange) {
+        currentQuery = currentQuery.gte('price', filters.priceRange[0]);
+        currentQuery = currentQuery.lte('price', filters.priceRange[1]);
+      }
+      if (filters?.inStock) {
+        currentQuery = currentQuery.gt('stock_count', 0);
+      }
+      if (filters?.onSale) {
+        currentQuery = currentQuery.isnot('original_price', null);
+        currentQuery = currentQuery.ltProperty('price', 'original_price');
+      }
+      if (filters?.search) {
+        currentQuery = currentQuery.or(`name.ilike.%${filters.search}%,brand.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+      }
+      return currentQuery;
+    };
 
-    if (filters?.priceRange) {
-      query = query.gte('price', filters.priceRange[0]);
-      query = query.lte('price', filters.priceRange[1]);
-    }
+    dataQuery = applyFilters(dataQuery);
+    countQuery = applyFilters(countQuery);
 
-    if (filters?.inStock) {
-      query = query.gt('stock_count', 0);
-    }
 
-    if (filters?.onSale) {
-      query = query.isnot('original_price', null);
-      query = query.ltProperty('price', 'original_price');
-    }
-
-    if (filters?.search) {
-      // For robust search, consider using Supabase full-text search (fts)
-      // This example uses ILIKE for basic search on name, brand, and description.
-      query = query.or(`name.ilike.%${filters.search}%,brand.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
-    }
-
-    // Default sort order or apply from filters
-    query = query.order(filters?.sortBy || 'created_at', {
+    // Apply sorting only to dataQuery
+    dataQuery = dataQuery.order(filters?.sortBy || 'created_at', {
       ascending: filters?.sortOrder === 'asc',
-      // foreignTable: filters?.sortBy === 'categoryName' ? 'categories' : undefined // Example for sorting by related table
     });
-    if (filters?.sortBy !== 'created_at' && filters?.sortBy !== 'name' && filters?.sortBy !== 'price' && filters?.sortBy !== 'rating' && filters?.sortBy !== 'review_count' ) {
-        // Add a secondary sort for consistency if primary sort is not unique enough or not a default like created_at
-        query = query.order('id', { ascending: true });
+    // Add secondary sort for consistent ordering if primary sort key might have duplicates
+    if (filters?.sortBy !== 'id' && (filters?.sortBy !== 'created_at' || filters?.sortOrder === 'asc')) {
+        dataQuery = dataQuery.order('id', { ascending: true });
     }
 
-    // Pagination
+
+    // Apply pagination only to dataQuery
     if (filters?.limit !== undefined && filters?.offset !== undefined) {
-      query = query.range(filters.offset, filters.offset + filters.limit - 1);
+      dataQuery = dataQuery.range(filters.offset, filters.offset + filters.limit - 1);
     } else if (filters?.limit !== undefined) {
-      query = query.limit(filters.limit);
+      dataQuery = dataQuery.limit(filters.limit);
     }
 
+    // Execute both queries
+    const [productsResponse, countResponse] = await Promise.all([
+      dataQuery,
+      countQuery
+    ]);
 
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('ProductService.getProducts - Error:', error);
-      throw error;
+    if (productsResponse.error) {
+      console.error('ProductService.getProducts (data) - Error:', productsResponse.error);
+      throw productsResponse.error;
     }
-    // Ensure product_images is always an array for the transformer
-    return (data || []).map(p => transformSupabaseProduct({ ...p, product_images: p.product_images || [] } as any));
+    if (countResponse.error) {
+      console.error('ProductService.getProducts (count) - Error:', countResponse.error);
+      // Decide if you want to throw or return data with a potentially inaccurate count
+      // For now, we'll proceed with data if available, but log the count error.
+    }
+
+    const products = (productsResponse.data || []).map(p => transformSupabaseProduct({ ...p, product_images: p.product_images || [] } as any));
+    const total = countResponse.count || 0;
+
+    return { products, total };
   }
+
 
   /**
    * Fetches a single product by its ID or slug.

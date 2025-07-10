@@ -298,18 +298,39 @@ export class AnalyticsService {
    * Placeholder: Currently reuses some data from getDashboardAnalytics and has TODOs for specific metrics.
    * @param filter - Filters for the sales data.
    * @returns A promise resolving to sales analytics data.
+   * @remarks Conceptual RPC: `get_detailed_sales_analytics`
    */
-  async getSalesAnalytics(filter: AnalyticsFilter): Promise<any> {
-    console.warn("AnalyticsService.getSalesAnalytics: Not fully implemented. Uses parts of getDashboardAnalytics and has TODOs.");
-    const dashboardData = await this.getDashboardAnalytics(filter);
-    return {
-      totalRevenue: dashboardData.salesOverview.totalRevenue,
-      totalOrders: dashboardData.salesOverview.totalOrders,
-      averageOrderValue: dashboardData.salesOverview.averageOrderValue,
-      salesByCategory: dashboardData.categorySales.map(c => ({ name: c.name, value: c.value })),
-      // TODO: Implement salesByPaymentMethod (query orders table, group by payment_method)
-      // TODO: Implement salesByTime (if different from salesByHour in dashboard, e.g., aggregated over the period)
-    };
+  async getSalesAnalytics(filter: AnalyticsFilter): Promise<{
+    totalRevenue: number;
+    totalOrders: number;
+    averageOrderValue: number;
+    salesByCategory: CategoryData[];
+    salesByPaymentMethod: Array<{ method: string; count: number; revenue: number }>;
+    salesOverTime: SalesData[]; // Could be daily, weekly, monthly based on RPC logic
+  }> {
+    const { startDateISO, endDateISO } = getDateRangeStrings(filter);
+    console.warn("AnalyticsService.getSalesAnalytics: Now calls conceptual RPC 'get_detailed_sales_analytics'.");
+
+    try {
+      const { data, error } = await supabase.rpc('get_detailed_sales_analytics', {
+        start_date_param: startDateISO,
+        end_date_param: endDateISO,
+        category_param: filter.category, // Pass optional filters
+        brand_param: filter.brand
+      });
+
+      if (error) throw error;
+
+      // The RPC is expected to return data matching the Promise's type structure.
+      // Add default fallbacks if data can be partially missing.
+      return data || {
+        totalRevenue: 0, totalOrders: 0, averageOrderValue: 0,
+        salesByCategory: [], salesByPaymentMethod: [], salesOverTime: []
+      };
+    } catch (err) {
+      console.error("AnalyticsService.getSalesAnalytics - Error calling RPC:", err);
+      throw err;
+    }
   }
 
   /**
@@ -317,20 +338,36 @@ export class AnalyticsService {
    * Placeholder: Currently reuses some data from getDashboardAnalytics and has TODOs for specific metrics.
    * @param filter - Filters for the product data.
    * @returns A promise resolving to product analytics data.
+   * @remarks Conceptual RPC: `get_detailed_product_analytics`
    */
-  async getProductAnalytics(filter: AnalyticsFilter): Promise<any> {
-    console.warn("AnalyticsService.getProductAnalytics: Not fully implemented. Uses parts of getDashboardAnalytics and has TODOs.");
-    const dashboardData = await this.getDashboardAnalytics(filter);
-    // TODO: Fetch actual totalProducts, activeProducts, outOfStockProducts from 'products' table.
-    // TODO: Implement topViewedProducts using 'product_events' table (event_type='view').
-    // TODO: Implement productPerformance (profit, margin) which requires product cost data.
-    return {
-      totalProducts: 0,
-      activeProducts: 0,
-      outOfStockProducts: 0,
-      topViewedProducts: dashboardData.topProducts.map(p => ({...p, views: 0, purchases: p.units, conversionRate: 0})),
-      productPerformance: dashboardData.topProducts.map(p => ({...p, profit: 0, margin: 0})),
-    };
+  async getProductAnalytics(filter: AnalyticsFilter): Promise<{
+    totalProducts: number;
+    activeProducts: number;
+    outOfStockProducts: number;
+    topViewedProducts: Array<ProductPerformance & { views: number; conversionRate?: number }>;
+    productPerformanceMetrics: Array<ProductPerformance & { profit?: number; margin?: number }>;
+    inventoryStatus: Array<{ productId: string; name: string; stockLevel: number; status: 'low' | 'in_stock' | 'overstocked' }>;
+  }> {
+    const { startDateISO, endDateISO } = getDateRangeStrings(filter);
+    console.warn("AnalyticsService.getProductAnalytics: Now calls conceptual RPC 'get_detailed_product_analytics'.");
+
+    try {
+      const { data, error } = await supabase.rpc('get_detailed_product_analytics', {
+        start_date_param: startDateISO,
+        end_date_param: endDateISO,
+        category_param: filter.category,
+        brand_param: filter.brand
+      });
+
+      if (error) throw error;
+      return data || {
+        totalProducts: 0, activeProducts: 0, outOfStockProducts: 0,
+        topViewedProducts: [], productPerformanceMetrics: [], inventoryStatus: []
+      };
+    } catch (err) {
+      console.error("AnalyticsService.getProductAnalytics - Error calling RPC:", err);
+      throw err;
+    }
   }
 
   /**
@@ -338,54 +375,73 @@ export class AnalyticsService {
    * Placeholder: Currently reuses some data from getDashboardAnalytics and has TODOs for specific metrics.
    * @param filter - Filters for the customer data.
    * @returns A promise resolving to customer analytics data.
+   * @remarks Conceptual RPC: `get_detailed_customer_analytics`
    */
-  async getCustomerAnalytics(filter: AnalyticsFilter): Promise<any> {
-     console.warn("AnalyticsService.getCustomerAnalytics: Not fully implemented. Uses parts of getDashboardAnalytics and has TODOs.");
-     const dashboardData = await this.getDashboardAnalytics(filter);
-    return {
-      totalCustomers: dashboardData.userMetrics.activeUsers + dashboardData.userMetrics.newUsers, // Approximation
-      newCustomers: dashboardData.userMetrics.newUsers,
-      returningCustomers: dashboardData.userMetrics.returningUsers,
-      // TODO: Implement churnRate, customerSegments, customerLifetimeValue, averageOrdersPerCustomer with more detailed queries and potentially additional data sources.
-    };
+  async getCustomerAnalytics(filter: AnalyticsFilter): Promise<{
+    totalCustomers: number;
+    newCustomers: number;
+    returningCustomers: number;
+    churnRate?: number;
+    customerSegments: Array<{ segmentName: string; count: number; averageValue: number }>;
+    customerLifetimeValue?: number; // Overall or by segment
+    averageOrdersPerCustomer?: number;
+    topCustomersByRevenue: Array<{ customerId: string; name?: string; totalRevenue: number; orderCount: number }>;
+  }> {
+     const { startDateISO, endDateISO } = getDateRangeStrings(filter);
+     console.warn("AnalyticsService.getCustomerAnalytics: Now calls conceptual RPC 'get_detailed_customer_analytics'.");
+
+    try {
+      const { data, error } = await supabase.rpc('get_detailed_customer_analytics', {
+        start_date_param: startDateISO,
+        end_date_param: endDateISO,
+      });
+
+      if (error) throw error;
+      return data || {
+        totalCustomers: 0, newCustomers: 0, returningCustomers: 0,
+        customerSegments: [], topCustomersByRevenue: []
+      };
+    } catch (err) {
+      console.error("AnalyticsService.getCustomerAnalytics - Error calling RPC:", err);
+      throw err;
+    }
   }
 
   /**
    * Fetches search analytics data.
-   * Placeholder: Includes a basic query on a conceptual 'search_queries' table. Needs further implementation for detailed metrics.
    * @param filter - Filters for the search data.
    * @returns A promise resolving to search analytics data.
+   * @remarks Conceptual RPC: `get_detailed_search_analytics`
    */
-  async getSearchAnalytics(filter: AnalyticsFilter): Promise<any> {
+  async getSearchAnalytics(filter: AnalyticsFilter): Promise<{
+    totalSearches: number;
+    uniqueSearches: number;
+    searchesWithResults: number;
+    searchesWithoutResults: number;
+    averageResultsCount?: number;
+    clickThroughRate?: number; // Searches leading to product click / Total searches
+    conversionRateFromSearch?: number; // Orders from search / Searches leading to click
+    topQueries: Array<{ term: string; count: number; resultsCount: number; clickThroughRate?: number; conversionRate?: number }>;
+    failedQueries: Array<{ term: string; count: number }>; // Queries with zero results
+  }> {
     const { startDateISO, endDateISO } = getDateRangeStrings(filter);
-    console.warn("AnalyticsService.getSearchAnalytics: Partially implemented. Basic query on 'search_queries' table. Detailed aggregations are TODOs.");
+    console.warn("AnalyticsService.getSearchAnalytics: Now calls conceptual RPC 'get_detailed_search_analytics'.");
 
-    // Conceptual: Query 'search_queries' table.
-    // This assumes a table 'search_queries' exists with columns: query_term, timestamp, results_count, clicked_product_id.
-    const { data: searchEvents, error: searchError, count: totalSearches } = await supabase
-        .from('search_queries')
-        .select('query_term, results_count, clicked_product_id', {count: 'exact'})
-        .gte('timestamp', startDateISO)
-        .lte('timestamp', endDateISO);
-    
-    if(searchError) console.error("AnalyticsService.getSearchAnalytics - Error fetching search data:", searchError);
+    try {
+      const { data, error } = await supabase.rpc('get_detailed_search_analytics', {
+        start_date_param: startDateISO,
+        end_date_param: endDateISO,
+      });
 
-    // TODO: Implement more detailed aggregations for:
-    // - uniqueSearches: Requires DISTINCT count on query_term.
-    // - searchesWithResults: Count where results_count > 0.
-    // - searchesWithoutResults: Count where results_count = 0.
-    // - conversionRate: (Count of searches leading to click / totalSearches) * 100.
-    // - topQueries: Group by query_term, count occurrences, calculate conversion.
-    // - failedSearches: Filter where results_count = 0, group by query_term, count.
-    return {
-      totalSearches: totalSearches || 0,
-      uniqueSearches: 0, // Placeholder
-      searchesWithResults: 0, // Placeholder
-      searchesWithoutResults: 0, // Placeholder
-      conversionRate: 0, // Placeholder
-      topQueries: [],
-      failedSearches: []
-    };
+      if (error) throw error;
+      return data || {
+        totalSearches: 0, uniqueSearches: 0, searchesWithResults: 0, searchesWithoutResults: 0,
+        topQueries: [], failedQueries: []
+      };
+    } catch (err) {
+      console.error("AnalyticsService.getSearchAnalytics - Error calling RPC:", err);
+      throw err;
+    }
   }
 
   /**
