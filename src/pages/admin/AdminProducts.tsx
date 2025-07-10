@@ -14,8 +14,9 @@ import {
 import { useAdmin } from '../../context/AdminContext';
 import ProductForm from '../../components/admin/ProductForm';
 import OptimizedImage from '../../components/ui/OptimizedImage';
-import { products } from '../../data/products';
+// import { products } from '../../data/products'; // Removed mock data import
 import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
+import { ProductService } from '../../services/productService'; // Import ProductService
 import { Product } from '../../types';
 import { ProductFormData } from '../../types/admin';
 import PhoneImportModal from '../../components/admin/PhoneImportModal';
@@ -30,14 +31,10 @@ const AdminProducts: React.FC = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [showImportModal, setShowImportModal] = useState(false);
 
-  useEffect(() => {
-    // Load products from Supabase or fallback to mock data
-    const loadProducts = async () => {
-      // Always use mock data for consistent display
-      dispatch({ type: 'SET_PRODUCTS', payload: products });
-    };
-    loadProducts();
-  }, [dispatch]);
+  // Removed useEffect that dispatched mock products.
+  // AdminContext should provide products, or this component needs to fetch them.
+  // For now, this component will rely on state.products from AdminContext.
+  // A follow-up would be to ensure AdminContext loads products if not already present.
 
   useEffect(() => {
     let filtered = state.products;

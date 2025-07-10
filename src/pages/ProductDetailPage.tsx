@@ -1,33 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, Heart, ShoppingCart, Minus, Plus, Share2, GitCompare as Compare, CheckCircle, Truck, Shield, RotateCcw } from 'lucide-react';
+import { Star, Heart, ShoppingCart, Minus, Plus, Share2, GitCompare as Compare, CheckCircle, Truck, Shield, RotateCcw, Loader2, AlertTriangle } from 'lucide-react';
 import { Product } from '../types';
-import { products } from '../data/products';
+import { ProductService } from '../services/productService'; // Import ProductService
 import { useApp } from '../context/AppContext';
 import { formatKWDEnglish, formatKWDArabic } from '../utils/currency';
+import OptimizedImage from '../components/ui/OptimizedImage'; // Ensure OptimizedImage is imported
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState<'description' | 'specifications' | 'reviews'>('description');
   const { state, dispatch } = useApp();
 
   useEffect(() => {
-    const foundProduct = products.find(p => p.id === id);
-    setProduct(foundProduct || null);
+    const fetchProduct = async () => {
+      if (!id) {
+        setError("Product ID is missing.");
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setError(null);
+      try {
+        const fetchedProduct = await ProductService.getProduct(id);
+        setProduct(fetchedProduct);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError(err instanceof Error ? err.message : "Failed to load product details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+        <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+        <p className="text-lg text-gray-600">Loading Product Details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 text-center">
+        <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-red-700 mb-2">Error Loading Product</h2>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <Link to="/products" className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+          Back to Products
+        </Link>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
-          <Link to="/products" className="text-primary hover:underline">
-            Back to Products
-          </Link>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 text-center">
+        <AlertTriangle className="h-12 w-12 text-yellow-500 mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h2>
+        <p className="text-gray-600 mb-6">The product you are looking for does not exist or may have been removed.</p>
+        <Link to="/products" className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+          Back to Products
+        </Link>
       </div>
     );
   }

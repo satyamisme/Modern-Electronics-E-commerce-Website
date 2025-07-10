@@ -124,6 +124,7 @@ const AdminOrders: React.FC = () => {
     }
   };
 
+  const handleRefresh = () => {
     setRefreshing(true);
     fetchOrders(); // This already sets refreshing to false in its finally block
   };
