@@ -1,24 +1,52 @@
-import React, { useState } from 'react';
-import { Clock, Percent, Star, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Clock, Percent, Star, Filter, Loader2, AlertTriangle } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
-import { products } from '../data/products';
 import OptimizedImage from '../components/ui/OptimizedImage';
 import { formatKWDEnglish, formatKWDArabic } from '../utils/currency';
+import { ProductService } from '../services/productService';
+import { Product } from '../types';
 
 const DealsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<'all' | 'flash' | 'clearance' | 'bundle'>('all');
+  const [dealsProducts, setDealsProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filter products with discounts
-  const dealsProducts = products.filter(product => product.originalPrice && product.originalPrice > product.price);
+  useEffect(() => {
+    const fetchDeals = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch products that are considered "deals"
+        // This might be products with an originalPrice > price, or a specific "onSale" flag
+        // For now, we'll filter by originalPrice if ProductService doesn't have a direct "onSale" flag
+        const { products: allProducts } = await ProductService.getProducts({ sortBy: 'created_at', sortOrder: 'desc', limit: 50 }); // Fetch a decent number to find deals
+        const actualDeals = allProducts.filter(p => p.originalPrice && p.originalPrice > p.price);
+        setDealsProducts(actualDeals);
+      } catch (err) {
+        console.error("Error fetching deals:", err);
+        setError(err instanceof Error ? err.message : "Failed to load deals.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDeals();
+  }, []);
 
   const filteredDeals = dealsProducts.filter(product => {
     if (filterType === 'all') return true;
-    // Add more specific filtering logic based on deal types
-    return true;
+    // TODO: Add more specific filtering logic based on deal types if product data supports it
+    // For example, if products have a 'dealType' property:
+    // if (filterType === 'flash' && product.dealType === 'flash_sale') return true;
+    // if (filterType === 'clearance' && product.dealType === 'clearance') return true;
+    return true; // Placeholder for now
   });
 
-  const calculateDiscount = (original: number, current: number) => {
-    return Math.round(((original - current) / original) * 100);
+  const calculateDiscount = (original: number | null | undefined, current: number) => {
+    if (original && original > current) {
+      return Math.round(((original - current) / original) * 100);
+    }
+    return 0;
   };
 
   return (
@@ -32,8 +60,9 @@ const DealsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Deal Categories */}
+        {/* Deal Categories - These are static illustrative sections */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          {/* ... (static deal category cards remain the same) ... */}
           <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-lg">
             <div className="flex items-center space-x-3 mb-3">
               <Clock className="h-8 w-8" />
@@ -71,13 +100,14 @@ const DealsPage: React.FC = () => {
           </div>
         </div>
 
+
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex flex-wrap items-center gap-4">
             <span className="font-medium text-gray-900">Filter by:</span>
             {[
               { key: 'all', label: 'All Deals' },
-              { key: 'flash', label: 'Flash Sales' },
+              { key: 'flash', label: 'Flash Sales' }, // These filters are conceptual without backend support
               { key: 'clearance', label: 'Clearance' },
               { key: 'bundle', label: 'Bundle Deals' }
             ].map(filter => (
@@ -97,49 +127,80 @@ const DealsPage: React.FC = () => {
         </div>
 
         {/* Deals Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
-          {filteredDeals.map((product) => (
-            <div key={product.id} className="relative">
-              {/* Discount Badge */}
-              <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                {calculateDiscount(product.originalPrice!, product.price)}% OFF
-              </div>
-              <ProductCard product={product} />
+        {loading && (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 text-primary animate-spin" />
+            <p className="ml-4 text-lg text-gray-600">Loading Deals...</p>
+          </div>
+        )}
+        {error && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-md flex items-center">
+            <AlertTriangle className="h-8 w-8 mr-3" />
+            <div>
+              <h3 className="text-lg font-semibold">Error Loading Deals</h3>
+              <p>{error}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+        {!loading && !error && filteredDeals.length === 0 && (
+          <div className="text-center py-12">
+            <Percent className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Active Deals</h2>
+            <p className="text-gray-500">Please check back later for amazing offers!</p>
+          </div>
+        )}
+        {!loading && !error && filteredDeals.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+            {filteredDeals.map((product) => (
+              <div key={product.id} className="relative group">
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <div className="absolute top-3 left-3 z-10 bg-red-500 text-white px-2.5 py-1 rounded-full text-xs font-semibold shadow-md">
+                    {calculateDiscount(product.originalPrice, product.price)}% OFF
+                  </div>
+                )}
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Deal of the Day */}
-        <div className="bg-gradient-to-r from-primary to-accent text-white rounded-lg p-8 mb-12">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">Deal of the Day</h2>
-            <p className="text-xl mb-6">Special offer valid for today only!</p>
-            
-            {dealsProducts.length > 0 && (
-              <div className="bg-white text-gray-900 rounded-lg p-6 max-w-md mx-auto">
+        {!loading && !error && dealsProducts.length > 0 && (
+          <div className="bg-gradient-to-r from-primary to-accent text-white rounded-lg p-8 mb-12">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Deal of the Day</h2>
+              <p className="text-xl mb-6">Special offer valid for today only!</p>
+
+              {/* Display the first product from fetched deals as "Deal of the Day" */}
+              <div className="bg-white text-gray-900 rounded-lg p-6 max-w-md mx-auto shadow-xl">
                 <OptimizedImage
-                  src={dealsProducts[0].images[0]}
+                  src={dealsProducts[0].images[0]} // Assuming images array is not empty
                   alt={dealsProducts[0].name}
                   width={400}
                   height={300}
-                  className="w-full h-48 rounded-lg mb-4"
+                  className="w-full h-48 object-cover rounded-lg mb-4"
                 />
                 <h3 className="text-xl font-bold mb-2">{dealsProducts[0].name}</h3>
                 <div className="flex items-center justify-center space-x-4 mb-4">
                   <span className="text-2xl font-bold text-primary">
                     {formatKWDEnglish(dealsProducts[0].price)}
                   </span>
-                  <span className="text-lg text-gray-500 line-through">
-                    {formatKWDEnglish(dealsProducts[0].originalPrice!)}
-                  </span>
+                  {dealsProducts[0].originalPrice && (
+                    <span className="text-lg text-gray-500 line-through">
+                      {formatKWDEnglish(dealsProducts[0].originalPrice!)}
+                    </span>
+                  )}
                 </div>
-                <div className="text-red-600 font-bold text-lg mb-4">
-                  Save {formatKWDEnglish(dealsProducts[0].originalPrice! - dealsProducts[0].price)}
-                  <div className="text-sm">{formatKWDArabic(dealsProducts[0].originalPrice! - dealsProducts[0].price)}</div>
-                </div>
+                {dealsProducts[0].originalPrice && (
+                  <div className="text-red-600 font-bold text-lg mb-4">
+                    Save {formatKWDEnglish(dealsProducts[0].originalPrice! - dealsProducts[0].price)}
+                    <div className="text-sm">{formatKWDArabic(dealsProducts[0].originalPrice! - dealsProducts[0].price)}</div>
+                  </div>
+                )}
                 
-                {/* Countdown Timer */}
+                {/* Countdown Timer (Static example) */}
                 <div className="grid grid-cols-4 gap-2 text-center">
+                  {/* ... (static countdown timer elements remain the same) ... */}
                   <div className="bg-gray-100 rounded p-2">
                     <div className="text-xl font-bold">12</div>
                     <div className="text-xs">Hours</div>
@@ -158,11 +219,12 @@ const DealsPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Newsletter Signup */}
+        {/* ... (Newsletter section remains the same) ... */}
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Never Miss a Deal!</h2>
           <p className="text-gray-600 mb-6">
