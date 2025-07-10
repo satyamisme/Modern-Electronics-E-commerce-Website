@@ -11,135 +11,126 @@ import {
   Mail,
   BarChart2 as BarChart2Icon,
   DollarSign,
-  Package, 
-  Truck, 
+  Package,
+  Truck,
   CheckCircle,
   Clock,
   XCircle,
-  Calendar
+  Calendar,
+  AlertCircle, // For error display
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
-import { OrderManagement } from '../../types/admin';
+import { OrderService } from '../../services/orderService';
+import type { Database } from '../../lib/supabase';
 import { formatKWD } from '../../utils/currency';
 
+// Use the OrderRow type similar to AdminOrderDetailsPage for consistency
+type OrderRow = Database['public']['Tables']['orders']['Row'] & {
+  order_items: (Database['public']['Tables']['order_items']['Row'] & {
+    products: Pick<Database['public']['Tables']['products']['Row'], 'id' | 'name'> | null;
+  })[];
+  profiles: Pick<Database['public']['Tables']['profiles']['Row'], 'full_name' | 'email'> | null;
+};
+
 const AdminOrders: React.FC = () => {
-  const { state, dispatch } = useAdmin();
+  const { state: adminState, dispatch: adminDispatch } = useAdmin(); // Renamed to avoid conflict
+  const [allOrders, setAllOrders] = useState<OrderRow[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<OrderRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
-  const [filteredOrders, setFilteredOrders] = useState<OrderManagement[]>([]);
+  const [filterStatus, setFilterStatus] = useState<OrderRow['status'] | ''>('');
+
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year'>('week');
+  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year' | 'all'>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    // Mock orders data
-    const mockOrders: OrderManagement[] = [
-      {
-        id: 'ORD-20250106-001',
-        customerName: 'John Doe',
-        customerEmail: 'john.doe@email.com',
-        items: [
-          { productId: 'iphone-15-pro', productName: 'iPhone 15 Pro', quantity: 1, price: 399.500 }
-        ],
-        total: 399.500,
-        status: 'pending',
-        orderDate: new Date('2024-01-20'),
-        shippingAddress: 'Block 5, Street 15, Salmiya, Hawalli, Kuwait',
-        trackingNumber: undefined
-      },
-      {
-        id: 'ORD-20250106-002',
-        customerName: 'Jane Smith',
-        customerEmail: 'jane.smith@email.com',
-        items: [
-          { productId: 'macbook-pro-m3', productName: 'MacBook Pro M3', quantity: 1, price: 649.900 },
-          { productId: 'airpods-pro-2', productName: 'AirPods Pro', quantity: 1, price: 89.900 }
-        ],
-        total: 739.800,
-        status: 'processing',
-        orderDate: new Date('2024-01-19'),
-        shippingAddress: 'Block 12, Street 8, Jabriya, Hawalli, Kuwait',
-        trackingNumber: undefined
-      },
-      {
-        id: 'ORD-20250106-003',
-        customerName: 'Mike Johnson',
-        customerEmail: 'mike.johnson@email.com',
-        items: [
-          { productId: 'sony-wh1000xm5', productName: 'Sony WH-1000XM5', quantity: 2, price: 149.900 }
-        ],
-        total: 299.800,
-        status: 'shipped',
-        orderDate: new Date('2024-01-18'),
-        shippingAddress: 'Block 3, Street 22, Ahmadi, Kuwait',
-        trackingNumber: 'TRK123456789'
-      },
-      {
-        id: 'ORD-004',
-        customerName: 'Sarah Wilson',
-        customerEmail: 'sarah.wilson@email.com',
-        items: [
-          { productId: 'ipad-air-m2', productName: 'iPad Air M2', quantity: 1, price: 599 }
-        ],
-        total: 599,
-        status: 'delivered',
-        orderDate: new Date('2024-01-17'),
-        shippingAddress: '321 Elm St, Miami, FL 33101',
-        trackingNumber: 'TRK987654321'
-      },
-      {
-        id: 'ORD-005',
-        customerName: 'David Brown',
-        customerEmail: 'david.brown@email.com',
-        items: [
-          { productId: 'dell-xps-13', productName: 'Dell XPS 13', quantity: 1, price: 899 }
-        ],
-        total: 899,
-        status: 'cancelled',
-        orderDate: new Date('2024-01-16'),
-        shippingAddress: '654 Maple Dr, Seattle, WA 98101',
-        trackingNumber: undefined
-      }
-    ];
-    
-    dispatch({ type: 'SET_ORDERS', payload: mockOrders });
-  }, [dispatch]);
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Pass filters to OrderService.getAllOrders if implemented
+      // For now, fetching all and then filtering client-side
+      const orders = await OrderService.getAllOrders({
+        // TODO: Implement dateRange filtering in service if possible
+        // status: filterStatus || undefined,
+        // search: searchTerm || undefined,
+      });
+      setAllOrders(orders as OrderRow[]); // Assuming service returns correctly typed data
+      // adminDispatch({ type: 'SET_ORDERS', payload: orders }); // If AdminContext is used for orders
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
+      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setAllOrders([]); // Clear orders on error
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    let filtered = state.orders;
+    fetchOrders();
+  }, []); // Initial fetch
+
+  useEffect(() => {
+    let currentFilteredOrders = [...allOrders];
+
+    // Date Range Filtering (Conceptual - actual date filtering should ideally be backend)
+    if (dateRange !== 'all') {
+      const now = new Date();
+      let startDate = new Date();
+      if (dateRange === 'today') {
+        startDate.setHours(0, 0, 0, 0);
+      } else if (dateRange === 'week') {
+        startDate.setDate(now.getDate() - 7);
+      } else if (dateRange === 'month') {
+        startDate.setMonth(now.getMonth() - 1);
+      } else if (dateRange === 'year') {
+        startDate.setFullYear(now.getFullYear() - 1);
+      }
+      currentFilteredOrders = currentFilteredOrders.filter(order => new Date(order.created_at) >= startDate);
+    }
 
     if (searchTerm) {
-      filtered = filtered.filter(order =>
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      currentFilteredOrders = currentFilteredOrders.filter(order =>
+        (order.id && order.id.toLowerCase().includes(lowerSearchTerm)) ||
+        (order.order_number && order.order_number.toLowerCase().includes(lowerSearchTerm)) ||
+        (order.profiles?.full_name && order.profiles.full_name.toLowerCase().includes(lowerSearchTerm)) ||
+        (order.profiles?.email && order.profiles.email.toLowerCase().includes(lowerSearchTerm))
       );
     }
 
     if (filterStatus) {
-      filtered = filtered.filter(order => order.status === filterStatus);
+      currentFilteredOrders = currentFilteredOrders.filter(order => order.status === filterStatus);
     }
 
-    setFilteredOrders(filtered);
-  }, [state.orders, searchTerm, filterStatus]);
+    setFilteredOrders(currentFilteredOrders);
+  }, [allOrders, searchTerm, filterStatus, dateRange]);
 
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    dispatch({ type: 'UPDATE_ORDER_STATUS', payload: { orderId, status: newStatus } });
+  const handleStatusChange = async (orderId: string, newStatus: OrderRow['status']) => {
+    // adminDispatch({ type: 'UPDATE_ORDER_STATUS', payload: { orderId, status: newStatus } });
+    // This should ideally call OrderService.updateOrderStatus and then refresh or update local state
+    try {
+      const updatedOrder = await OrderService.updateOrderStatus(orderId, newStatus);
+      setAllOrders(prevOrders => prevOrders.map(o => o.id === orderId ? {...o, ...updatedOrder} : o));
+      // adminDispatch({ type: 'UPDATE_ORDER_IN_LIST', payload: updatedOrder });
+    } catch (err) {
+      console.error("Failed to update order status:", err);
+      alert("Failed to update order status. See console for details.");
+    }
   };
 
-  const handleRefresh = () => {
     setRefreshing(true);
-    // In a real implementation, this would refresh data from the API
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    fetchOrders(); // This already sets refreshing to false in its finally block
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-    // In a real implementation, this would generate and download a file
-    alert(`Exporting orders as ${format.toUpperCase()}`);
+    // TODO: Implement actual export logic
+    alert(`Exporting ${filteredOrders.length} orders as ${format.toUpperCase()}`);
     setShowExportModal(false);
   };
 
@@ -160,56 +151,62 @@ const AdminOrders: React.FC = () => {
     }
   };
 
-  const handleBulkAction = (action: 'process' | 'ship' | 'cancel') => {
+  const handleBulkAction = async (action: 'process' | 'ship' | 'cancel') => {
     if (selectedOrders.length === 0) return;
     
-    // In a real implementation, this would call an API
     const newStatus = action === 'process' ? 'processing' : action === 'ship' ? 'shipped' : 'cancelled';
     
-    selectedOrders.forEach(orderId => {
-      handleStatusChange(orderId, newStatus);
-    });
+    // Show confirmation for bulk actions
+    if (!window.confirm(`Are you sure you want to mark ${selectedOrders.length} orders as ${newStatus}?`)) {
+      return;
+    }
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const orderId of selectedOrders) {
+      try {
+        await OrderService.updateOrderStatus(orderId, newStatus);
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to update order ${orderId}:`, err);
+        errorCount++;
+      }
+    }
     
+    alert(`${successCount} orders updated. ${errorCount > 0 ? `${errorCount} failures.` : ''}`);
+    fetchOrders(); // Refresh list
     setSelectedOrders([]);
     setSelectAll(false);
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: OrderRow['status']) => {
     switch (status) {
-      case 'pending':
-        return <Clock className="h-4 w-4" />;
-      case 'processing':
-        return <Package className="h-4 w-4" />;
-      case 'shipped':
-        return <Truck className="h-4 w-4" />;
-      case 'delivered':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'cancelled':
-        return <XCircle className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
+      case 'pending': return <Clock className="h-4 w-4" />;
+      case 'processing': return <Package className="h-4 w-4" />;
+      case 'shipped': return <Truck className="h-4 w-4" />;
+      case 'delivered': return <CheckCircle className="h-4 w-4" />;
+      case 'cancelled': return <XCircle className="h-4 w-4" />;
+      default: return <Clock className="h-4 w-4" />;
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: OrderRow['status']) => {
     switch (status) {
-      case 'pending':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'processing':
-        return 'text-blue-600 bg-blue-100';
-      case 'shipped':
-        return 'text-purple-600 bg-purple-100';
-      case 'delivered':
-        return 'text-green-600 bg-green-100';
-      case 'cancelled':
-        return 'text-red-600 bg-red-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
+      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      case 'processing': return 'text-blue-600 bg-blue-100';
+      case 'shipped': return 'text-purple-600 bg-purple-100';
+      case 'delivered': return 'text-green-600 bg-green-100';
+      case 'cancelled': return 'text-red-600 bg-red-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   };
+
+  const totalRevenue = filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       {/* Enhanced Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
@@ -224,6 +221,7 @@ const AdminOrders: React.FC = () => {
               onChange={(e) => setDateRange(e.target.value as any)}
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
+              <option value="all">All Time</option>
               <option value="today">Today</option>
               <option value="week">Last 7 days</option>
               <option value="month">Last 30 days</option>
@@ -232,7 +230,7 @@ const AdminOrders: React.FC = () => {
           </div>
           <button
             onClick={handleRefresh}
-            disabled={refreshing}
+            disabled={refreshing || loading}
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center space-x-2 disabled:opacity-50"
           >
             <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
@@ -249,20 +247,21 @@ const AdminOrders: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
-          { label: 'Total Orders', value: state.orders.length, color: 'bg-blue-500' },
-          { label: 'Pending', value: state.orders.filter(o => o.status === 'pending').length, color: 'bg-yellow-500' },
-          { label: 'Processing', value: state.orders.filter(o => o.status === 'processing').length, color: 'bg-blue-500' },
-          { label: 'Shipped', value: state.orders.filter(o => o.status === 'shipped').length, color: 'bg-purple-500' },
-          { label: 'Delivered', value: state.orders.filter(o => o.status === 'delivered').length, color: 'bg-green-500' },
+          { label: 'Total Orders', value: filteredOrders.length, color: 'bg-blue-500' },
+          { label: 'Total Revenue', value: formatKWD(totalRevenue), color: 'bg-green-500' },
+          { label: 'Pending', value: filteredOrders.filter(o => o.status === 'pending').length, color: 'bg-yellow-500' },
+          { label: 'Processing', value: filteredOrders.filter(o => o.status === 'processing').length, color: 'bg-indigo-500' },
+          { label: 'Shipped', value: filteredOrders.filter(o => o.status === 'shipped').length, color: 'bg-purple-500' },
+          { label: 'Delivered', value: filteredOrders.filter(o => o.status === 'delivered').length, color: 'bg-teal-500' },
         ].map((stat) => (
           <div key={stat.label} className="bg-white rounded-lg shadow-md p-4">
             <div className="flex items-center">
               <div className={`w-3 h-3 rounded-full ${stat.color} mr-3`}></div>
               <div>
                 <p className="text-sm text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-xl md:text-2xl font-bold text-gray-900">{stat.value}</p>
               </div>
             </div>
           </div>
@@ -271,12 +270,12 @@ const AdminOrders: React.FC = () => {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search orders..."
+              placeholder="Search by ID, Order #, Name, Email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -284,48 +283,61 @@ const AdminOrders: React.FC = () => {
           </div>
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => setFilterStatus(e.target.value as OrderRow['status'] | '')}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">All Status</option>
+            <option value="">All Statuses</option>
             <option value="pending">Pending</option>
             <option value="processing">Processing</option>
             <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
           </select>
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-gray-600 md:justify-end">
             <Package className="h-4 w-4 mr-2" />
-            {filteredOrders.length} orders
+            {loading ? 'Loading...' : `${filteredOrders.length} orders found`}
           </div>
         </div>
       </div>
 
       {/* Bulk Actions */}
       {selectedOrders.length > 0 && (
-        <div className="bg-blue-50 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-blue-50 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="text-blue-700">
             <span className="font-medium">{selectedOrders.length}</span> orders selected
           </div>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleBulkAction('process')}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              Process
+              Mark Processing
             </button>
             <button
               onClick={() => handleBulkAction('ship')}
-              className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+              className="px-3 py-1.5 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600"
             >
               Mark Shipped
             </button>
             <button
               onClick={() => handleBulkAction('cancel')}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              className="px-3 py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
             >
-              Cancel
+              Cancel Selected
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md" role="alert">
+          <div className="flex">
+            <div className="py-1"><AlertCircle className="h-6 w-6 text-red-500 mr-3" /></div>
+            <div>
+              <p className="font-bold">Error</p>
+              <p>{error}</p>
+            </div>
           </div>
         </div>
       )}
@@ -337,40 +349,34 @@ const AdminOrders: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectAll}
-                      onChange={handleSelectAll}
-                      className="rounded border-gray-300 text-primary focus:ring-primary"
-                    />
-                  </div>
+                  <input
+                    type="checkbox"
+                    checked={selectAll && filteredOrders.length > 0}
+                    onChange={handleSelectAll}
+                    disabled={filteredOrders.length === 0}
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                  />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Items
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Info</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order) => (
+              {loading && (
+                <tr><td colSpan={8} className="text-center py-10">Loading orders...</td></tr>
+              )}
+              {!loading && error && (
+                 <tr><td colSpan={8} className="text-center py-10 text-red-500">Failed to load orders. Please try again.</td></tr>
+              )}
+              {!loading && !error && filteredOrders.length === 0 && (
+                <tr><td colSpan={8} className="text-center py-10">No orders found.</td></tr>
+              )}
+              {!loading && !error && filteredOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
@@ -381,33 +387,36 @@ const AdminOrders: React.FC = () => {
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{order.id}</div>
-                    {order.trackingNumber && (
-                      <div className="text-xs text-gray-500">Track: {order.trackingNumber}</div>
+                    <Link to={`/admin/orders/${order.id}`} className="text-sm font-medium text-primary hover:underline">
+                      {order.order_number || order.id}
+                    </Link>
+                    {order.tracking_number && (
+                      <div className="text-xs text-gray-500">Track: {order.tracking_number}</div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{order.customerName}</div>
-                    <div className="text-sm text-gray-500">{order.customerEmail}</div>
+                    <div className="text-sm font-medium text-gray-900">{order.profiles?.full_name || 'N/A'}</div>
+                    <div className="text-sm text-gray-500">{order.profiles?.email || 'N/A'}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="mb-1">
-                          {item.productName} x{item.quantity}
-                        </div>
-                      ))}
+                      {order.order_items?.length || 0} item(s)
+                      {order.order_items && order.order_items.length > 0 && (
+                         <div className="text-xs text-gray-500 truncate max-w-xs">
+                           {order.order_items.map(item => item.products?.name || 'Unknown Product').join(', ')}
+                         </div>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">KD {order.total.toFixed(3)}</div>
-                    <div className="text-xs text-gray-500">د.ك {order.total.toFixed(3)}</div>
+                    <div className="text-sm font-medium text-gray-900">{formatKWD(order.total_amount || 0)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
-                      value={order.status}
-                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border-0 focus:ring-2 focus:ring-primary ${getStatusColor(order.status)}`}
+                      value={order.status || ''}
+                      onChange={(e) => handleStatusChange(order.id, e.target.value as OrderRow['status'])}
+                      onClick={(e) => e.stopPropagation()} // Prevent row click if any
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border focus:ring-2 focus:ring-primary ${getStatusColor(order.status)}`}
                     >
                       <option value="pending">Pending</option>
                       <option value="processing">Processing</option>
@@ -418,19 +427,23 @@ const AdminOrders: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {order.orderDate.toLocaleDateString()}
+                      <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {new Date(order.created_at).toLocaleTimeString()}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900">
-                      <Eye className="h-4 w-4" title="View Order" />
+                    <Link to={`/admin/orders/${order.id}`} className="text-blue-600 hover:text-blue-900" title="View Order">
+                      <Eye className="h-5 w-5" />
+                    </Link>
+                    {/* Add other actions like Print, Email here if needed, ensure they don't conflict with row click or use stopPropagation */}
+                    <button className="text-green-600 hover:text-green-900 ml-2" title="Print Invoice" onClick={(e) => {e.stopPropagation(); alert('Print invoice for ' + order.id)}}>
+                      <Printer className="h-5 w-5" />
                     </button>
-                    <button className="text-green-600 hover:text-green-900 ml-2">
-                      <Printer className="h-4 w-4" title="Print Invoice" />
-                    </button>
-                    <button className="text-purple-600 hover:text-purple-900 ml-2">
-                      <Mail className="h-4 w-4" title="Email Customer" />
+                    <button className="text-purple-600 hover:text-purple-900 ml-2" title="Email Customer" onClick={(e) => {e.stopPropagation(); alert('Email customer for ' + order.id)}}>
+                      <Mail className="h-5 w-5" />
                     </button>
                   </td>
                 </tr>
@@ -440,68 +453,23 @@ const AdminOrders: React.FC = () => {
         </div>
       </div>
       
-      {/* Order Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Products */}
+      {/* Order Analytics - Mocked data, should be replaced with real data aggregation if needed */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Top Selling Products</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Top Selling Products (Sample)</h2>
             <BarChart2Icon className="h-5 w-5 text-gray-400" />
           </div>
-          <div className="space-y-3">
-            {[
-              { name: 'iPhone 15 Pro', quantity: 156, revenue: 62322.000 },
-              { name: 'MacBook Pro M3', quantity: 89, revenue: 57841.100 },
-              { name: 'AirPods Pro', quantity: 234, revenue: 21037.600 },
-              { name: 'Samsung Galaxy S24', quantity: 78, revenue: 35880.200 },
-              { name: 'iPad Air', quantity: 65, revenue: 14943.500 }
-            ].map((product, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="flex flex-col items-end">
-                    <span className="font-semibold text-gray-900">{formatKWDEnglish(product.revenue)}</span>
-                    <span className="text-xs text-gray-500">{formatKWDArabic(product.revenue)}</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{product.name}</p>
-                    <p className="text-sm text-gray-600">{product.quantity} units sold</p>
-                  </div>
-                </div>
-                <span className="font-semibold text-gray-900">
-                  {formatKWD(product.revenue)}
-                </span>
-              </div>
-            ))}
-          </div>
+          {/* This section would require aggregation from order_items across all orders */}
+          <div className="text-center text-gray-500 py-8">Analytics chart coming soon...</div>
         </div>
         
-        {/* Order Value Trends */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Order Value Trends</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Order Value Trends (Sample)</h2>
             <DollarSign className="h-5 w-5 text-gray-400" /> 
           </div>
-          <div className="h-64 flex items-center justify-center">
-            <div className="text-center">
-              <BarChart2Icon className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">Order value trend chart would appear here</p>
-              <p className="text-xs text-gray-400 mt-1">Using Recharts library in the actual implementation</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Avg. Order</p>
-              <p className="text-xl font-bold text-gray-900">{formatKWD(308.250)}</p>
-            </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Highest</p>
-              <p className="text-xl font-bold text-gray-900">{formatKWD(1250.750)}</p>
-            </div>
-            <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Lowest</p>
-              <p className="text-xl font-bold text-gray-900">{formatKWD(89.900)}</p>
-            </div>
-          </div>
+           <div className="text-center text-gray-500 py-8">Analytics chart coming soon...</div>
         </div>
       </div>
       
@@ -512,67 +480,27 @@ const AdminOrders: React.FC = () => {
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="text-xl font-bold text-gray-900">Export Orders</h2>
               <button onClick={() => setShowExportModal(false)} className="p-2 text-gray-400 hover:text-gray-600">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <XCircle className="h-6 w-6" />
               </button>
             </div>
-            
             <div className="p-6">
-              <div className="mb-6">
-                <p className="text-gray-600 mb-4">
-                  Select the format for exporting order data:
-                </p>
-              </div>
-              
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <div className="flex items-center">
-                    <FileText className="h-5 w-5 text-green-600 mr-3" />
-                    <span className="font-medium text-gray-900">Export as CSV</span>
-                  </div>
-                  <button
-                    onClick={() => handleExport('csv')}
-                    className="px-3 py-1 bg-green-100 text-green-800 rounded-lg text-sm"
-                  >
-                    Download
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <div className="flex items-center">
-                    <FileText className="h-5 w-5 text-blue-600 mr-3" />
-                    <span className="font-medium text-gray-900">Export as Excel</span>
-                  </div>
-                  <button
-                    onClick={() => handleExport('excel')}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-sm"
-                  >
-                    Download
-                  </button>
-                </div>
-                
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                  <div className="flex items-center">
-                    <FileText className="h-5 w-5 text-red-600 mr-3" />
-                    <span className="font-medium text-gray-900">Export as PDF</span>
-                  </div>
-                  <button
-                    onClick={() => handleExport('pdf')}
-                    className="px-3 py-1 bg-red-100 text-red-800 rounded-lg text-sm"
-                  >
-                    Download
-                  </button>
-                </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setShowExportModal(false)}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
+              <p className="text-gray-600 mb-4">Select format for exporting {filteredOrders.length} orders:</p>
+              <div className="space-y-3">
+                <button onClick={() => handleExport('csv')} className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                  <span><FileText className="h-5 w-5 text-green-600 mr-2 inline"/>Export as CSV</span>
+                  <Download className="h-5 w-5 text-gray-400"/>
                 </button>
+                <button onClick={() => handleExport('excel')} className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                  <span><FileText className="h-5 w-5 text-blue-600 mr-2 inline"/>Export as Excel</span>
+                  <Download className="h-5 w-5 text-gray-400"/>
+                </button>
+                <button onClick={() => handleExport('pdf')} className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                  <span><FileText className="h-5 w-5 text-red-600 mr-2 inline"/>Export as PDF</span>
+                  <Download className="h-5 w-5 text-gray-400"/>
+                </button>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <button onClick={() => setShowExportModal(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-100">Cancel</button>
               </div>
             </div>
           </div>

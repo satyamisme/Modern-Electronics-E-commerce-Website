@@ -65,20 +65,14 @@ const ProductsPage: React.FC = () => {
     currentFilters.limit = PRODUCTS_PER_PAGE;
 
     try {
-      // Assuming ProductService.getProducts can return total count or we need another method
-      // For now, we'll pass the current filters from appState
-      const productsData = await ProductService.getProducts(currentFilters);
-      // This needs to be improved: getProducts should ideally return total count.
-      // Mocking a total count for demonstration if not returned by service.
-      const totalCount = productsData.length === PRODUCTS_PER_PAGE ? productsData.length * 5 : productsData.length;
-
+      const { products: fetchedProducts, total: totalCount } = await ProductService.getProducts(currentFilters);
 
       dispatch({
         type: 'SET_SEARCH_RESULTS',
-        payload: { products: productsData, total: totalCount, page: appState.searchState.currentPage, limit: PRODUCTS_PER_PAGE },
+        payload: { products: fetchedProducts, total: totalCount, page: appState.searchState.currentPage, limit: PRODUCTS_PER_PAGE },
       });
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('ProductsPage: Error fetching products:', error);
       setPageError('Failed to load products. Please try again.');
     } finally {
       setPageLoading(false);

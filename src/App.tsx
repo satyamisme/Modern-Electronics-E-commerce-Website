@@ -58,6 +58,11 @@ function App() {
                           <AdminOrders />
                         </ProtectedRoute>
                       } />
+                      <Route path="orders/:orderId" element={
+                        <ProtectedRoute requiredPermission="orders.read">
+                          <AdminOrderDetailsPage />
+                        </ProtectedRoute>
+                      } />
                       <Route path="analytics" element={
                         <ProtectedRoute requiredPermission="analytics.read">
                           <AdminAnalytics />
@@ -87,10 +92,12 @@ function App() {
                   </AdminLayout>
                 </ProtectedRoute>
               } />
-              
+import KnetCallbackPage from './pages/KnetCallbackPage'; // Added KNET Callback Page
+
               {/* Payment Routes */}
               <Route path="/payment/success" element={<PaymentSuccessPage />} />
               <Route path="/payment/error" element={<PaymentErrorPage />} />
+              <Route path="/payment/knet/callback" element={<KnetCallbackPage />} /> {/* KNET Callback Route */}
               
               {/* Public Routes */}
               <Route path="/*" element={

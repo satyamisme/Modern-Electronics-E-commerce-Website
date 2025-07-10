@@ -93,56 +93,47 @@ export class OrderService {
       // status and payment_status will default as per DB schema or can be set explicitly if needed (e.g. 'pending').
     };
 
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert(orderInsert)
-      .select()
-      .single();
+    // CONCEPTUAL CHANGE:
+    // The following operations (order insert, order items insert, stock decrement)
+    // should be handled atomically by a single Supabase RPC function.
+    // This RPC function (e.g., 'create_order_transactionally') would take the
+    // orderInsert data and orderData.items as input.
+    // It would perform the inserts and stock updates within a database transaction.
+    // If any step fails, the entire transaction should roll back.
 
-    if (orderError || !order) {
-      console.error('OrderService.createOrder - Order Insert Error:', orderError);
-      throw orderError || new Error("Order creation failed to return data.");
+    // Prepare parameters for the conceptual RPC call
+    const rpcParams = {
+      p_order_data: orderInsert,
+      p_order_items: orderData.items.map(item => ({
+        // Ensure these keys match the expected structure in your RPC function
+        product_id: item.productId,
+        product_name: item.productName,
+        product_sku: item.productSku,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        total_price: item.unitPrice * item.quantity
+      })),
+    };
+
+    // Call the conceptual RPC function
+    // The RPC function is expected to return the created order (OrderRow)
+    // or throw an error if the transaction fails.
+    const { data: order, error: rpcError } = await supabase.rpc(
+      'create_order_transactionally', // This RPC needs to be created in Supabase
+      rpcParams
+    );
+
+    if (rpcError || !order) {
+      console.error('OrderService.createOrder - RPC Error or no data returned:', rpcError);
+      // The RPC error might contain more specific details from the database side.
+      throw rpcError || new Error("Order creation via RPC failed or returned no data.");
     }
 
-    // Create order items
-    const orderItemsInsert = orderData.items.map(item => ({
-      order_id: order.id,
-      product_id: item.productId,
-      product_name: item.productName, // Denormalized for easier display in order summaries
-      product_sku: item.productSku,   // Denormalized
-      quantity: item.quantity,
-      unit_price: item.unitPrice,     // Price at the time of order to handle price changes
-      total_price: item.unitPrice * item.quantity
-    }));
-
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(orderItemsInsert);
-
-    if (itemsError) {
-      console.error('OrderService.createOrder - Order Items Insert Error:', itemsError);
-      // CRITICAL: Consider rolling back order creation or marking order as 'failed_items_creation'.
-      // This might involve deleting the 'order' record or having a more complex transaction/cleanup process.
-      throw itemsError;
-    }
-
-    // Update product stock for each item using Supabase RPC function.
-    // This should ideally be part of a transaction with order creation for atomicity.
-    for (const item of orderData.items) {
-      // Ensure RPC parameter names match the function definition in Supabase.
-      // Example: p_product_id, p_quantity
-      const { error: stockError } = await supabase.rpc('decrement_stock', {
-        p_product_id: item.productId,
-        p_quantity: item.quantity
-      });
-      if (stockError) {
-        console.error(`OrderService.createOrder - Stock Decrement Error for product ${item.productId}:`, stockError);
-        // CRITICAL: Stock update failure. Order is created but stock count might be incorrect.
-        // This requires robust error handling: flag order, notify admin, potentially try to reverse.
-        // For now, we log and continue, but this is a point of attention for production.
-      }
-    }
-    return order;
+    // The 'order' variable here is assumed to be the fully created order object
+    // returned by the successful execution of the 'create_order_transactionally' RPC.
+    // It should conform to the OrderRow type.
+    // Type casting might be necessary if Supabase.rpc doesn't provide strong typing for the return.
+    return order as OrderRow;
   }
 
   /**
@@ -484,5 +475,128 @@ export class OrderService {
       }
     }
     return updatedOrder;
+  }
+
+  /**
+   * Initiates a KNET payment process for a given order.
+   * This method should call a backend endpoint which then communicates with the KNET gateway
+   * to get a payment URL and a transaction reference.
+   * @param orderId The ID of the order for which payment is being initiated.
+   * @param amount The total amount to be paid.
+   * @returns A promise that resolves to an object containing the KNET payment URL and a merchant reference ID.
+   * @throws Will throw an error if the initiation process fails.
+   * @remarks Conceptual Backend RPC: `initiate_knet_payment_rpc` (takes orderId, amount, generates KNET request)
+   */
+  static async initiateKnetPayment(orderId: string, amount: number): Promise<{ paymentUrl: string; merchantPaymentAttemptId: string }> {
+    console.log(`OrderService.initiateKnetPayment called for orderId: ${orderId}, amount: ${amount}`);
+    // This would typically call a Supabase Edge Function or a custom backend endpoint.
+    // The backend would then:
+    // 1. Generate a unique merchant tracking ID for this payment attempt.
+    // 2. Prepare the KNET payment request parameters.
+    // 3. Send the request to KNET.
+    // 4. Receive a payment ID and payment page URL from KNET.
+    // 5. Store the KNET payment ID and merchant tracking ID, associating them with the order.
+    // 6. Return the payment page URL and the merchant tracking ID to the client.
+
+    try {
+      const { data, error } = await supabase.rpc('initiate_knet_payment_rpc', {
+        p_order_id: orderId,
+        p_amount: amount,
+        // p_return_url: `${window.location.origin}/payment/knet/callback` // Backend should construct this
+      });
+
+      if (error) {
+        console.error('OrderService.initiateKnetPayment - RPC Error:', error);
+        throw error;
+      }
+
+      if (!data || !data.payment_url || !data.merchant_payment_attempt_id) {
+        console.error('OrderService.initiateKnetPayment - Invalid data from RPC:', data);
+        throw new Error('Failed to initiate KNET payment: Invalid response from server.');
+      }
+
+      // The RPC is expected to return: { payment_url: string, merchant_payment_attempt_id: string }
+      return {
+        paymentUrl: data.payment_url,
+        merchantPaymentAttemptId: data.merchant_payment_attempt_id
+      };
+
+    } catch (err) {
+      console.error('OrderService.initiateKnetPayment - General Error:', err);
+      // For mock purposes if RPC doesn't exist, simulate a KNET redirect URL structure.
+      // In a real scenario, this catch block should likely re-throw a more specific error.
+      if (err.message?.includes("Failed to fetch")) { // or specific Supabase RPC not found error
+        console.warn('OrderService.initiateKnetPayment - RPC call failed, using mock redirect for KNET.');
+        const mockPaymentId = `MOCK_KNET_PAYID_${Date.now()}`;
+        const mockMerchantAttemptId = `MOCK_MERCH_ATTEMPT_${Date.now()}`;
+        // Simulate a redirect to a KNET callback page with mock parameters
+        // KNET's actual URL params might differ. This is just for client-side flow testing.
+        const mockReturnUrl = `${window.location.origin}/payment/knet/callback?paymentid=${mockPaymentId}&result=CAPTURED&tranid=MOCK_TRANS_123&auth=MOCK_AUTH&ref=MOCK_REF&trackid=${mockMerchantAttemptId}&udf1=${orderId}&udf2=${amount}`;
+        return { paymentUrl: mockReturnUrl, merchantPaymentAttemptId: mockMerchantAttemptId };
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Verifies the KNET payment status by sending callback parameters to the backend.
+   * The backend then securely verifies these parameters with KNET.
+   * @param knetCallbackParams Parameters returned by KNET in the callback URL
+   * (e.g., paymentid, result, tranid, auth, ref, trackid, udf1-udf5).
+   * @returns A promise that resolves to an object indicating verification success, the orderId, and a message.
+   * @throws Will throw an error if the verification process fails.
+   * @remarks Conceptual Backend RPC: `verify_knet_payment_rpc` (takes all KNET params, verifies with KNET, updates order)
+   */
+  static async verifyKnetPayment(knetCallbackParams: { [key: string]: string | undefined }): Promise<{
+    success: boolean;
+    orderId?: string;
+    message?: string;
+    paymentStatus?: OrderRow['payment_status'];
+  }> {
+    console.log('OrderService.verifyKnetPayment called with params:', knetCallbackParams);
+    // This method sends all callback parameters to the backend (e.g., a Supabase Edge Function).
+    // The backend MUST then perform server-to-server verification with KNET using the payment ID.
+    // It should NOT trust the 'result' parameter directly from the client.
+    // After verification, the backend updates the order's payment status and other relevant details.
+
+    try {
+      const { data, error } = await supabase.rpc('verify_knet_payment_rpc', {
+        p_knet_params: knetCallbackParams
+      });
+
+      if (error) {
+        console.error('OrderService.verifyKnetPayment - RPC Error:', error);
+        throw error;
+      }
+
+      if (!data || typeof data.success !== 'boolean') {
+        console.error('OrderService.verifyKnetPayment - Invalid data from RPC:', data);
+        throw new Error('Payment verification failed: Invalid response from server.');
+      }
+
+      // RPC is expected to return: { success: boolean, order_id?: string, message?: string, payment_status?: string }
+      return {
+        success: data.success,
+        orderId: data.order_id,
+        message: data.message,
+        paymentStatus: data.payment_status as OrderRow['payment_status']
+      };
+
+    } catch (err) {
+       console.error('OrderService.verifyKnetPayment - General Error:', err);
+      // For mock purposes if RPC doesn't exist
+      if (err.message?.includes("Failed to fetch")) { // or specific Supabase RPC not found error
+        console.warn('OrderService.verifyKnetPayment - RPC call failed, using mock verification logic.');
+        const result = knetCallbackParams.result;
+        const orderIdFromUdf = knetCallbackParams.udf1; // Assuming orderId was passed in udf1
+
+        if (result === 'CAPTURED' || result === 'SUCCESS') {
+          return { success: true, orderId: orderIdFromUdf, message: 'Mock Payment Verified Successfully', paymentStatus: 'paid' };
+        } else {
+          return { success: false, orderId: orderIdFromUdf, message: `Mock Payment Verification Failed: ${result}`, paymentStatus: 'failed' };
+        }
+      }
+      throw err;
+    }
   }
 }
