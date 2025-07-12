@@ -15,7 +15,6 @@ import {
   Save
 } from 'lucide-react';
 import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
-import { phoneModelService } from '../../services/phoneModelService';
 import { formatKWD } from '../../utils/currency';
 import OptimizedImage from '../ui/OptimizedImage';
 

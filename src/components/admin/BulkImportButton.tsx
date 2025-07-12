@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UploadCloud, Plus, Download, FileText, Link } from 'lucide-react';
+import { UploadCloud, Download, FileText, Link } from 'lucide-react';
 import PhoneImportModal from './PhoneImportModal';
 import { SmartprixPhone } from '../../services/smartprixService';
 

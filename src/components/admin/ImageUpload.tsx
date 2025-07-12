@@ -81,7 +81,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         imageUrl = await imgbbUploader.uploadImage(file);
       }
       onImagesChange([...images, imageUrl]);
-    } catch (error) {
+    } catch {
       // Fallback to base64 for demo
       const reader = new FileReader();
       reader.onload = (e) => {

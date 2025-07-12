@@ -57,7 +57,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_USER':
       return { ...state, user: action.payload };
-    case 'ADD_TO_CART':
+    case 'ADD_TO_CART': {
       const existingItem = state.cart.find(item => item.product.id === action.payload.product.id);
       if (existingItem) {
         return {
@@ -73,6 +73,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         cart: [...state.cart, { product: action.payload.product, quantity: action.payload.quantity }]
       };
+    }
     case 'REMOVE_FROM_CART':
       return {
         ...state,

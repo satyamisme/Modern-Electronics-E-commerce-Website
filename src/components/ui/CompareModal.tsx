@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Star, Check, Minus } from 'lucide-react';
+import { X, Star, Check } from 'lucide-react';
 import { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
@@ -35,11 +35,6 @@ const CompareModal: React.FC<CompareModalProps> = ({ isOpen, onClose }) => {
         ))}
       </div>
     );
-  };
-
-  const getComparisonValue = (products: Product[], key: keyof Product) => {
-    const values = products.map(p => p[key]);
-    return values;
   };
 
   return (
