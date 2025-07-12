@@ -5,8 +5,6 @@ import {
   Download, 
   TrendingUp, 
   TrendingDown,
-  Package,
-  ShoppingCart,
   Filter, 
   BarChart2, 
   PieChart,
@@ -15,8 +13,6 @@ import {
   ArrowUpRight,
   RefreshCw
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { formatKWD } from '../../utils/currency';
 
 // Search analytics types
 interface SearchQuery {
@@ -49,7 +45,6 @@ interface SearchAnalytics {
 }
 
 const AdminSearchAnalytics: React.FC = () => {
-  const { hasPermission } = useAuth();
   const [analytics, setAnalytics] = useState<SearchAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year'>('week');

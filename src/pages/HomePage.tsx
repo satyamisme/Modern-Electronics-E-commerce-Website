@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Truck, Shield, Headphones, CreditCard, Star, Phone, Zap, Award, CheckCircle, Clock, MapPin } from 'lucide-react';
+import { ArrowRight, Truck, Shield, Headphones, Star, Phone, Zap, Award, CheckCircle, Clock, MapPin } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard';
 // import { categories as mockCategories } from '../data/products'; // Remove direct import

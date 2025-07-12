@@ -3,10 +3,8 @@ import {
   Plus, 
   Search,
   UploadCloud,
-  Filter, 
   Edit, 
   Trash2, 
-  Eye, 
   Package,
   AlertCircle,
   CheckCircle
@@ -15,7 +13,7 @@ import { useAdmin } from '../../context/AdminContext';
 import ProductForm from '../../components/admin/ProductForm';
 import OptimizedImage from '../../components/ui/OptimizedImage';
 // import { products } from '../../data/products'; // Removed mock data import
-import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
+import { SmartprixPhone } from '../../services/smartprixService';
 import { ProductService } from '../../services/productService'; // Import ProductService
 import { Product } from '../../types';
 import { ProductFormData } from '../../types/admin';

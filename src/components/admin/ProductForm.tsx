@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, Save } from 'lucide-react';
 import { Product } from '../../types';
 import { ProductFormData } from '../../types/admin';
-import { imageOptimizer } from '../../utils/imageOptimization';
 import ImageUpload from './ImageUpload';
 
 interface ProductFormProps {

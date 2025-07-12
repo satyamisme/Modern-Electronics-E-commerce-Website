@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/supabase';
 import { SettingsService } from './settingsService';
+import { Address } from '../types'; // Import Address type
 
 // Define types for Order and OrderItem based on Supabase schema for clarity
 type OrderRow = Database['public']['Tables']['orders']['Row'];
@@ -25,8 +26,8 @@ export class OrderService {
       quantity: number;
       unitPrice: number;
     }>;
-    shippingAddress: any; // Consider defining a strong type for Address (e.g., from src/types)
-    billingAddress?: any;  // Same as above
+    shippingAddress: Address;
+    billingAddress?: Address;
     paymentMethod: string;
     customerNotes?: string;
     userId?: string; // Optional: if orders can be created for guests or associated later

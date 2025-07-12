@@ -4,8 +4,6 @@ import {
   ShoppingCart, 
   Users, 
   TrendingUp,
-  Calendar,
-  Download,
   BarChart2,
   Package,
   CheckCircle,
@@ -16,20 +14,16 @@ import {
   Activity,
   PieChart,
   LineChart as LineChartIcon,
-  ArrowUpRight,
   RefreshCw,
   Smartphone,
   Laptop,
   Tablet,
   Clock,
   Map,
-  CreditCard,
-  Search,
-  Filter
+  CreditCard
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 import { analyticsService, AnalyticsFilter, AnalyticsDashboard } from '../../services/analyticsService';
-import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
+import { formatKWDEnglish } from '../../utils/currency';
 import AnalyticsWidget from '../../components/admin/AnalyticsWidget';
 import ChartWidget from '../../components/admin/ChartWidget';
 import DataTable from '../../components/admin/DataTable';
@@ -52,11 +46,7 @@ const AdminAnalytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [filter]);
-
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     setLoading(true);
     try {
       const data = await analyticsService.getDashboardAnalytics(filter);
@@ -66,7 +56,11 @@ const AdminAnalytics: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
 
   const handleRefresh = () => {
     setRefreshing(true);

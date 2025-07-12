@@ -9,17 +9,14 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Search as SearchIcon,
-  Calendar,
   Download,
   BarChart2,
   PieChart,
-  TrendingDown,
   Loader2,
-  LineChart as LineChartIcon,
-  RefreshCw
+  LineChart as LineChartIcon
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
-import { formatKWDEnglish, formatKWD } from '../../utils/currency';
+import { formatKWDEnglish } from '../../utils/currency';
 import { analyticsService, AnalyticsDashboard, AnalyticsFilter, SalesData, ProductPerformance, UserMetrics } from '../../services/analyticsService'; // Removed unused CategoryData import
 import { Link } from 'react-router-dom';
 
@@ -291,18 +288,6 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]); // fetchDashboardData is memoized by useCallback
-
-  const handleRefresh = () => {
-    setRefreshing(true); // This will trigger the fetchDashboardData effect if it's in its deps.
-                         // Or call fetchDashboardData directly if preferred.
-    fetchDashboardData();
-  };
-
-  const handleDateFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setDateFilter({ dateRange: event.target.value as AnalyticsFilter['dateRange'] });
-    // fetchDashboardData will be called by useEffect due to dateFilter change
-  };
-
 
   // Construct dashboardStats once dashboardData is available
   const dashboardStats: StatCardProps[] = dashboardData ? [

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { Filter as FilterType } from '../../types';
 
 interface SearchFiltersProps {

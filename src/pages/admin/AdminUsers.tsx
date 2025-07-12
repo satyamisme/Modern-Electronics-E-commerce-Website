@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
-  Filter, 
   Users, 
   UserPlus, 
   Edit, 
@@ -17,10 +16,8 @@ import {
   Calendar,
   Lock as LockIcon,
   Unlock as UnlockIcon,
-  MoreHorizontal,
   RefreshCw
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 import { formatKWDEnglish, formatKWDArabic } from '../../utils/currency';
 
 // User types
@@ -57,7 +54,6 @@ interface User {
 }
 
 const AdminUsers: React.FC = () => {
-  const { hasPermission } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);

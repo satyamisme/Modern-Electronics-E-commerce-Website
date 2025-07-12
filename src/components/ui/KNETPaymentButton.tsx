@@ -8,7 +8,6 @@ interface KNETPaymentButtonProps {
   orderId: string;
   customerEmail?: string;
   customerPhone?: string;
-  onSuccess?: (transactionId: string) => void;
   onError?: (error: string) => void;
   disabled?: boolean;
   className?: string;
@@ -19,7 +18,6 @@ const KNETPaymentButton: React.FC<KNETPaymentButtonProps> = ({
   orderId,
   customerEmail,
   customerPhone,
-  onSuccess,
   onError,
   disabled = false,
   className = ''

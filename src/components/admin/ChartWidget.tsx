@@ -47,7 +47,7 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({
   tooltipFormatter,
   labelFormatter
 }) => {
-  const defaultTooltipFormatter = (value: any, name: string) => {
+  const defaultTooltipFormatter = (value: any) => {
     if (isCurrency) return formatKWDEnglish(value);
     return value;
   };

@@ -14,8 +14,7 @@ import {
   LogOut,
   GitCommit, 
   Smartphone,
-  BarChart,
-  FileText
+  BarChart
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 

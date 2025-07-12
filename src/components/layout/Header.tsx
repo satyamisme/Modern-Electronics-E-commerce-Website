@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Heart, User, Menu, X, Phone, MapPin, Clock, Mail } from 'lucide-react';
+import { Search, ShoppingCart, Heart, User, Menu, X, Phone, Clock, Mail } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import lakkiLogo from '/src/assets/logo.webp';
 import CompareModal from '../ui/CompareModal';
@@ -13,7 +13,7 @@ const Header: React.FC = () => {
   const [showCompare, setShowCompare] = useState(false);
   const [showWishlist, setShowWishlist] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
-  const { state, dispatch } = useApp();
+  const { state } = useApp();
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {

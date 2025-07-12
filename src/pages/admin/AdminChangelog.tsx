@@ -4,7 +4,6 @@ import {
   Calendar, 
   User, 
   Tag, 
-  Filter,
   Search,
   GitCommit,
   AlertTriangle,
@@ -14,13 +13,12 @@ import {
   Shield,
   Trash2
 } from 'lucide-react';
-import { ChangelogEntry, ChangeItem } from '../../types/changelog';
+import { ChangelogEntry } from '../../types/changelog';
 import { useAuth } from '../../context/AuthContext';
 
 const AdminChangelog: React.FC = () => {
   const { hasPermission } = useAuth();
   const [entries, setEntries] = useState<ChangelogEntry[]>([]);
-  const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
 
@@ -148,7 +146,7 @@ const AdminChangelog: React.FC = () => {
         </div>
         {hasPermission('settings.update') && (
           <button
-            onClick={() => setShowForm(true)}
+            // onClick={() => setShowForm(true)} // Form not yet implemented
             className="mt-4 sm:mt-0 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 flex items-center space-x-2"
           >
             <Plus className="h-5 w-5" />

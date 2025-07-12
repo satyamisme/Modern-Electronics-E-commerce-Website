@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
-  Filter,
   FileText,
   Smartphone, 
   Plus, 
-  Edit, 
-  Trash2, 
   Eye, 
-  Download,
   UploadCloud,
   RefreshCw,
   Link,
@@ -17,13 +13,11 @@ import {
 } from 'lucide-react';
 import { phoneModelService, PhoneModel } from '../../services/phoneModelService';
 import { smartprixService, SmartprixPhone } from '../../services/smartprixService';
-import { useAuth } from '../../context/AuthContext';
 import OptimizedImage from '../../components/ui/OptimizedImage';
 import { formatKWD } from '../../utils/currency';
 import PhoneImportModal from '../../components/admin/PhoneImportModal';
 
 const AdminModels: React.FC = () => {
-  const { hasPermission } = useAuth();
   const [phones, setPhones] = useState<PhoneModel[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
