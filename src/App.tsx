@@ -99,6 +99,8 @@ import KnetCallbackPage from './pages/KnetCallbackPage'; // Added KNET Callback 
               <Route path="/payment/error" element={<PaymentErrorPage />} />
               <Route path="/payment/knet/callback" element={<KnetCallbackPage />} /> {/* KNET Callback Route */}
               
+import CheckoutPage from './pages/CheckoutPage'; // Added Checkout Page
+
               {/* Public Routes */}
               <Route path="/*" element={
                 <div className="flex flex-col min-h-screen">
@@ -109,6 +111,7 @@ import KnetCallbackPage from './pages/KnetCallbackPage'; // Added KNET Callback 
                       <Route path="/products" element={<ProductsPage />} />
                       <Route path="/products/:id" element={<ProductDetailPage />} />
                       <Route path="/cart" element={<CartPage />} />
+                      <Route path="/checkout" element={<CheckoutPage />} />
                       <Route path="/categories" element={<CategoriesPage />} />
                       <Route path="/categories/:slug" element={<ProductsPage />} />
                       <Route path="/deals" element={<DealsPage />} />
