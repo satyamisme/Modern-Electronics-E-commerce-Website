@@ -242,14 +242,27 @@ chmod +x scripts/start_server.sh scripts/stop_server.sh
 - **Product Management**: CRUD operations with drag & drop image upload
 - **Order Management**: Real-time order tracking and status updates
 - **Inventory Management**: Low stock alerts and automated notifications
-- **Analytics Dashboard**: Sales metrics, top products, revenue tracking
-- **Changelog System**: Track all system updates and changes
+- **Analytics Dashboard**: Dynamic dashboard with widgets for sales overview, top products, user activity, and order status summaries, all powered by a (conceptual) analytics service.
+- **Changelog System**: View and manage a versioned changelog in the admin panel.
+- **Application Settings**: View and manage site-wide settings from the admin panel.
+- **User Management**: Admins can view, search, filter, and now **create and edit** users via a form modal.
 
 ### Security Features
-- **Authentication**: JWT-based session management with role validation
-- **Protected Routes**: Permission-based access control
-- **Secure File Upload**: Image validation and size limits
-- **Input Validation**: Comprehensive form validation and sanitization
+- **Authentication**: JWT-based session management with role validation via Supabase.
+- **Protected Routes**: Robust, permission-based access control for all admin panel sections.
+- **Secure File Upload**: Image validation and size limits.
+- **Input Validation**: Comprehensive form validation and sanitization.
+
+## 📈 Current Status (As of July 2024)
+
+The project has been significantly developed from a mock-up to a functional and stable **client-side application**. The frontend is now largely complete and is ready for the backend implementation.
+
+- ✅ **Client-Side Complete**: All major UI components and pages are built. All services are defined and integrated. All mock data has been removed in favor of service calls.
+- ✅ **Builds Successfully**: The project has a stable, successful build with no critical errors.
+- ✅ **Code Quality**: A major cleanup pass has been completed, resolving all build-blocking bugs, unused variables, and many other linting issues.
+- 🟡 **Backend Dependent**: The application is now waiting for a developer to implement the required Supabase database tables and RPC (Remote Procedure Call) functions that the client-side services are designed to call.
+
+In short, the frontend is feature-complete and robust, pending backend hookup.
 
 ## 🛠 Technology Stack
 
