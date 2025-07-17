@@ -77,7 +77,7 @@ function adminReducer(state: AdminState, action: AdminAction): AdminState {
         ...state,
         orders: state.orders.map(order =>
           order.id === action.payload.orderId
-            ? { ...order, status: action.payload.status as any }
+            ? { ...order, status: action.payload.status as OrderManagement['status'] }
             : order
         )
       };

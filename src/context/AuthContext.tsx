@@ -139,8 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
       // Profile will be set by the useEffect listening to supabaseUser changes
-    } catch (error: any) {
-      dispatch({ type: 'AUTH_ERROR', payload: error.message || 'Failed to login' });
+    } catch (error) {
+      dispatch({ type: 'AUTH_ERROR', payload: (error as Error).message || 'Failed to login' });
     }
   };
 
@@ -176,8 +176,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If email confirmation is required, user won't be set until confirmed.
       // You might want to dispatch a success message or redirect here.
 
-    } catch (error: any) {
-      dispatch({ type: 'AUTH_ERROR', payload: error.message || 'Failed to sign up' });
+    } catch (error) {
+      dispatch({ type: 'AUTH_ERROR', payload: (error as Error).message || 'Failed to sign up' });
     }
   };
 
@@ -188,8 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // onAuthStateChange in useSupabase will set user to null, then
       // useEffect here will dispatch SET_USER_PROFILE with null
       dispatch({ type: 'LOGOUT_SUCCESS' }); // Explicitly update state
-    } catch (error: any) {
-      dispatch({ type: 'AUTH_ERROR', payload: error.message || 'Failed to logout' });
+    } catch (error) {
+      dispatch({ type: 'AUTH_ERROR', payload: (error as Error).message || 'Failed to logout' });
     }
   };
 
