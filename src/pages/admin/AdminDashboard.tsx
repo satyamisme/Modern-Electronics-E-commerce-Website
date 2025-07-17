@@ -65,15 +65,15 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon: Icon, c
 
 
 // Simplified Widgets - these could be further enhanced with ChartWidget from AdminAnalytics
-const SearchAnalyticsWidget: React.FC<{topQueriesData: ProductPerformance[] | undefined}> = ({topQueriesData = []}) => { // Renamed prop
+const TopProductsWidget: React.FC<{topProductsData: ProductPerformance[] | undefined}> = ({topProductsData = []}) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-gray-900">Top Products (by Revenue/Units)</h2>
-        <SearchIcon className="h-5 w-5 text-gray-400" />
+        <BarChart2 className="h-5 w-5 text-gray-400" />
       </div>
       <div className="space-y-4">
-        {topQueriesData.slice(0,5).map((item, index) => (
+        {topProductsData.slice(0,5).map((item, index) => (
           <div key={item.id || index} className="flex items-center justify-between">
             <div className="flex items-center">
               <span className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">
@@ -152,16 +152,21 @@ const SalesOverviewWidget: React.FC<{salesTrendData: SalesData[] | undefined, sa
         <h2 className="text-lg font-semibold text-gray-900">Sales Overview</h2>
       </div>
       
-      <div className="h-64 flex items-center justify-center bg-gray-50 rounded-md">
+      <div className="h-64">
         {salesTrendData && salesTrendData.length > 0 ? (
-          <div className="text-sm text-gray-700 p-2">
-            <LineChartIcon className="h-10 w-10 mx-auto text-blue-500 mb-2" />
-            Sales Trend: {salesTrendData.length} data points.
-            Max Revenue: {formatKWDEnglish(Math.max(...salesTrendData.map(s=>s.revenue), 0))}
-            {/* Actual chart rendering with Recharts would go here */}
-          </div>
+          <ChartWidget
+            type="line"
+            data={salesTrendData}
+            dataKeys={['revenue']}
+            colors={['#1E40AF']}
+            xAxisKey="date"
+            isCurrency={true}
+            tooltipFormatter={(value) => formatKWDEnglish(value as number)}
+          />
         ) : (
-          <p className="text-gray-500">Sales chart data not available.</p>
+          <div className="flex items-center justify-center h-full text-gray-500">
+            Sales chart data not available.
+          </div>
         )}
       </div>
       
@@ -183,17 +188,21 @@ const SalesOverviewWidget: React.FC<{salesTrendData: SalesData[] | undefined, sa
   );
 };
 
-const OrderStatusWidget: React.FC<{ salesOverviewData: AnalyticsDashboard['salesOverview'] | undefined }> = ({ salesOverviewData }) => {
-  // This widget needs actual order counts by status.
-  // This is a simplified placeholder based on total orders.
-  const totalOrders = salesOverviewData?.totalOrders || 0;
-  const statuses = [ // Example distribution, should come from actual data
-    { name: 'Pending', count: Math.floor(totalOrders * 0.1), color: 'bg-yellow-500' },
-    { name: 'Processing', count: Math.floor(totalOrders * 0.15), color: 'bg-blue-500' },
-    { name: 'Shipped', count: Math.floor(totalOrders * 0.2), color: 'bg-purple-500' },
-    { name: 'Delivered', count: Math.floor(totalOrders * 0.5), color: 'bg-green-500' },
-    { name: 'Cancelled', count: Math.floor(totalOrders * 0.05), color: 'bg-red-500' }
-  ];
+const OrderStatusWidget: React.FC<{ orderStatusData: Record<string, number> | undefined }> = ({ orderStatusData = {} }) => {
+  const statusConfig: { [key: string]: { color: string } } = {
+    pending: { color: 'bg-yellow-500' },
+    processing: { color: 'bg-blue-500' },
+    shipped: { color: 'bg-purple-500' },
+    delivered: { color: 'bg-green-500' },
+    cancelled: { color: 'bg-red-500' },
+    unknown: { color: 'bg-gray-500' },
+  };
+
+  const statuses = Object.entries(orderStatusData).map(([name, count]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    count,
+    color: statusConfig[name]?.color || statusConfig.unknown.color,
+  }));
   
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -353,14 +362,14 @@ const AdminDashboard: React.FC = () => {
 
       {/* Main Dashboard Widgets */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <SalesOverviewWidget />
-        <SearchAnalyticsWidget />
-        <RecentUsersWidget />
+        <SalesOverviewWidget salesTrendData={dashboardData?.salesTrend} salesOverviewData={dashboardData?.salesOverview} />
+        <TopProductsWidget topProductsData={dashboardData?.topProducts} />
+        <RecentUsersWidget userMetricsData={dashboardData?.userMetrics} />
       </div>
 
       {/* Secondary Dashboard Widgets */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <OrderStatusWidget />
+        <OrderStatusWidget orderStatusData={dashboardData?.orderStatusCounts} />
         <QuickActionsWidget />
       </div>
 

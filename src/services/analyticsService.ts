@@ -67,6 +67,7 @@ export interface AnalyticsDashboard {
   userMetrics: UserMetrics;
   deviceDistribution: DeviceData[];
   salesByHour: SalesByHourData[];
+  orderStatusCounts: Record<string, number>;
 }
 
 /** Defines the filter options for fetching analytics data. */
@@ -281,6 +282,16 @@ export class AnalyticsService {
     } catch(salesHourError) {
         console.error("AnalyticsService.getDashboardAnalytics - Error fetching sales by hour via RPC:", salesHourError);
     }
+
+    // --- Order Status Counts ---
+    // This is derived from the same ordersData query.
+    // OPTIMIZATION: This could be a separate, more efficient RPC call for larger datasets.
+    const orderStatusCounts = ordersData?.reduce((acc, order) => {
+      const status = order.status || 'unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>) || {};
+
 
     return {
       salesOverview,
