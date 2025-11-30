@@ -17,7 +17,7 @@ export const formatKWD = (amount: number, locale: 'en' | 'ar' = 'en'): string =>
 };
 
 export const formatKWDEnglish = (amount: number): string => {
-  return new Intl.NumberFormat('ar-KW', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'KWD',
     minimumFractionDigits: 3,
@@ -42,7 +42,7 @@ export const formatKWDSimpleArabic = (amount: number): string => {
   return `د.ك ${amount.toFixed(3)}`;
 };
 
-export const convertUSDToKWD = (usdAmount: number): number => {
+export const convertToKWD = (usdAmount: number): number => {
   // Current exchange rate (should be fetched from API in production)
   const exchangeRate = 0.307; // 1 USD = 0.307 KWD (approximate)
   return usdAmount * exchangeRate;

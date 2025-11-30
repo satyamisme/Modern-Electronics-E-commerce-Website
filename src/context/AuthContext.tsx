@@ -181,7 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       await supabaseSignOut();
@@ -191,14 +191,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: (error as Error).message || 'Failed to logout' });
     }
-  };
+  }, [supabaseSignOut]);
+
+  // Effect for session timeout due to inactivity
+  useEffect(() => {
+    const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+    let inactivityTimer: NodeJS.Timeout;
+
+    const resetInactivityTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        if (state.isAuthenticated) {
+          console.log('User inactive for 30 minutes, logging out.');
+          logout();
+        }
+      }, INACTIVITY_TIMEOUT_MS);
+    };
+
+    const handleUserActivity = () => {
+      resetInactivityTimer();
+    };
+
+    if (state.isAuthenticated) {
+      window.addEventListener('mousemove', handleUserActivity);
+      window.addEventListener('keydown', handleUserActivity);
+      window.addEventListener('click', handleUserActivity);
+      resetInactivityTimer(); // Start the timer
+    }
+
+    return () => {
+      clearTimeout(inactivityTimer);
+      window.removeEventListener('mousemove', handleUserActivity);
+      window.removeEventListener('keydown', handleUserActivity);
+      window.removeEventListener('click', handleUserActivity);
+    };
+  }, [state.isAuthenticated, logout]);
 
   const hasPermission = useCallback((permission: Permission): boolean => {
     if (!state.user || !state.isAuthenticated) return false;
     if (state.user.role === 'super_admin') return true; // Super admin has all permissions
 
     // Check direct permissions if they are stored on the AuthUser object
-    if (state.user.permissions?.includes(permission)) {
+    if (state.user.permissions?.includes('*') || state.user.permissions?.includes(permission)) {
       return true;
     }
     // Check wildcard permissions like 'products.*'
