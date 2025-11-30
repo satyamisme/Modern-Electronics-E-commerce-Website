@@ -145,8 +145,9 @@ export class AuthService {
 
   // Update any user's profile (admin only)
   static async updateUserProfileById(userId: string, updates: ProfileUpdate): Promise<Profile | null> {
-    // Add permission check here if this is admin-only
-    // e.g., const isAdmin = await this.isAdmin(); if (!isAdmin) throw new Error('Permission denied');
+    if (!await this.hasPermission('users.update')) {
+      throw new Error('Permission denied: You do not have permission to update user profiles.');
+    }
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -206,7 +207,9 @@ export class AuthService {
       'products.*',
       'orders.*',
       'users.read',
+      'users.update',
       'users.update_role', // Admins can change roles
+      'users.delete',
       'settings.read',
       'settings.update',
       'analytics.read',
@@ -266,7 +269,9 @@ export class AuthService {
     sortBy?: string;
     ascending?: boolean;
   }): Promise<Profile[]> {
-    // Add permission check here: e.g. if (!await this.hasPermission('users.read')) throw new Error('Permission Denied');
+    if (!await this.hasPermission('users.read')) {
+      throw new Error('Permission denied: You do not have permission to view users.');
+    }
 
     let query = supabase.from('profiles').select('*');
 
@@ -299,7 +304,9 @@ export class AuthService {
 
   // Update user role (admin only)
   static async updateUserRole(userId: string, role: Profile['role']): Promise<Profile | null> {
-    // Add permission check here: e.g. if (!await this.hasPermission('users.update_role')) throw new Error('Permission Denied');
+    if (!await this.hasPermission('users.update_role')) {
+      throw new Error('Permission denied: You do not have permission to update user roles.');
+    }
     const { data, error } = await supabase
       .from('profiles')
       .update({ role })
@@ -316,7 +323,9 @@ export class AuthService {
 
   // Delete a user's profile (admin only, auth user must be deleted separately)
   static async deleteUserProfile(userId: string): Promise<void> {
-    // Add permission check here
+    if (!await this.hasPermission('users.delete')) {
+      throw new Error('Permission denied: You do not have permission to delete user profiles.');
+    }
     const { error } = await supabase
       .from('profiles')
       .delete()
