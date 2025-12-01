@@ -23,10 +23,10 @@ describe('Currency Utilities', () => {
       // These tests assume a common ICU version.
       // The exact space before/after KD might differ or be non-breaking.
       // For more robustness, one might check for presence of "KD", the number, and 3 decimal points separately.
-      expect(formatKWDEnglish(10.5)).toMatch(/KD\s*10\.500/); // Using regex to account for potential space variations
-      expect(formatKWDEnglish(12345.678)).toMatch(/KD\s*12,345\.678/);
-      expect(formatKWDEnglish(0.1)).toMatch(/KD\s*0\.100/);
-      expect(formatKWDEnglish(100)).toMatch(/KD\s*100\.000/);
+      expect(formatKWDEnglish(10.5)).toMatch(/KWD\s*10\.500/); // Using regex to account for potential space variations
+      expect(formatKWDEnglish(12345.678)).toMatch(/KWD\s*12,345\.678/);
+      expect(formatKWDEnglish(0.1)).toMatch(/KWD\s*0\.100/);
+      expect(formatKWDEnglish(100)).toMatch(/KWD\s*100\.000/);
     });
   });
 
@@ -41,21 +41,21 @@ describe('Currency Utilities', () => {
       const formatted = formatKWDArabic(10.5);
       expect(formatted).toContain(KWD_CURRENCY.symbolAr);
       expect(formatted).not.toContain(KWD_CURRENCY.symbolEn);
-      expect(formatted).toMatch(/\.٥٠٠/); // Check for ".500" with Arabic numeral ٥
+      expect(formatted).toMatch(/٫٥٠٠/); // Check for ".500" with Arabic numeral ٥
     });
   });
 
   describe('formatKWD', () => {
     it('should default to English formatting', () => {
-      expect(formatKWD(20.75)).toMatch(/KD\s*20\.750/);
+      expect(formatKWD(20.75)).toMatch(/KWD\s*20\.750/);
     });
     it('should use English formatting when specified', () => {
-      expect(formatKWD(20.75, 'en')).toMatch(/KD\s*20\.750/);
+      expect(formatKWD(20.75, 'en')).toMatch(/KWD\s*20\.750/);
     });
     it('should use Arabic formatting when specified', () => {
       const formatted = formatKWD(20.75, 'ar');
       expect(formatted).toContain(KWD_CURRENCY.symbolAr);
-      expect(formatted).toMatch(/\.٧٥٠/); // Check for ".750" with Arabic numerals
+      expect(formatted).toMatch(/٫٧٥٠/); // Check for ".750" with Arabic numerals
     });
   });
 

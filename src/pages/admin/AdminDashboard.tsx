@@ -1,452 +1,173 @@
-import React, { useEffect, useState, useCallback } from 'react'; // Added useState, useCallback
-import { 
-  Package, 
-  ShoppingCart, 
-  Users,
-  DollarSign, 
+import React from 'react';
+import {
+  Bell,
+  Building2,
+  CheckCheck,
+  ChevronDown,
+  CircleDollarSign,
+  ClipboardList,
+  CreditCard,
+  Home,
+  Menu,
+  Package,
+  Search,
+  Settings,
+  ShoppingCart,
   TrendingUp,
-  AlertTriangle,
-  ArrowUpRight,
-  ArrowDownRight,
-  Search as SearchIcon,
-  Download,
-  BarChart2,
-  PieChart,
-  Loader2,
-  LineChart as LineChartIcon
+  Users,
+  Wallet,
+  LogOut,
+  Signal,
+  Ticket
 } from 'lucide-react';
-import { useAdmin } from '../../context/AdminContext';
 import { formatKWDEnglish } from '../../utils/currency';
-import { analyticsService, AnalyticsDashboard, AnalyticsFilter, SalesData, ProductPerformance, UserMetrics } from '../../services/analyticsService'; // Removed unused CategoryData import
-import { Link } from 'react-router-dom';
-
-// Dashboard widget components
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  change?: { type: 'increase' | 'decrease'; value: string; period?: string };
-  icon: React.ElementType;
-  color: string;
-  isCurrency?: boolean;
-  isPercentage?: boolean;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon: Icon, color, isCurrency, isPercentage }) => (
-  <div className="bg-white rounded-lg shadow-md p-6">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">
-          {isCurrency ? formatKWDEnglish(Number(value)) : value}
-          {isPercentage ? '%' : ''}
-        </p>
-      </div>
-      <div className={`p-3 rounded-full ${color}`}>
-        <Icon className="h-6 w-6 text-white" />
-      </div>
-    </div>
-    {change && (
-      <div className="mt-4 flex items-center">
-        {change.type === 'increase' ? (
-          <ArrowUpRight className="h-4 w-4 text-green-500" />
-        ) : (
-          <ArrowDownRight className="h-4 w-4 text-red-500" />
-        )}
-        <span className={`text-sm font-medium ml-1 ${
-          change.type === 'increase' ? 'text-green-600' : 'text-red-600'
-        }`}>
-          {change.value}
-        </span>
-        {change.period && <span className="text-sm text-gray-500 ml-1">{change.period}</span>}
-      </div>
-    )}
-  </div>
-);
-
-
-// Simplified Widgets - these could be further enhanced with ChartWidget from AdminAnalytics
-const TopProductsWidget: React.FC<{topProductsData: ProductPerformance[] | undefined}> = ({topProductsData = []}) => {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Top Products (by Revenue/Units)</h2>
-        <BarChart2 className="h-5 w-5 text-gray-400" />
-      </div>
-      <div className="space-y-4">
-        {topProductsData.slice(0,5).map((item, index) => (
-          <div key={item.id || index} className="flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">
-                {index + 1}
-              </span>
-              <span className="text-gray-900 font-medium">{item.name}</span>
-            </div>
-            <div className="flex items-center">
-              <span className="text-gray-900 font-medium mr-3">{formatKWDEnglish(item.revenue)} ({item.units} units)</span>
-              {item.changePercentage !== undefined && item.trend && (
-                <span className={(item.trend === 'up' ? 'text-green-600' : item.trend === 'down' ? 'text-red-600' : 'text-gray-600')}>
-                  {item.trend === 'up' ? '+' : item.trend === 'down' ? '-' : ''}{item.changePercentage}%
-                </span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <Link to="/admin/search-analytics" className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
-          View all search analytics
-          <ArrowUpRight className="h-4 w-4 ml-1" />
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-const RecentUsersWidget: React.FC<{userMetricsData: UserMetrics | undefined}> = ({userMetricsData}) => { // Renamed prop
-  // This would ideally fetch a few recent user profiles from AuthService for a more dynamic list
-  const mockRecentUsers = [
-    { name: 'User Alpha (Mock)', email: 'alpha@example.com', status: 'active', joined: '1 hour ago' },
-    { name: 'User Beta (Mock)', email: 'beta@example.com', status: 'pending', joined: '3 hours ago' },
-  ];
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">User Activity Summary</h2>
-        <Users className="h-5 w-5 text-gray-400" />
-      </div>
-      <div className="space-y-2 mb-4">
-        <p>New Users: <span className="font-bold">{userMetricsData?.newUsers || 0}</span></p>
-        <p>Active Users: <span className="font-bold">{userMetricsData?.activeUsers || 0}</span></p>
-        <p>Returning Users: <span className="font-bold">{userMetricsData?.returningUsers || 0}</span></p>
-      </div>
-      <div className="space-y-3">
-        <h4 className="text-sm font-medium text-gray-700">Recent Signups (Mock):</h4>
-        {mockRecentUsers.map((user, index) => (
-          <div key={index} className="flex items-center justify-between text-xs">
-            <div>
-              <p className="font-medium text-gray-900">{user.name}</p>
-              <p className="text-gray-500">{user.email}</p>
-            </div>
-            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-              }`}>
-                {user.status}
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-6 pt-4 border-t border-gray-200">
-         <Link to="/admin/users" className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
-          View all users
-          <ArrowUpRight className="h-4 w-4 ml-1" />
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-const SalesOverviewWidget: React.FC<{salesTrendData: SalesData[] | undefined, salesOverviewData: AnalyticsDashboard['salesOverview'] | undefined}> = ({salesTrendData, salesOverviewData}) => {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Sales Overview</h2>
-      </div>
-      
-      <div className="h-64">
-        {salesTrendData && salesTrendData.length > 0 ? (
-          <ChartWidget
-            type="line"
-            data={salesTrendData}
-            dataKeys={['revenue']}
-            colors={['#1E40AF']}
-            xAxisKey="date"
-            isCurrency={true}
-            tooltipFormatter={(value) => formatKWDEnglish(value as number)}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            Sales chart data not available.
-          </div>
-        )}
-      </div>
-      
-      <div className="grid grid-cols-3 gap-4 mt-6">
-        <div className="text-center p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-gray-600">Total Sales</p>
-          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(salesOverviewData?.totalRevenue || 0)}</p>
-        </div>
-        <div className="text-center p-3 bg-green-50 rounded-lg">
-          <p className="text-sm text-gray-600">Conversion</p>
-          <p className="text-xl font-bold text-gray-900">{salesOverviewData?.conversionRate?.toFixed(1) || 0}%</p>
-        </div>
-        <div className="text-center p-3 bg-purple-50 rounded-lg">
-          <p className="text-sm text-gray-600">Avg. Order</p>
-          <p className="text-xl font-bold text-gray-900">{formatKWDEnglish(salesOverviewData?.averageOrderValue || 0)}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const OrderStatusWidget: React.FC<{ orderStatusData: Record<string, number> | undefined }> = ({ orderStatusData = {} }) => {
-  const statusConfig: { [key: string]: { color: string } } = {
-    pending: { color: 'bg-yellow-500' },
-    processing: { color: 'bg-blue-500' },
-    shipped: { color: 'bg-purple-500' },
-    delivered: { color: 'bg-green-500' },
-    cancelled: { color: 'bg-red-500' },
-    unknown: { color: 'bg-gray-500' },
-  };
-
-  const statuses = Object.entries(orderStatusData).map(([name, count]) => ({
-    name: name.charAt(0).toUpperCase() + name.slice(1),
-    count,
-    color: statusConfig[name]?.color || statusConfig.unknown.color,
-  }));
-  
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Order Status Summary</h2>
-        <PieChart className="h-5 w-5 text-gray-400" />
-      </div>
-      
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {statuses.map((status) => (
-          <div key={status.name} className="text-center">
-            <div className={`w-12 h-12 ${status.color} rounded-full flex items-center justify-center text-white font-bold mx-auto mb-2`}>
-              {status.count}
-            </div>
-            <p className="text-sm text-gray-600">{status.name}</p>
-          </div>
-        ))}
-      </div>
-      
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <Link to="/admin/orders" className="text-primary hover:text-primary/80 text-sm font-medium flex items-center">
-          View all orders
-          <ArrowUpRight className="h-4 w-4 ml-1" />
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-const QuickActionsWidget: React.FC = () => {
-  const actions = [
-    { name: 'Add Product', icon: Package, color: 'bg-blue-500', link: '/admin/products' },
-    { name: 'View Orders', icon: ShoppingCart, color: 'bg-green-500', link: '/admin/orders' },
-    { name: 'Manage Users', icon: Users, color: 'bg-purple-500', link: '/admin/users' },
-    { name: 'Full Analytics', icon: BarChart2, color: 'bg-amber-500', link: '/admin/analytics' }
-  ];
-  
-  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {actions.map((action) => (
-          <Link
-            key={action.name}
-            to={action.link}
-            className="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <div className={`p-3 ${action.color} rounded-full text-white mb-3`}>
-              <action.icon className="h-6 w-6" />
-            </div>
-            <span className="text-sm font-medium text-gray-900 text-center">{action.name}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 const AdminDashboard: React.FC = () => {
-  const { state: adminState, dispatch: adminDispatch } = useAdmin();
-  const [dashboardData, setDashboardData] = useState<AnalyticsDashboard | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [dateFilter, setDateFilter] = useState<AnalyticsFilter>({ dateRange: 'week' }); // Default to 'week'
-  const [refreshing, setRefreshing] = useState(false);
+  // Placeholder data for the widgets
+  const revenueData = {
+    today: 2450,
+    monthlyTarget: 85000,
+    progress: 65,
+    vsPreviousMonth: 12.5,
+  };
 
-  // Callback to fetch dashboard data
-  const fetchDashboardData = useCallback(async () => {
-    if (!refreshing) setLoading(true); // Show main loader only on initial load or filter change, not manual refresh
-    try {
-      const data = await analyticsService.getDashboardAnalytics(dateFilter);
-      setDashboardData(data);
-      // Update AdminContext's analytics part if still needed by some components, though ideally props are passed.
-      if (data.salesOverview) {
-        adminDispatch({ type: 'SET_ANALYTICS', payload: {
-            totalRevenue: data.salesOverview.totalRevenue,
-            totalOrders: data.salesOverview.totalOrders,
-            averageOrderValue: data.salesOverview.averageOrderValue,
-            // Ensure SalesAnalytics type in AdminContext matches or is compatible
-        } });
-      }
-      // Note: adminState.products for "Total Products" card is populated by AdminContext's own useEffect.
-      // Inventory alerts would need a separate fetching mechanism if they are to be dynamic.
-    } catch (error) {
-      console.error("AdminDashboard: Error fetching dashboard analytics:", error);
-      // Optionally set an error state to display to the user
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [dateFilter, adminDispatch, refreshing]); // Added refreshing to dependencies
+  const orderData = {
+    newOrders: 15,
+    processing: 8,
+    shippedToday: 22,
+  };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]); // fetchDashboardData is memoized by useCallback
+  const inventoryData = {
+    lowStock: 8,
+    outOfStock: 3,
+    overstock: 2,
+  };
 
-  // Construct dashboardStats once dashboardData is available
-  const dashboardStats: StatCardProps[] = dashboardData ? [
-    { 
-      title: 'Total Revenue', 
-      value: dashboardData.salesOverview.totalRevenue,
-      change: {
-        type: (dashboardData.salesOverview.revenueChange ?? 0) >= 0 ? 'increase' : 'decrease',
-        value: `${dashboardData.salesOverview.revenueChange?.toFixed(1) || 0}%`
-      },
-      icon: DollarSign,
-      color: 'bg-blue-600',
-      isCurrency: true,
-    },
-    { 
-      title: 'Total Orders', 
-      value: dashboardData.salesOverview.totalOrders,
-      change: {
-        type: (dashboardData.salesOverview.ordersChange ?? 0) >= 0 ? 'increase' : 'decrease',
-        value: `${dashboardData.salesOverview.ordersChange?.toFixed(1) || 0}%`
-      },
-      icon: ShoppingCart,
-      color: 'bg-green-600'
-    },
-    { 
-      title: 'Total Products', 
-      value: adminState.products.length, // Sourced from AdminContext, which should load products
-      icon: Package,
-      color: 'bg-purple-600'
-    },
-    { 
-      title: 'Avg. Order Value',
-      value: dashboardData.salesOverview.averageOrderValue,
-      icon: TrendingUp,
-      color: 'bg-amber-600',
-      isCurrency: true,
-    }
-  ] : [];
-
-  if (loading && !dashboardData && !refreshing) { // Show full page loader only on initial load
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-3 text-lg">Loading Dashboard...</p>
-      </div>
-    );
-  }
+  const customerData = {
+    newCustomers: 12,
+    supportTickets: 5,
+    satisfaction: 94.5,
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {dashboardStats.map((stat) => (
-          <StatCard 
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            change={stat.change}
-            icon={stat.icon}
-            color={stat.color}
-          />
-        ))}
-      </div>
-
-      {/* Main Dashboard Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <SalesOverviewWidget salesTrendData={dashboardData?.salesTrend} salesOverviewData={dashboardData?.salesOverview} />
-        <TopProductsWidget topProductsData={dashboardData?.topProducts} />
-        <RecentUsersWidget userMetricsData={dashboardData?.userMetrics} />
-      </div>
-
-      {/* Secondary Dashboard Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <OrderStatusWidget orderStatusData={dashboardData?.orderStatusCounts} />
-        <QuickActionsWidget />
-      </div>
-
-      {/* Inventory Alerts */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Inventory Alerts</h2>
-          <AlertTriangle className="h-5 w-5 text-orange-500" />
+    <div className="min-h-screen bg-gray-100">
+      {/* Top Action Bar */}
+      <header className="bg-white shadow-sm p-4 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <button className="text-gray-600">
+            <Menu className="h-6 w-6" />
+          </button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search products, orders, customers..."
+              className="w-96 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
         </div>
-        <div className="space-y-3">
-          {state.inventoryAlerts.map((alert) => (
-            <div key={alert.id} className={`p-3 rounded-lg border-l-4 ${
-              alert.severity === 'critical' 
-                ? 'bg-red-50 border-red-500' 
-                : 'bg-orange-50 border-orange-500'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-gray-900">{alert.productName}</p>
-                  <p className="text-sm text-gray-600">
-                    Only {alert.currentStock} left in stock
-                  </p>
-                </div>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  alert.severity === 'critical'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-orange-100 text-orange-800'
-                }`}>
-                  {alert.severity}
-                </span>
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2 text-sm">
+            <Signal className="h-5 w-5 text-green-500" />
+            <span className="text-gray-700">Live Status:</span>
+            <span className="font-semibold text-green-500">Online</span>
+          </div>
+          <button className="relative text-gray-600">
+            <Bell className="h-6 w-6" />
+            <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+          </button>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+            <div>
+              <p className="font-semibold text-sm">Admin User</p>
+              <p className="text-xs text-gray-500">Super Admin</p>
+            </div>
+            <button className="text-gray-600">
+              <ChevronDown className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Dashboard */}
+      <main className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Revenue Performance Widget */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Performance</h3>
+            <p className="text-3xl font-bold text-gray-900">{formatKWDEnglish(revenueData.today)}</p>
+            <p className="text-sm text-gray-500">Today's Revenue (Live)</p>
+            <div className="mt-4">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="bg-primary h-2.5 rounded-full" style={{ width: `${revenueData.progress}%` }}></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{revenueData.progress}% of {formatKWDEnglish(revenueData.monthlyTarget)} monthly target</p>
+            </div>
+            <p className="text-sm text-green-500 mt-2">+{revenueData.vsPreviousMonth}% vs Previous Month</p>
+            <button className="mt-4 text-primary font-semibold text-sm">View Detailed Reports</button>
+          </div>
+
+          {/* Order Management Widget */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Management</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700">New Orders</span>
+                <span className="font-bold text-lg">{orderData.newOrders}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700">Processing</span>
+                <span className="font-bold text-lg">{orderData.processing}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700">Shipped Today</span>
+                <span className="font-bold text-lg">{orderData.shippedToday}</span>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
-        <div className="space-y-3">
-          {[
-            { action: 'New order received', details: 'Order #1247 - KD 299.500', time: '2 minutes ago' },
-            { action: 'Product updated', details: 'iPhone 15 Pro - Price changed', time: '15 minutes ago' },
-            { action: 'Low stock alert', details: 'MacBook Pro M3 - 3 units left', time: '1 hour ago' },
-            { action: 'New customer registered', details: 'john.doe@email.com', time: '2 hours ago' },
-            { action: 'Search analytics updated', details: 'Top query: iPhone 15', time: '3 hours ago' },
-            { action: 'User data exported', details: 'CSV export by admin', time: '5 hours ago' }
-          ].map((activity, index) => (
-            <div key={index} className="flex items-center justify-between p-3 border-l-4 border-blue-500 bg-blue-50">
-              <div>
-                <p className="font-medium text-gray-900">{activity.action}</p>
-                <p className="text-sm text-gray-600">{activity.details}</p>
+            <button className="mt-6 text-primary font-semibold text-sm">Process Bulk Orders</button>
+          </div>
+
+          {/* Inventory Alerts Widget */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Inventory Alerts</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-yellow-600">
+                <span >Low Stock</span>
+                <span className="font-bold text-lg">{inventoryData.lowStock}</span>
               </div>
-              <span className="text-sm text-gray-500">{activity.time}</span>
+              <div className="flex justify-between items-center text-red-600">
+                <span>Out of Stock</span>
+                <span className="font-bold text-lg">{inventoryData.outOfStock}</span>
+              </div>
+              <div className="flex justify-between items-center text-blue-600">
+                <span>Overstock</span>
+                <span className="font-bold text-lg">{inventoryData.overstock}</span>
+              </div>
             </div>
-          ))}
+            <button className="mt-6 text-primary font-semibold text-sm">Manage Inventory</button>
+          </div>
+
+          {/* Customer Insights Widget */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Insights</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700">New Customers Today</span>
+                <span className="font-bold text-lg">{customerData.newCustomers}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700">Unanswered Support Tickets</span>
+                <span className="font-bold text-lg">{customerData.supportTickets}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700">Satisfaction</span>
+                <span className="font-bold text-lg">{customerData.satisfaction}%</span>
+              </div>
+            </div>
+            <button className="mt-6 text-primary font-semibold text-sm">View Customer Analytics</button>
+          </div>
         </div>
-      </div>
-      
-      {/* Export Options */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Export Dashboard Data</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center justify-center space-x-2 p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download className="h-5 w-5 text-gray-600" />
-            <span className="font-medium text-gray-900">Export as CSV</span>
-          </button>
-          <button className="flex items-center justify-center space-x-2 p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download className="h-5 w-5 text-gray-600" />
-            <span className="font-medium text-gray-900">Export as Excel</span>
-          </button>
-          <button className="flex items-center justify-center space-x-2 p-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download className="h-5 w-5 text-gray-600" />
-            <span className="font-medium text-gray-900">Export as PDF</span>
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };
